@@ -90,7 +90,9 @@ class App {
     }
 
     _appendControlNodes(container, controls) {
-        controls.forEach((element) => container.appendChild(element));
+        for (const element of controls) {
+            container.appendChild(element);
+        }
     }
 
     _initAppControls(container) {
@@ -220,9 +222,9 @@ class App {
             case 'set_macros':
                 try {
                     let macros = [];
-                    this.keyEntriesContainer.childNodes.forEach((key) => {
+                    for (const key of this.keyEntriesContainer.childNodes) {
                         macros.push(key.instance.getData());
-                    });
+                    }
 
                     await this.serialConnection.send({
                         command: 'set_macros',
@@ -307,16 +309,17 @@ class App {
             onStart: (event) => {},
             onEnd: (event) => {
                 // let macros = [];
-                // this.keyEntriesContainer.childNodes.forEach((key) => {
-                //     macros.push(key.instance.getData());
-                // });
+                // for (const key of this.keyEntriesContainer.childNodes) {
+                //     macros.push(key.instance.getData())
+                // }
                 // console.log(JSON.stringify(macros));
             },
         });
     }
 
     keyControlHandler(keyInstance, button) {
-        for (const key of this.keyEntriesContainer.childNodes) {
+        for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
+            console.log(i, key);
             if (key === keyInstance.DOM.container) {
                 console.log(key);
                 break;
@@ -327,9 +330,9 @@ class App {
     _initializeKeys() {
         const currentMacroStack = this.macroStack[this.macroStack.length - 1];
 
-        currentMacroStack.forEach((key) => {
+        for (const key of currentMacroStack) {
             this._appendKeysToContainer(key);
-        });
+        }
 
         this._updateKeyChunkPage();
     }
@@ -358,9 +361,9 @@ class App {
 
         currentMacroStack.push(...emptyKeys);
 
-        emptyKeys.forEach((key) => {
+        for (const key of emptyKeys) {
             this._appendKeysToContainer(key);
-        });
+        }
 
         this._updateKeyChunkPage();
     }
@@ -400,7 +403,9 @@ class App {
 
         const lastKeyChunk = keyChunks.slice(-this.keyChunkSize);
         if (lastKeyChunk.every((key) => key.instance.type === 'blank')) {
-            lastKeyChunk.forEach((key) => this.keyEntriesContainer.removeChild(key));
+            for (const key of lastKeyChunk) {
+                this.keyEntriesContainer.removeChild(key);
+            }
 
             const lastMacros = this.macroStack[this.macroStack.length - 1];
             this.macroStack[this.macroStack.length - 1] = lastMacros.slice(
