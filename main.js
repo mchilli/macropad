@@ -567,11 +567,11 @@ class App {
 
 // Initialize the App instance.
 const app = new App({
-    appControlsContainer: document.querySelector('.app-controls-container'),
-    deviceControlsContainer: document.querySelector('.device-controls-container'),
+    appControlsContainer: document.querySelector('.app-controls'),
+    deviceControlsContainer: document.querySelector('.device-controls'),
     chunkSize: 9,
-    keyEntriesContainer: document.querySelector('.key-entries-container'),
-    keyEntriesControlsContainer: document.querySelector('.key-entries-controls-container'),
+    keyEntriesContainer: document.querySelector('.key-entries'),
+    keyEntriesControlsContainer: document.querySelector('.key-entries-controls'),
 });
 
 window.app = app;

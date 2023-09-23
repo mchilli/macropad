@@ -11,7 +11,7 @@
     flex-direction: column;
     align-items: center;
 
-    .key-entries-container {
+    .key-entries {
         display: grid;
         grid-template-columns: min-content min-content min-content;
         gap: 5px;
@@ -42,9 +42,9 @@
         }
     }
 
-    .app-controls-container,
-    .device-controls-container,
-    .key-entries-controls-container {
+    .app-controls,
+    .device-controls,
+    .key-entries-controls {
         display: flex;
         gap: 5px;
         margin-bottom: 5px;
