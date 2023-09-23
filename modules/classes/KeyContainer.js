@@ -93,6 +93,13 @@ export default class KeyContainer {
         this.DOM.container.classList.remove('hidden');
     }
 
+    clear() {
+        this.setType();
+        this.setLabel();
+        this.setColor();
+        this.setContent();
+    }
+
     getData() {
         switch (this.type) {
             case 'blank':
@@ -128,7 +135,7 @@ export default class KeyContainer {
         this.DOM.label.innerHTML = this.label;
     }
 
-    setColor(color = [0, 0, 0]) {
+    setColor(color = [255, 255, 255]) {
         this.color = color;
         const [r, g, b] = this.color;
         utils.style(this.DOM.container, {
@@ -136,7 +143,7 @@ export default class KeyContainer {
         });
     }
 
-    setContent(content) {
+    setContent(content = []) {
         this.content = content;
     }
 }
