@@ -1,3 +1,7 @@
+body {
+  margin: 0;
+}
+
 .hidden {
   display: none !important;
 }
@@ -13,9 +17,11 @@
 }
 .main-container .key-entries {
   display: grid;
-  grid-template-columns: min-content min-content min-content;
-  gap: 5px;
-  margin-bottom: 5px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+  max-height: 308px;
+  overflow: hidden;
 }
 .main-container .key-entries .key-container {
   display: flex;
@@ -36,12 +42,16 @@
 .main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.macro .button.open {
   display: none;
 }
+.main-container .key-entries .key-container:nth-child(9n) {
+  margin-bottom: 20px;
+}
 .main-container .app-controls,
 .main-container .device-controls,
 .main-container .key-entries-controls {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 5px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
 }
 .main-container .app-controls .button,
 .main-container .app-controls .info,
@@ -52,13 +62,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50px;
+  width: 100px;
   height: 50px;
-  background-color: lightcoral;
   border: 1px solid grey;
+  box-sizing: border-box;
   align-self: flex-end;
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
   word-break: break-word;
+}
+.main-container .app-controls .button,
+.main-container .device-controls .button,
+.main-container .key-entries-controls .button {
+  background-color: cornflowerblue;
 }

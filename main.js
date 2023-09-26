@@ -306,6 +306,7 @@ class App {
                 },
                 events: {
                     click: () => this._keyChunkControlsHandler('next'),
+                    dragenter: () => this._keyChunkControlsHandler('nextdrag'),
                 },
             }),
             back: utils.create({
@@ -315,6 +316,7 @@ class App {
                 },
                 events: {
                     click: () => this._keyChunkControlsHandler('back'),
+                    dragenter: () => this._keyChunkControlsHandler('backdrag'),
                 },
             }),
             page: utils.create({
@@ -340,6 +342,7 @@ class App {
     _keyChunkControlsHandler(command) {
         switch (command) {
             case 'next':
+            case 'nextdrag':
                 this.keyChunkPage++;
                 if (
                     this.keyChunkPage >
@@ -350,7 +353,6 @@ class App {
                     this._updateKeyChunkPage();
                 }
                 break;
-
             case 'back':
                 if (this.keyChunkPage > 0) {
                     this.keyChunkPage--;
@@ -360,6 +362,12 @@ class App {
                     this.macroStack.pop();
                     this._clearAllKeyEntries();
                     this._initializeKeys();
+                }
+                break;
+            case 'backdrag':
+                if (this.keyChunkPage > 0) {
+                    this.keyChunkPage--;
+                    this._updateKeyChunkPage();
                 }
                 break;
 
@@ -379,6 +387,15 @@ class App {
             onStart: (event) => {},
             onEnd: (event) => {
                 this._reReadKeyEntries();
+
+                const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
+                const pagesToRemove = pageCount - this.keyChunkPage - 1;
+
+                for (let i = 0; i < pagesToRemove; i++) {
+                    this._removeLastEmptyKeyChunk();
+                }
+
+                this._updateKeyChunkPage();
             },
         });
     }
@@ -517,17 +534,12 @@ class App {
      * Updates the current key chunk page and visibility.
      */
     _updateKeyChunkPage() {
-        for (let i = 0; i < this.keyEntriesContainer.childNodes.length; i++) {
-            const key = this.keyEntriesContainer.childNodes[i];
-            if (
-                i < this.keyChunkSize * this.keyChunkPage ||
-                i >= this.keyChunkSize * (this.keyChunkPage + 1)
-            ) {
-                key.instance.hide();
-            } else {
-                key.instance.show();
-            }
-        }
+        const keyContainerOffset = this.keyEntriesContainer.offsetTop;
+        const firstChunkItemIndex = this.keyChunkPage * this.keyChunkSize + 1;
+        const firstChunkItemOffset =
+            this.keyEntriesContainer.childNodes[firstChunkItemIndex].offsetTop;
+
+        this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
 
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
         this.keyEntriesControls.page.innerHTML = `${this.keyChunkPage + 1} / ${pageCount}`;
