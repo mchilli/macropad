@@ -8,7 +8,11 @@ export default class KeyContainer {
         label = '',
         color = [255, 255, 255],
         content = [],
-        encoder = {},
+        encoder = {
+            switch: [],
+            increased: [],
+            decreased: [],
+        },
         onButtonPressed = () => {},
     } = {}) {
         this.type = type;
@@ -85,19 +89,12 @@ export default class KeyContainer {
         return DOM;
     }
 
-    hide() {
-        this.DOM.container.classList.add('hidden');
-    }
-
-    show() {
-        this.DOM.container.classList.remove('hidden');
-    }
-
     clear() {
         this.setType();
         this.setLabel();
         this.setColor();
         this.setContent();
+        this.setEncoder();
     }
 
     getData() {
@@ -145,5 +142,15 @@ export default class KeyContainer {
 
     setContent(content = []) {
         this.content = content;
+    }
+
+    setEncoder(
+        encoder = {
+            switch: [],
+            increased: [],
+            decreased: [],
+        }
+    ) {
+        this.encoder = encoder;
     }
 }
