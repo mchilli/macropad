@@ -12,14 +12,14 @@ class App {
      * @param {Object} options - Configuration options.
      * @param {Element} options.appControlsContainer - Container for application controls.
      * @param {Element} options.deviceControlsContainer - Container for device controls.
-     * @param {number} options.chunkSize - Size of macro chunks.
+     * @param {number} options.keyChunkSize - Size of key chunks.
      * @param {Element} options.keyEntriesContainer - Container for key entries.
      * @param {Element} options.keyEntriesControlsContainer - Container for key entry controls.
      */
     constructor({
         appControlsContainer = undefined,
         deviceControlsContainer = undefined,
-        chunkSize: chunkSize = 9,
+        keyChunkSize = 9,
         keyEntriesContainer = undefined,
         keyEntriesControlsContainer = undefined,
     } = {}) {
@@ -32,7 +32,7 @@ class App {
         this.deviceControlsContainer = deviceControlsContainer;
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
-        this.keyChunkSize = chunkSize;
+        this.keyChunkSize = keyChunkSize;
         this.keyChunkPage = 0;
 
         this.keyEntriesContainer = keyEntriesContainer;
@@ -581,7 +581,7 @@ class App {
 const app = new App({
     appControlsContainer: document.querySelector('.app-controls'),
     deviceControlsContainer: document.querySelector('.device-controls'),
-    chunkSize: 9,
+    keyChunkSize: 9,
     keyEntriesContainer: document.querySelector('.key-entries'),
     keyEntriesControlsContainer: document.querySelector('.key-entries-controls'),
 });
