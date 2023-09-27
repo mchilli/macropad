@@ -384,6 +384,8 @@ class App {
      */
     _initKeyChunkSortable(container) {
         return new Sortable(container, {
+            handle: '.key-handle',
+            animation: 150,
             onStart: (event) => {},
             onEnd: (event) => {
                 this._reReadKeyEntries();

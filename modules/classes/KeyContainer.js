@@ -41,6 +41,12 @@ export default class KeyContainer {
                 style: style,
             },
             children: [
+                utils.create({
+                    text: 'X',
+                    attributes: {
+                        class: 'key-handle button',
+                    },
+                }),
                 (DOM.label = utils.create({
                     text: this.type === 'blank' ? '' : this.label,
                     attributes: {
@@ -53,7 +59,7 @@ export default class KeyContainer {
                     },
                     children: [
                         (DOM.controls.edit = utils.create({
-                            text: 'edit',
+                            text: 'E',
                             attributes: {
                                 class: 'button',
                             },
@@ -62,7 +68,7 @@ export default class KeyContainer {
                             },
                         })),
                         (DOM.controls.open = utils.create({
-                            text: 'open',
+                            text: 'O',
                             attributes: {
                                 class: 'button open',
                             },
@@ -71,7 +77,7 @@ export default class KeyContainer {
                             },
                         })),
                         (DOM.controls.delete = utils.create({
-                            text: 'delete',
+                            text: 'D',
                             attributes: {
                                 class: 'button delete',
                             },

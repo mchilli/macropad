@@ -37,8 +37,21 @@ body {
             border: 1px solid grey;
             box-sizing: border-box;
 
+            .key-handle {
+                align-self: flex-end;
+                cursor: grab;
+            }
+
             .key-controls {
                 display: flex;
+                align-self: flex-end;
+            }
+
+            .button {
+                width: 20px;
+                height: 20px;
+                display: flex;
+                place-content: center;
             }
 
             &.blank .button.delete {
