@@ -135,7 +135,7 @@ export default class KeyContainer {
 
     setLabel(label = '') {
         this.label = label;
-        this.DOM.label.innerHTML = this.label;
+        this.DOM.label.innerText = this.label;
     }
 
     setColor(color = [255, 255, 255]) {

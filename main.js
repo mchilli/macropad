@@ -44,7 +44,6 @@ class App {
 
     /**
      * Initializes the serial connection if available.
-     * @private
      */
     async _initSerialConnection() {
         if ('serial' in navigator) {
@@ -64,7 +63,6 @@ class App {
     /**
      * Handles received data from the serial connection.
      * @param {Object} payload - The received payload.
-     * @private
      */
     _serialReceivedData(payload) {
         if ('ERR' in payload) {
@@ -79,17 +77,7 @@ class App {
 
                     let importedMacros = payload.CONTENT;
 
-                    // // if importedMacros not a multiple of nine, push blank macros
-                    // const modDiff = importedMacros.length % this.keyChunkSize;
-                    // if (modDiff !== 0) {
-                    //     let difference = this.keyChunkSize - modDiff;
-                    //     for (let i = 0; i < difference; i++) {
-                    //         importedMacros.push({ type: 'blank' });
-                    //     }
-                    // }
-
                     this.macroStack.push(this._fillUpKeysEntries(importedMacros));
-                    // this.macroStack.push(importedMacros);
 
                     this._initializeKeys();
 
@@ -160,7 +148,6 @@ class App {
     /**
      * Handles button actions for the application controls.
      * @param {string} command - The command associated with the button action.
-     * @private
      */
     _appControlsHandler(command) {
         switch (command) {
@@ -270,16 +257,11 @@ class App {
                 break;
             case 'set_macros':
                 try {
-                    let macros = [];
-                    for (const key of this.keyEntriesContainer.childNodes) {
-                        macros.push(key.instance.getData());
-                    }
-
                     // await this.serialConnection.send({
                     //     command: 'set_macros',
-                    //     content: macros,
+                    //     content: this.macroStack[0],
                     // });
-                    console.log(macros);
+                    console.log(this.macroStack[0]);
                 } catch (e) {
                     console.error('can`t parse json string');
                 }
