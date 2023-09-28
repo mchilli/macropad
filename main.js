@@ -489,12 +489,11 @@ class App {
      * @returns {Array} - The filled-up macros.
      */
     _fillUpKeysEntries(macros) {
-        // if macros not a multiple of nine, push blank macros
         const modDiff = macros.length % this.keyChunkSize;
-        if (modDiff !== 0) {
+        if (modDiff !== 0 || macros.length === 0) {
             let difference = this.keyChunkSize - modDiff;
             for (let i = 0; i < difference; i++) {
-                macros.push({ type: 'blank' });
+                macros.push(this._emptyKeyEntry());
             }
         }
 
