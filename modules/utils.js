@@ -37,4 +37,19 @@ function style(target = document.documentElement, attributes = {}) {
     }
 }
 
-export { create, style };
+function hexToRGB(hexcolor) {
+    const r = parseInt(hexcolor.substr(1, 2), 16);
+    const g = parseInt(hexcolor.substr(3, 2), 16);
+    const b = parseInt(hexcolor.substr(5, 2), 16);
+    return [r, g, b];
+}
+
+function rgbToHex([r, g, b]) {
+    const intToHex = (c) => {
+        const hex = c.toString(16);
+        return hex.length == 1 ? '0' + hex : hex;
+    };
+    return '#' + intToHex(r) + intToHex(g) + intToHex(b);
+}
+
+export { create, style, hexToRGB, rgbToHex };
