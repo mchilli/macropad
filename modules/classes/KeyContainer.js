@@ -95,7 +95,7 @@ export default class KeyContainer {
         return DOM;
     }
 
-    clear() {
+    clearData() {
         this.setType();
         this.setLabel();
         this.setColor();

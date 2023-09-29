@@ -405,7 +405,7 @@ class App {
                 this._initializeKeys();
                 break;
             case 'delete':
-                keyInstance.clear();
+                keyInstance.clearData();
                 this._reReadKeyEntries();
                 break;
 
