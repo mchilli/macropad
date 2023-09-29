@@ -28,9 +28,7 @@ export default class KeyContainer {
     }
 
     _initDOM() {
-        let DOM = {
-            controls: {},
-        };
+        let DOM = {};
 
         const [r, g, b] = this.color;
         const style = `background-color: rgb(${r},${g},${b})`;
@@ -41,8 +39,14 @@ export default class KeyContainer {
                 style: style,
             },
             children: [
+                (DOM.type = utils.create({
+                    text: this.type,
+                    attributes: {
+                        class: 'key-type-icon',
+                    },
+                })),
                 utils.create({
-                    text: 'X',
+                    text: '+',
                     attributes: {
                         class: 'key-handle button',
                     },
@@ -58,7 +62,7 @@ export default class KeyContainer {
                         class: 'key-controls',
                     },
                     children: [
-                        (DOM.controls.edit = utils.create({
+                        utils.create({
                             text: 'E',
                             attributes: {
                                 class: 'button',
@@ -66,8 +70,8 @@ export default class KeyContainer {
                             events: {
                                 click: () => this.onButtonPressed(this, 'edit'),
                             },
-                        })),
-                        (DOM.controls.open = utils.create({
+                        }),
+                        utils.create({
                             text: 'O',
                             attributes: {
                                 class: 'button open',
@@ -75,8 +79,8 @@ export default class KeyContainer {
                             events: {
                                 click: () => this.onButtonPressed(this, 'open'),
                             },
-                        })),
-                        (DOM.controls.delete = utils.create({
+                        }),
+                        utils.create({
                             text: 'D',
                             attributes: {
                                 class: 'button delete',
@@ -84,7 +88,7 @@ export default class KeyContainer {
                             events: {
                                 click: () => this.onButtonPressed(this, 'delete'),
                             },
-                        })),
+                        }),
                     ],
                 }),
             ],
@@ -131,6 +135,8 @@ export default class KeyContainer {
         this.type = type;
         this.DOM.container.classList.remove('blank', 'macro', 'group');
         this.DOM.container.classList.add(this.type);
+
+        this.DOM.type.innerText = this.type;
     }
 
     setLabel(label = '') {
