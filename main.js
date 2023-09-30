@@ -1,5 +1,6 @@
 'use strict';
 
+import { EditDialog } from './modules/classes/Dialogs.js';
 import KeyContainer from './modules/classes/KeyContainer.js';
 import SerialConnectionHandler from './modules/classes/SerialConnectionHandler.js';
 import Sortable from './modules/classes/Sortable.js';
@@ -392,6 +393,12 @@ class App {
     keyControlsHandler(keyInstance, command) {
         switch (command) {
             case 'edit':
+                document.body.appendChild(
+                    new EditDialog({
+                        keyInstance: keyInstance,
+                        onButtonPressed: this.editDialogControlsHandler.bind(this),
+                    })
+                );
                 break;
             case 'open':
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
@@ -411,6 +418,38 @@ class App {
 
             default:
                 console.error(`keyControlsHandler - unkown button: ${command}`);
+                break;
+        }
+    }
+
+    /**
+     * Handles button actions for dialogs.
+     * @param {EditDialog} dialogInstance - The Edit Dialog instance associated with the button.
+     * @param {string} command - The command associated with the button action.
+     */
+    editDialogControlsHandler({ dialogInstance, keyInstance, command } = {}) {
+        switch (command) {
+            case 'close':
+                dialogInstance.remove();
+                break;
+            case 'ok':
+                const type = dialogInstance.DOM.type.value;
+                const label = dialogInstance.DOM.label.value;
+                const color = utils.hexToRGB(dialogInstance.DOM.color.value);
+                const content = JSON.parse(dialogInstance.DOM.content.value);
+
+                keyInstance.setType(type);
+                keyInstance.setLabel(label);
+                keyInstance.setColor(color);
+                keyInstance.setContent(content);
+
+                dialogInstance.remove();
+
+                this._reReadKeyEntries();
+                break;
+
+            default:
+                console.error(`editDialogControlsHandler - unkown button: ${command}`);
                 break;
         }
     }
