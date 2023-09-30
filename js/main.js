@@ -565,6 +565,7 @@ class App {
 
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
         this.keyEntriesControls.page.innerHTML = `${this.keyChunkPage + 1} / ${pageCount}`;
+        // this.keyEntriesControls.back.innerHTML = this.macroStack.length > 1 ? 'X' : '<';
     }
 
     /**
