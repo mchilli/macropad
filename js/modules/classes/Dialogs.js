@@ -27,10 +27,17 @@ class EditDialog {
                     },
                     children: [
                         utils.create({
-                            text: 'X',
                             attributes: {
                                 class: 'button close',
                             },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-xmark',
+                                    },
+                                }),
+                            ],
                             events: {
                                 click: () =>
                                     this.onButtonPressed({
@@ -128,10 +135,17 @@ class EditDialog {
                             ],
                         }),
                         utils.create({
-                            text: 'OK',
                             attributes: {
                                 class: 'button ok',
                             },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-check',
+                                    },
+                                }),
+                            ],
                             events: {
                                 click: () =>
                                     this.onButtonPressed({

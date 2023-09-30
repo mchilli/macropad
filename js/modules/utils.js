@@ -37,6 +37,10 @@ function style(target = document.documentElement, attributes = {}) {
     }
 }
 
+function capitalize(s) {
+    return s[0].toUpperCase() + s.slice(1);
+}
+
 function hexToRGB(hexcolor) {
     const r = parseInt(hexcolor.substr(1, 2), 16);
     const g = parseInt(hexcolor.substr(3, 2), 16);
@@ -52,4 +56,4 @@ function rgbToHex([r, g, b]) {
     return '#' + intToHex(r) + intToHex(g) + intToHex(b);
 }
 
-export { create, style, hexToRGB, rgbToHex };
+export { create, style, capitalize, hexToRGB, rgbToHex };

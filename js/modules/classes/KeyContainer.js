@@ -23,6 +23,7 @@ export default class KeyContainer {
         this.onButtonPressed = onButtonPressed;
 
         this.DOM = this._initDOM();
+        this.setType(this.type);
 
         return this.DOM.container;
     }
@@ -35,21 +36,37 @@ export default class KeyContainer {
 
         DOM.container = utils.create({
             attributes: {
-                class: `key-container ${this.type}`,
+                class: 'key-container',
                 style: style,
             },
             children: [
                 (DOM.type = utils.create({
-                    text: this.type,
                     attributes: {
+                        title: utils.capitalize(this.type),
                         class: 'key-type-icon',
                     },
+                    children: [
+                        utils.create({
+                            type: 'i',
+                            attributes: {
+                                class: this._getTypeIcon(),
+                            },
+                        }),
+                    ],
                 })),
                 utils.create({
-                    text: '+',
                     attributes: {
+                        title: 'Move',
                         class: 'key-handle button',
                     },
+                    children: [
+                        utils.create({
+                            type: 'i',
+                            attributes: {
+                                class: 'fa-solid fa-up-down-left-right',
+                            },
+                        }),
+                    ],
                 }),
                 (DOM.label = utils.create({
                     text: this.type === 'blank' ? '' : this.label,
@@ -63,28 +80,52 @@ export default class KeyContainer {
                     },
                     children: [
                         utils.create({
-                            text: 'E',
                             attributes: {
+                                title: 'Edit',
                                 class: 'button',
                             },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-pen',
+                                    },
+                                }),
+                            ],
                             events: {
                                 click: () => this.onButtonPressed(this, 'edit'),
                             },
                         }),
                         utils.create({
-                            text: 'O',
                             attributes: {
+                                title: 'Open group',
                                 class: 'button open',
                             },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-folder-open',
+                                    },
+                                }),
+                            ],
                             events: {
                                 click: () => this.onButtonPressed(this, 'open'),
                             },
                         }),
                         utils.create({
-                            text: 'D',
                             attributes: {
+                                title: 'Delete',
                                 class: 'button delete',
                             },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-trash',
+                                    },
+                                }),
+                            ],
                             events: {
                                 click: () => this.onButtonPressed(this, 'delete'),
                             },
@@ -136,7 +177,23 @@ export default class KeyContainer {
         this.DOM.container.classList.remove('blank', 'macro', 'group');
         this.DOM.container.classList.add(this.type);
 
-        this.DOM.type.innerText = this.type;
+        this.DOM.type.classList.toggle('invisible', this.type === 'blank');
+        this.DOM.type.title = utils.capitalize(this.type);
+        this.DOM.type.children[0].className = this._getTypeIcon();
+    }
+
+    _getTypeIcon() {
+        switch (this.type) {
+            case 'blank':
+                return '';
+            case 'macro':
+                return 'fa-solid fa-gear';
+            case 'group':
+                return 'fa-solid fa-folder';
+
+            default:
+                break;
+        }
     }
 
     setLabel(label = '') {

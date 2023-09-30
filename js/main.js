@@ -99,7 +99,10 @@ class App {
      */
     _serialConnectionChanged(connected) {
         this.deviceConnected = connected;
-        this.appControls.connection.innerHTML = this.deviceConnected ? 'disconnect' : 'connect';
+        this.appControls.connection.title = this.deviceConnected ? 'Disconnect' : 'Connect';
+        this.appControls.connection.childNodes[0].className = this.deviceConnected
+            ? 'fa-solid fa-link-slash'
+            : 'fa-solid fa-link';
         this.deviceControlsContainer.classList.toggle('hidden', !this.deviceConnected);
     }
 
@@ -122,19 +125,35 @@ class App {
     _initAppControls(container) {
         let appControls = {
             connection: utils.create({
-                text: 'connect',
                 attributes: {
+                    title: 'Connect',
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-link',
+                        },
+                    }),
+                ],
                 events: {
                     click: () => this._appControlsHandler('connection'),
                 },
             }),
             new: utils.create({
-                text: 'new',
                 attributes: {
+                    title: 'New',
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-file',
+                        },
+                    }),
+                ],
                 events: {
                     click: () => this._appControlsHandler('new'),
                 },
@@ -153,7 +172,13 @@ class App {
     _appControlsHandler(command) {
         switch (command) {
             case 'connection':
-                this.deviceConnected ? this.serialConnection.close() : this._initSerialConnection();
+                // this.deviceConnected ? this.serialConnection.close() : this._initSerialConnection();
+                if (this.deviceConnected) {
+                    this.serialConnection.close();
+                    this._newEmptyKeyEntries();
+                } else {
+                    this._initSerialConnection();
+                }
                 break;
             case 'new':
                 this._newEmptyKeyEntries();
@@ -173,28 +198,52 @@ class App {
     _initDeviceControls(container) {
         let deviceControls = {
             download: utils.create({
-                text: 'download',
                 attributes: {
+                    title: 'Download from Macropad',
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-download',
+                        },
+                    }),
+                ],
                 events: {
                     click: () => this._deviceControlsHandler('get_macros'),
                 },
             }),
             upload: utils.create({
-                text: 'upload',
                 attributes: {
+                    title: 'Upload to Macropad',
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-upload',
+                        },
+                    }),
+                ],
                 events: {
                     click: () => this._deviceControlsHandler('set_macros'),
                 },
             }),
             save: utils.create({
-                text: 'save',
                 attributes: {
+                    title: 'Save on Macropad',
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-floppy-disk',
+                        },
+                    }),
+                ],
                 events: {
                     click: () => this._deviceControlsHandler('save_macros'),
                 },
@@ -258,15 +307,14 @@ class App {
                 break;
             case 'set_macros':
                 try {
-                    // await this.serialConnection.send({
-                    //     command: 'set_macros',
-                    //     content: this.macroStack[0],
-                    // });
-                    console.log(this.macroStack[0]);
+                    await this.serialConnection.send({
+                        command: 'set_macros',
+                        content: this.macroStack[0],
+                    });
+                    // console.log(this.macroStack[0]);
                 } catch (e) {
                     console.error('can`t parse json string');
                 }
-                // console.log(JSON.stringify(macros));
                 break;
 
             default:
@@ -283,20 +331,34 @@ class App {
     _initKeyChunkControls(container) {
         let keyChunkControls = {
             next: utils.create({
-                text: '>',
                 attributes: {
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-arrow-right',
+                        },
+                    }),
+                ],
                 events: {
                     click: () => this._keyChunkControlsHandler('next'),
                     dragenter: () => this._keyChunkControlsHandler('nextdrag'),
                 },
             }),
             back: utils.create({
-                text: '<',
                 attributes: {
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-arrow-left',
+                        },
+                    }),
+                ],
                 events: {
                     click: () => this._keyChunkControlsHandler('back'),
                     dragenter: () => this._keyChunkControlsHandler('backdrag'),
@@ -565,7 +627,11 @@ class App {
 
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
         this.keyEntriesControls.page.innerHTML = `${this.keyChunkPage + 1} / ${pageCount}`;
-        // this.keyEntriesControls.back.innerHTML = this.macroStack.length > 1 ? 'X' : '<';
+
+        this.keyEntriesControls.back.childNodes[0].className =
+            this.macroStack.length > 1 && this.keyChunkPage === 0
+                ? 'fa-solid fa-arrow-turn-up fa-flip-horizontal'
+                : 'fa-solid fa-arrow-left';
     }
 
     /**
