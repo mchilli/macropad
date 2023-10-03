@@ -8280,10 +8280,10 @@ body {
 .main-container .key-entries {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  margin-bottom: 2px;
-  padding-bottom: 2px;
-  max-height: 308px;
+  gap: 10px;
+  margin-bottom: 5px;
+  padding: 5px;
+  max-height: 320px;
   overflow: hidden;
 }
 .main-container .key-entries .key-container {
@@ -8355,15 +8355,15 @@ body {
   display: none;
 }
 .main-container .key-entries .key-container:nth-child(9n) {
-  margin-bottom: 20px;
+  margin-bottom: 50px;
 }
 .main-container .app-controls,
 .main-container .device-controls,
 .main-container .key-entries-controls {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 .main-container .app-controls .button,
 .main-container .app-controls .info,
@@ -8372,6 +8372,7 @@ body {
 .main-container .key-entries-controls .button,
 .main-container .key-entries-controls .info {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100px;

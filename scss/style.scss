@@ -2,7 +2,7 @@
 @import 'fontawesome/solid.scss';
 
 $key-entry-size: 100px;
-$key-entries-gap: 4px;
+$key-entries-gap: 10px;
 
 $key-control-button-size: 22px;
 $key-control-background-color: white;
@@ -44,7 +44,7 @@ body {
         grid-template-columns: repeat(3, 1fr);
         gap: $key-entries-gap;
         margin-bottom: calc($key-entries-gap / 2);
-        padding-bottom: calc($key-entries-gap / 2);
+        padding: calc($key-entries-gap / 2);
         max-height: calc($key-entry-size * 3 + $key-entries-gap * 2);
         overflow: hidden;
 
@@ -56,6 +56,7 @@ body {
             border: 1px solid grey;
             border-radius: $key-control-border-radius;
             box-sizing: border-box;
+            // box-shadow: 2px 2px 4px 2px gray;
 
             &.blank {
                 background-color: rgb(255, 255, 255) !important;
@@ -143,6 +144,7 @@ body {
         .button,
         .info {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             width: $key-entry-size;

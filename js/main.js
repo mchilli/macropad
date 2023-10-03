@@ -36,6 +36,7 @@ class App {
         this.keyChunkSize = keyChunkSize;
         this.keyChunkPage = 0;
 
+        this.groupNameStack = ['Macros'];
         this.keyEntriesContainer = keyEntriesContainer;
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
@@ -368,6 +369,7 @@ class App {
                 attributes: {
                     class: 'info',
                 },
+                children: [utils.create(), utils.create()],
             }),
         };
 
@@ -401,10 +403,13 @@ class App {
             case 'back':
                 if (this.keyChunkPage > 0) {
                     this.keyChunkPage--;
+
                     this._removeLastEmptyKeyChunk();
                     this._updateKeyChunkPage();
                 } else if (this.keyChunkPage === 0 && this.macroStack.length > 1) {
                     this.macroStack.pop();
+                    this.groupNameStack.pop();
+
                     this._clearAllKeyEntries();
                     this._initializeKeys();
                 }
@@ -470,6 +475,9 @@ class App {
                         break;
                     }
                 }
+
+                this.groupNameStack.push(keyInstance.label);
+
                 this._clearAllKeyEntries();
                 this._initializeKeys();
                 break;
@@ -497,6 +505,10 @@ class App {
             case 'ok':
                 const type = dialogInstance.DOM.type.value;
                 const label = dialogInstance.DOM.label.value;
+                if (label === '') {
+                    dialogInstance.DOM.label.placeholder = 'You must enter a label !!!';
+                    return;
+                }
                 const color = utils.hexToRGB(dialogInstance.DOM.color.value);
                 const content = JSON.parse(dialogInstance.DOM.content.value);
                 const encoder = {
@@ -631,8 +643,14 @@ class App {
 
         this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
 
+        this.keyEntriesControls.page.children[0].innerHTML = `${
+            this.groupNameStack[this.groupNameStack.length - 1]
+        }`;
+
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-        this.keyEntriesControls.page.innerHTML = `${this.keyChunkPage + 1} / ${pageCount}`;
+        this.keyEntriesControls.page.children[1].innerHTML = `${
+            this.keyChunkPage + 1
+        } / ${pageCount}`;
 
         this.keyEntriesControls.back.childNodes[0].className =
             this.macroStack.length > 1 && this.keyChunkPage === 0
