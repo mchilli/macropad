@@ -103,6 +103,8 @@ class EditDialog {
                                     type: 'input',
                                     attributes: {
                                         class: 'label',
+                                        title: 'The label cannot be longer than 6 characters',
+                                        maxlength: 6,
                                     },
                                 })),
                                 utils.create({
