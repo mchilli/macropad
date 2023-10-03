@@ -192,7 +192,9 @@ body {
         &.blank .inputs .label,
         &.blank .inputs .color,
         &.blank .inputs .content,
-        &.group .inputs .content {
+        &.blank .inputs .encoder,
+        &.group .inputs .content,
+        &.macro .inputs .encoder {
             display: none;
         }
 

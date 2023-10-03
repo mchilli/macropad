@@ -14,7 +14,9 @@ class EditDialog {
     }
 
     _initDOM() {
-        let DOM = {};
+        let DOM = {
+            encoder: {},
+        };
 
         DOM.container = utils.create({
             attributes: {
@@ -53,7 +55,7 @@ class EditDialog {
                             children: [
                                 utils.create({
                                     type: 'span',
-                                    text: 'select type: ',
+                                    text: 'Select type: ',
                                     attributes: {
                                         class: 'type',
                                     },
@@ -92,7 +94,7 @@ class EditDialog {
                                 })),
                                 utils.create({
                                     type: 'span',
-                                    text: 'label: ',
+                                    text: 'Label: ',
                                     attributes: {
                                         class: 'label',
                                     },
@@ -105,7 +107,7 @@ class EditDialog {
                                 })),
                                 utils.create({
                                     type: 'span',
-                                    text: 'color: ',
+                                    text: 'Color: ',
                                     attributes: {
                                         class: 'color',
                                     },
@@ -119,7 +121,7 @@ class EditDialog {
                                 })),
                                 utils.create({
                                     type: 'span',
-                                    text: 'content: ',
+                                    text: 'Content: ',
                                     attributes: {
                                         class: 'content',
                                     },
@@ -129,6 +131,51 @@ class EditDialog {
                                     attributes: {
                                         class: 'content',
                                         rows: 8,
+                                        cols: 50,
+                                    },
+                                })),
+                                utils.create({
+                                    type: 'span',
+                                    text: 'Encoder switch: ',
+                                    attributes: {
+                                        class: 'encoder',
+                                    },
+                                }),
+                                (DOM.encoder.switch = utils.create({
+                                    type: 'textarea',
+                                    attributes: {
+                                        class: 'encoder',
+                                        rows: 4,
+                                        cols: 50,
+                                    },
+                                })),
+                                utils.create({
+                                    type: 'span',
+                                    text: 'Encoder increase: ',
+                                    attributes: {
+                                        class: 'encoder',
+                                    },
+                                }),
+                                (DOM.encoder.increased = utils.create({
+                                    type: 'textarea',
+                                    attributes: {
+                                        class: 'encoder',
+                                        rows: 4,
+                                        cols: 50,
+                                    },
+                                })),
+                                utils.create({
+                                    type: 'span',
+                                    text: 'Encoder decrease: ',
+                                    attributes: {
+                                        class: 'encoder',
+                                    },
+                                }),
+                                (DOM.encoder.decreased = utils.create({
+                                    type: 'textarea',
+                                    attributes: {
+                                        class: 'encoder',
+                                        rows: 4,
                                         cols: 50,
                                     },
                                 })),
@@ -186,6 +233,9 @@ class EditDialog {
         this.DOM.label.value = this.keyInstance.label;
         this.DOM.color.value = utils.rgbToHex(this.keyInstance.color);
         this.DOM.content.value = JSON.stringify(this.keyInstance.content);
+        this.DOM.encoder.switch.value = JSON.stringify(this.keyInstance.encoder.switch);
+        this.DOM.encoder.decreased.value = JSON.stringify(this.keyInstance.encoder.decreased);
+        this.DOM.encoder.increased.value = JSON.stringify(this.keyInstance.encoder.increased);
     }
 }
 

@@ -499,11 +499,17 @@ class App {
                 const label = dialogInstance.DOM.label.value;
                 const color = utils.hexToRGB(dialogInstance.DOM.color.value);
                 const content = JSON.parse(dialogInstance.DOM.content.value);
+                const encoder = {
+                    switch: JSON.parse(dialogInstance.DOM.encoder.switch.value),
+                    increased: JSON.parse(dialogInstance.DOM.encoder.decreased.value),
+                    decreased: JSON.parse(dialogInstance.DOM.encoder.increased.value),
+                };
 
                 keyInstance.setType(type);
                 keyInstance.setLabel(label);
                 keyInstance.setColor(color);
                 keyInstance.setContent(content);
+                keyInstance.setEncoder(encoder);
 
                 dialogInstance.remove();
 

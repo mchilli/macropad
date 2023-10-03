@@ -8420,7 +8420,7 @@ body {
   row-gap: 4px;
   margin-bottom: 4px;
 }
-.dialog-container .dialog.blank .inputs .label, .dialog-container .dialog.blank .inputs .color, .dialog-container .dialog.blank .inputs .content, .dialog-container .dialog.group .inputs .content {
+.dialog-container .dialog.blank .inputs .label, .dialog-container .dialog.blank .inputs .color, .dialog-container .dialog.blank .inputs .content, .dialog-container .dialog.blank .inputs .encoder, .dialog-container .dialog.group .inputs .content, .dialog-container .dialog.macro .inputs .encoder {
   display: none;
 }
 .dialog-container .dialog .button {
