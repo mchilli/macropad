@@ -69,7 +69,7 @@ export default class KeyContainer {
                     ],
                 }),
                 (DOM.label = utils.create({
-                    text: this.type === 'blank' ? '' : this.label,
+                    text: this.label,
                     attributes: {
                         class: 'key-label',
                     },
@@ -81,19 +81,19 @@ export default class KeyContainer {
                     children: [
                         utils.create({
                             attributes: {
-                                title: 'Edit',
-                                class: 'button',
+                                title: 'Delete',
+                                class: 'button delete',
                             },
                             children: [
                                 utils.create({
                                     type: 'i',
                                     attributes: {
-                                        class: 'fa-solid fa-pen',
+                                        class: 'fa-solid fa-trash',
                                     },
                                 }),
                             ],
                             events: {
-                                click: () => this.onButtonPressed(this, 'edit'),
+                                click: () => this.onButtonPressed(this, 'delete'),
                             },
                         }),
                         utils.create({
@@ -115,19 +115,19 @@ export default class KeyContainer {
                         }),
                         utils.create({
                             attributes: {
-                                title: 'Delete',
-                                class: 'button delete',
+                                title: 'Edit',
+                                class: 'button',
                             },
                             children: [
                                 utils.create({
                                     type: 'i',
                                     attributes: {
-                                        class: 'fa-solid fa-trash',
+                                        class: 'fa-solid fa-pen',
                                     },
                                 }),
                             ],
                             events: {
-                                click: () => this.onButtonPressed(this, 'delete'),
+                                click: () => this.onButtonPressed(this, 'edit'),
                             },
                         }),
                     ],
