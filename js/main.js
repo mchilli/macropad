@@ -51,7 +51,9 @@ class App {
     async _initSerialConnection() {
         if ('serial' in navigator) {
             try {
-                const port = await navigator.serial.requestPort();
+                const port = await navigator.serial.requestPort({
+                    filters: [{ usbVendorId: 0x239a }],
+                });
                 this.serialConnection = new SerialConnectionHandler({
                     port,
                     onReceived: (payload) => this._serialReceivedData(payload),
