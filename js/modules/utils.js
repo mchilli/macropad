@@ -37,6 +37,26 @@ function style(target = document.documentElement, attributes = {}) {
     }
 }
 
+/**
+ * Appends a list of elements to a specified container.
+ * @param {Element} container - The container element to which the elements will be appended.
+ * @param {Array} elements - An array of elements to append.
+ */
+function appendElements(container, elements) {
+    for (const element of elements) {
+        container.appendChild(element);
+    }
+}
+
+function uniqueId() {
+    let ID = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    for (let i = 0; i < 12; i++) {
+        ID += characters.charAt(Math.floor(Math.random() * 36));
+    }
+    return ID;
+}
+
 function capitalize(s) {
     return s[0].toUpperCase() + s.slice(1);
 }
@@ -56,4 +76,4 @@ function rgbToHex([r, g, b]) {
     return '#' + intToHex(r) + intToHex(g) + intToHex(b);
 }
 
-export { create, style, capitalize, hexToRGB, rgbToHex };
+export { create, style, appendElements, uniqueId, capitalize, hexToRGB, rgbToHex };

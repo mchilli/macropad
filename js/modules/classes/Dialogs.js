@@ -1,5 +1,9 @@
 'use strict';
 
+import Sortable from './Sortable.js';
+
+import { getMacroEntry } from './MacroDict.js';
+
 import * as utils from '../utils.js';
 
 class EditDialog {
@@ -30,7 +34,7 @@ class EditDialog {
                     children: [
                         utils.create({
                             attributes: {
-                                class: 'button close',
+                                class: 'dialog-button close',
                             },
                             children: [
                                 utils.create({
@@ -50,7 +54,7 @@ class EditDialog {
                         }),
                         utils.create({
                             attributes: {
-                                class: 'inputs',
+                                class: 'dialog-inputs',
                             },
                             children: [
                                 utils.create({
@@ -129,11 +133,9 @@ class EditDialog {
                                     },
                                 }),
                                 (DOM.content = utils.create({
-                                    type: 'textarea',
+                                    type: 'div',
                                     attributes: {
-                                        class: 'content',
-                                        rows: 8,
-                                        cols: 50,
+                                        class: 'content dialog-sortable',
                                     },
                                 })),
                                 utils.create({
@@ -144,11 +146,9 @@ class EditDialog {
                                     },
                                 }),
                                 (DOM.encoder.switch = utils.create({
-                                    type: 'textarea',
+                                    type: 'div',
                                     attributes: {
-                                        class: 'encoder',
-                                        rows: 4,
-                                        cols: 50,
+                                        class: 'encoder dialog-sortable',
                                     },
                                 })),
                                 utils.create({
@@ -159,11 +159,9 @@ class EditDialog {
                                     },
                                 }),
                                 (DOM.encoder.increased = utils.create({
-                                    type: 'textarea',
+                                    type: 'div',
                                     attributes: {
-                                        class: 'encoder',
-                                        rows: 4,
-                                        cols: 50,
+                                        class: 'encoder dialog-sortable',
                                     },
                                 })),
                                 utils.create({
@@ -174,18 +172,21 @@ class EditDialog {
                                     },
                                 }),
                                 (DOM.encoder.decreased = utils.create({
-                                    type: 'textarea',
+                                    type: 'div',
                                     attributes: {
-                                        class: 'encoder',
-                                        rows: 4,
-                                        cols: 50,
+                                        class: 'encoder dialog-sortable',
+                                    },
+                                })),
+                                (DOM.macroList = utils.create({
+                                    attributes: {
+                                        class: 'macro-list',
                                     },
                                 })),
                             ],
                         }),
                         utils.create({
                             attributes: {
-                                class: 'button ok',
+                                class: 'dialog-button ok',
                             },
                             children: [
                                 utils.create({
@@ -214,7 +215,7 @@ class EditDialog {
         return DOM;
     }
 
-    remove() {
+    removeDOM() {
         this.DOM.container.parentNode.removeChild(this.DOM.container);
     }
 
@@ -225,19 +226,48 @@ class EditDialog {
         this.DOM.dialog.classList.add(type);
     }
 
+    _appendMacroEntries(container, content, group) {
+        utils.appendElements(
+            container,
+            content.map((value) => {
+                const entry = getMacroEntry(value);
+                entry.instance.addAdditionalControls();
+                return entry;
+            })
+        );
+        new Sortable(container, {
+            group: group,
+            handle: '.macro-entry-handle',
+            animation: 150,
+        });
+    }
+
     _setValues() {
-        for (const option of this.DOM.type.children) {
-            if (this.keyInstance.type === option.value) {
+        const key = this.keyInstance;
+        const DOM = this.DOM;
+
+        for (const option of DOM.type.children) {
+            if (key.type === option.value) {
                 option.selected = true;
                 break;
             }
         }
-        this.DOM.label.value = this.keyInstance.label;
-        this.DOM.color.value = utils.rgbToHex(this.keyInstance.color);
-        this.DOM.content.value = JSON.stringify(this.keyInstance.content);
-        this.DOM.encoder.switch.value = JSON.stringify(this.keyInstance.encoder.switch);
-        this.DOM.encoder.decreased.value = JSON.stringify(this.keyInstance.encoder.decreased);
-        this.DOM.encoder.increased.value = JSON.stringify(this.keyInstance.encoder.increased);
+        DOM.label.value = key.label;
+        DOM.color.value = utils.rgbToHex(key.color);
+
+        switch (key.type) {
+            case 'macro':
+                this._appendMacroEntries(DOM.content, key.content, 'content');
+                break;
+            case 'group':
+                this._appendMacroEntries(DOM.encoder.switch, key.encoder.switch, 'encoder');
+                this._appendMacroEntries(DOM.encoder.decreased, key.encoder.decreased, 'encoder');
+                this._appendMacroEntries(DOM.encoder.increased, key.encoder.increased, 'encoder');
+                break;
+
+            default:
+                break;
+        }
     }
 }
 

@@ -1,9 +1,10 @@
 'use strict';
 
-import { EditDialog } from './modules/classes/Dialogs.js';
 import KeyContainer from './modules/classes/KeyContainer.js';
 import SerialConnectionHandler from './modules/classes/SerialConnectionHandler.js';
 import Sortable from './modules/classes/Sortable.js';
+
+import { EditDialog } from './modules/classes/Dialogs.js';
 
 import * as utils from './modules/utils.js';
 
@@ -108,17 +109,6 @@ class App {
     }
 
     /**
-     * Appends a list of control elements to a specified container.
-     * @param {Element} container - The container element to which the controls will be appended.
-     * @param {Array} controls - An array of control elements to append.
-     */
-    _appendControlNodes(container, controls) {
-        for (const element of controls) {
-            container.appendChild(element);
-        }
-    }
-
-    /**
      * Initializes the application controls.
      * @param {Element} container - Container for application controls.
      * @returns {Object} - The initialized application control buttons.
@@ -161,7 +151,7 @@ class App {
             }),
         };
 
-        this._appendControlNodes(container, [appControls.new, appControls.connection]);
+        utils.appendElements(container, [appControls.new, appControls.connection]);
 
         return appControls;
     }
@@ -278,7 +268,7 @@ class App {
             }),
         };
 
-        this._appendControlNodes(container, [
+        utils.appendElements(container, [
             deviceControls.download,
             deviceControls.upload,
             deviceControls.save,
@@ -373,7 +363,7 @@ class App {
             }),
         };
 
-        this._appendControlNodes(container, [
+        utils.appendElements(container, [
             keyChunkControls.back,
             keyChunkControls.page,
             keyChunkControls.next,
@@ -494,37 +484,63 @@ class App {
 
     /**
      * Handles button actions for dialogs.
-     * @param {EditDialog} dialogInstance - The Edit Dialog instance associated with the button.
-     * @param {string} command - The command associated with the button action.
+     * @param {Object} object - The object containing dialogInstance, keyInstance, and command.
+     * @param {EditDialog} object.dialogInstance - The Edit Dialog instance associated with the button.
+     * @param {KeyContainer} object.keyInstance - The KeyContainer instance associated with the button.
+     * @param {string} object.command - The command associated with the button action.
      */
     editDialogControlsHandler({ dialogInstance, keyInstance, command } = {}) {
         switch (command) {
             case 'close':
-                dialogInstance.remove();
-                break;
+                dialogInstance.removeDOM();
+                return;
             case 'ok':
-                const type = dialogInstance.DOM.type.value;
-                const label = dialogInstance.DOM.label.value;
-                if (label === '') {
-                    dialogInstance.DOM.label.placeholder = 'You must enter a label !!!';
+                const dialogDOM = dialogInstance.DOM;
+                const type = dialogDOM.type.value;
+                const label = dialogDOM.label.value;
+                const color = utils.hexToRGB(dialogDOM.color.value);
+
+                if (type === 'blank') {
+                    keyInstance.clearData();
+                } else if (label === '') {
+                    dialogDOM.label.placeholder = 'You must enter a label !!!';
                     return;
+                } else {
+                    keyInstance.setType(type);
+                    keyInstance.setLabel(label);
+                    keyInstance.setColor(color);
+
+                    switch (type) {
+                        case 'blank':
+                            keyInstance.clearData();
+                            break;
+                        case 'macro':
+                            const content = Array.from(dialogDOM.content.children)
+                                .map((entry) => entry.instance.getValue() || undefined)
+                                .filter((value) => value !== undefined);
+
+                            keyInstance.setContent(content);
+                            break;
+
+                        case 'group':
+                            const encoder = {
+                                switch: Array.from(dialogDOM.encoder.switch.children)
+                                    .map((entry) => entry.instance.getValue() || undefined)
+                                    .filter((value) => value !== undefined),
+                                increased: Array.from(dialogDOM.encoder.increased.children)
+                                    .map((entry) => entry.instance.getValue() || undefined)
+                                    .filter((value) => value !== undefined),
+                                decreased: Array.from(dialogDOM.encoder.decreased.children)
+                                    .map((entry) => entry.instance.getValue() || undefined)
+                                    .filter((value) => value !== undefined),
+                            };
+
+                            keyInstance.setEncoder(encoder);
+                            break;
+                    }
                 }
-                const color = utils.hexToRGB(dialogInstance.DOM.color.value);
-                const content = JSON.parse(dialogInstance.DOM.content.value);
-                const encoder = {
-                    switch: JSON.parse(dialogInstance.DOM.encoder.switch.value),
-                    increased: JSON.parse(dialogInstance.DOM.encoder.decreased.value),
-                    decreased: JSON.parse(dialogInstance.DOM.encoder.increased.value),
-                };
 
-                keyInstance.setType(type);
-                keyInstance.setLabel(label);
-                keyInstance.setColor(color);
-                keyInstance.setContent(content);
-                keyInstance.setEncoder(encoder);
-
-                dialogInstance.remove();
-
+                dialogInstance.removeDOM();
                 this._reReadKeyEntries();
                 break;
 

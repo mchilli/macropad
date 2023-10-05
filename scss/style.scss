@@ -169,7 +169,6 @@ body {
     height: 100%;
     width: 100%;
     display: grid;
-    grid-template-rows: repeat(2, 1fr);
     align-items: center;
     justify-content: center;
 
@@ -182,45 +181,76 @@ body {
         box-sizing: border-box;
         padding: 10px;
 
-        .inputs {
+        .dialog-inputs {
             grid-row: 1;
             display: grid;
+            align-items: start;
             grid-template-columns: 100px 1fr;
-            align-items: center;
+            align-items: start;
             row-gap: 4px;
             margin-bottom: 4px;
         }
 
-        &.blank .inputs .label,
-        &.blank .inputs .color,
-        &.blank .inputs .content,
-        &.blank .inputs .encoder,
-        &.group .inputs .content,
-        &.macro .inputs .encoder {
+        &.blank .dialog-inputs .label,
+        &.blank .dialog-inputs .color,
+        &.blank .dialog-inputs .content,
+        &.blank .dialog-inputs .encoder,
+        &.group .dialog-inputs .content,
+        &.macro .dialog-inputs .encoder {
             display: none;
         }
 
-        .button {
+        .dialog-sortable {
+            display: grid;
+            gap: 4px;
+            border: 1px solid;
+            box-sizing: border-box;
+            padding: 4px;
+            min-height: 32px;
+        }
+
+        .dialog-button {
             display: flex;
             justify-content: flex-end;
             align-items: flex-start;
             justify-content: center;
             align-items: center;
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             border: 1px solid grey;
             box-sizing: border-box;
-        }
+            cursor: pointer;
 
-        .button.close {
-            grid-column: 2;
-            background-color: lightcoral;
-        }
+            &.close {
+                grid-column: 2;
+                background-color: lightcoral;
+            }
 
-        .button.ok {
-            grid-row: 2;
-            grid-column: 2;
-            background-color: cornflowerblue;
+            &.ok {
+                grid-row: 2;
+                grid-column: 2;
+                background-color: cornflowerblue;
+            }
         }
+    }
+}
+
+.macro-entry-container {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 4px;
+    background: #6495ed;
+    border: 1px solid gray;
+    border-radius: 5px;
+    overflow: hidden;
+
+    .macro-entry-handle {
+        cursor: grab;
+    }
+
+    .macro-entry-additionals {
+        margin: 0 0 0 auto;
+        cursor: pointer;
     }
 }
