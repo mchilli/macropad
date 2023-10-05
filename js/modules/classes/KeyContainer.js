@@ -8,18 +8,21 @@ export default class KeyContainer {
         label = '',
         color = [255, 255, 255],
         content = [],
-        encoder = {
-            switch: [],
-            increased: [],
-            decreased: [],
-        },
+        encoder = {},
         onButtonPressed = () => {},
     } = {}) {
         this.type = type;
         this.label = label;
         this.color = color;
         this.content = content;
-        this.encoder = encoder;
+
+        const defaultEncoder = {
+            switch: [],
+            increased: [],
+            decreased: [],
+        };
+        this.encoder = { ...defaultEncoder, ...encoder };
+
         this.onButtonPressed = onButtonPressed;
 
         this.DOM = this._initDOM();
