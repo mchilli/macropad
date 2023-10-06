@@ -35,9 +35,9 @@ class App {
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
         this.keyChunkSize = keyChunkSize;
-        this.keyChunkPage = 0;
-
+        this.groupPageStack = [0];
         this.groupNameStack = ['Macros'];
+
         this.keyEntriesContainer = keyEntriesContainer;
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
@@ -382,9 +382,9 @@ class App {
         switch (command) {
             case 'next':
             case 'nextdrag':
-                this.keyChunkPage++;
+                this.groupPageStack[this.groupPageStack.length - 1]++;
                 if (
-                    this.keyChunkPage >
+                    this.groupPageStack[this.groupPageStack.length - 1] >
                     this.keyEntriesContainer.childNodes.length / this.keyChunkSize - 1
                 ) {
                     this._appendEmptyKeyEntries();
@@ -393,13 +393,17 @@ class App {
                 }
                 break;
             case 'back':
-                if (this.keyChunkPage > 0) {
-                    this.keyChunkPage--;
+                if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
+                    this.groupPageStack[this.groupPageStack.length - 1]--;
 
                     this._removeLastEmptyKeyChunk();
                     this._updateKeyChunkPage();
-                } else if (this.keyChunkPage === 0 && this.macroStack.length > 1) {
+                } else if (
+                    this.groupPageStack[this.groupPageStack.length - 1] === 0 &&
+                    this.macroStack.length > 1
+                ) {
                     this.macroStack.pop();
+                    this.groupPageStack.pop();
                     this.groupNameStack.pop();
 
                     this._clearAllKeyEntries();
@@ -407,8 +411,8 @@ class App {
                 }
                 break;
             case 'backdrag':
-                if (this.keyChunkPage > 0) {
-                    this.keyChunkPage--;
+                if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
+                    this.groupPageStack[this.groupPageStack.length - 1]--;
                     this._updateKeyChunkPage();
                 }
                 break;
@@ -433,7 +437,8 @@ class App {
                 this._reReadKeyEntries();
 
                 const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-                const pagesToRemove = pageCount - this.keyChunkPage - 1;
+                const pagesToRemove =
+                    pageCount - this.groupPageStack[this.groupPageStack.length - 1] - 1;
 
                 for (let i = 0; i < pagesToRemove; i++) {
                     this._removeLastEmptyKeyChunk();
@@ -468,6 +473,7 @@ class App {
                     }
                 }
 
+                this.groupPageStack.push(0);
                 this.groupNameStack.push(keyInstance.label);
 
                 this._clearAllKeyEntries();
@@ -655,7 +661,8 @@ class App {
      */
     _updateKeyChunkPage() {
         const keyContainerOffset = this.keyEntriesContainer.offsetTop;
-        const firstChunkItemIndex = this.keyChunkPage * this.keyChunkSize + 1;
+        const firstChunkItemIndex =
+            this.groupPageStack[this.groupPageStack.length - 1] * this.keyChunkSize + 1;
         const firstChunkItemOffset =
             this.keyEntriesContainer.childNodes[firstChunkItemIndex].offsetTop;
 
@@ -667,11 +674,11 @@ class App {
 
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
         this.keyEntriesControls.page.children[1].innerHTML = `${
-            this.keyChunkPage + 1
+            this.groupPageStack[this.groupPageStack.length - 1] + 1
         } / ${pageCount}`;
 
         this.keyEntriesControls.back.childNodes[0].className =
-            this.macroStack.length > 1 && this.keyChunkPage === 0
+            this.macroStack.length > 1 && this.groupPageStack[this.groupPageStack.length - 1] === 0
                 ? 'fa-solid fa-arrow-turn-up fa-flip-horizontal'
                 : 'fa-solid fa-arrow-left';
     }
@@ -704,7 +711,6 @@ class App {
      */
     _clearAllKeyEntries() {
         this.keyEntriesContainer.innerHTML = '';
-        this.keyChunkPage = 0;
     }
 }
 
