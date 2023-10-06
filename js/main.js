@@ -469,12 +469,23 @@ class App {
     keyControlsHandler(keyInstance, command) {
         switch (command) {
             case 'edit':
-                this.mainContainer.appendChild(
-                    new EditDialog({
-                        keyInstance: keyInstance,
-                        onButtonPressed: this.editDialogControlsHandler.bind(this),
-                    })
-                );
+                const dialog = new EditDialog({
+                    keyInstance: keyInstance,
+                    onButtonPressed: this.editDialogControlsHandler.bind(this),
+                });
+                this.mainContainer.appendChild(dialog);
+
+                const dialogDOM = dialog.instance.DOM.dialog;
+                const keyDOM = keyInstance.DOM.container;
+                const offsetTop =
+                    keyDOM.offsetTop + keyDOM.offsetHeight / 2 - dialogDOM.offsetHeight / 2;
+                const offsetLeft =
+                    keyDOM.offsetLeft + keyDOM.offsetWidth / 2 - dialogDOM.offsetWidth / 2;
+
+                utils.style(dialogDOM, {
+                    top: `${offsetTop}px`,
+                    left: `${offsetLeft}px`,
+                });
                 break;
             case 'open':
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {

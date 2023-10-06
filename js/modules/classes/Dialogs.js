@@ -48,6 +48,15 @@ class EditDialog {
                         class: `dialog ${this.keyInstance.type}`,
                     },
                     children: [
+                        (DOM.header = utils.create({
+                            text: this.keyInstance.label,
+                            attributes: {
+                                class: 'dialog-header',
+                            },
+                            events: {
+                                mousedown: this._onDragDialog.bind(this),
+                            },
+                        })),
                         utils.create({
                             attributes: {
                                 class: 'dialog-inputs',
@@ -106,10 +115,13 @@ class EditDialog {
                                         title: 'The label cannot be longer than 6 characters',
                                         maxlength: 6,
                                     },
+                                    events: {
+                                        input: this._onLabelInput.bind(this),
+                                    },
                                 })),
                                 utils.create({
                                     type: 'span',
-                                    text: 'Color: ',
+                                    text: 'LED Color: ',
                                     attributes: {
                                         class: 'dialog-color',
                                     },
@@ -151,96 +163,125 @@ class EditDialog {
                                     ],
                                 }),
                                 utils.create({
-                                    type: 'span',
-                                    text: 'Encoder switch: ',
+                                    type: 'details',
                                     attributes: {
-                                        class: 'dialog-encoder',
-                                    },
-                                }),
-                                utils.create({
-                                    attributes: {
-                                        class: 'dialog-macros dialog-encoder',
+                                        class: 'dialog-details',
+                                        open: true,
                                     },
                                     children: [
-                                        (DOM.encoder.switch = utils.create({
-                                            type: 'div',
-                                            attributes: {
-                                                class: 'dialog-encoder dialog-sortable',
-                                            },
-                                        })),
                                         utils.create({
-                                            type: 'i',
+                                            type: 'summary',
+                                            text: 'Encoder switch: ',
                                             attributes: {
-                                                class: 'dialog-button add fa-solid fa-plus',
+                                                class: 'dialog-encoder',
                                             },
-                                            events: {
-                                                click: () =>
-                                                    this._appendMacroSelector(DOM.encoder.switch),
+                                        }),
+                                        utils.create({
+                                            attributes: {
+                                                class: 'dialog-macros dialog-encoder',
                                             },
+                                            children: [
+                                                (DOM.encoder.switch = utils.create({
+                                                    type: 'div',
+                                                    attributes: {
+                                                        class: 'dialog-encoder dialog-sortable',
+                                                    },
+                                                })),
+                                                utils.create({
+                                                    type: 'i',
+                                                    attributes: {
+                                                        class: 'dialog-button add fa-solid fa-plus',
+                                                    },
+                                                    events: {
+                                                        click: () =>
+                                                            this._appendMacroSelector(
+                                                                DOM.encoder.switch
+                                                            ),
+                                                    },
+                                                }),
+                                            ],
                                         }),
                                     ],
                                 }),
                                 utils.create({
-                                    type: 'span',
-                                    text: 'Encoder increase: ',
+                                    type: 'details',
                                     attributes: {
-                                        class: 'dialog-encoder',
-                                    },
-                                }),
-                                utils.create({
-                                    attributes: {
-                                        class: 'dialog-macros dialog-encoder',
+                                        class: 'dialog-details',
+                                        open: true,
                                     },
                                     children: [
-                                        (DOM.encoder.increased = utils.create({
-                                            type: 'div',
-                                            attributes: {
-                                                class: 'dialog-encoder dialog-sortable',
-                                            },
-                                        })),
                                         utils.create({
-                                            type: 'i',
+                                            type: 'summary',
+                                            text: 'Encoder increase: ',
                                             attributes: {
-                                                class: 'dialog-button add fa-solid fa-plus',
+                                                class: 'dialog-encoder',
                                             },
-                                            events: {
-                                                click: () =>
-                                                    this._appendMacroSelector(
-                                                        DOM.encoder.increased
-                                                    ),
+                                        }),
+                                        utils.create({
+                                            attributes: {
+                                                class: 'dialog-macros dialog-encoder',
                                             },
+                                            children: [
+                                                (DOM.encoder.increased = utils.create({
+                                                    type: 'div',
+                                                    attributes: {
+                                                        class: 'dialog-encoder dialog-sortable',
+                                                    },
+                                                })),
+                                                utils.create({
+                                                    type: 'i',
+                                                    attributes: {
+                                                        class: 'dialog-button add fa-solid fa-plus',
+                                                    },
+                                                    events: {
+                                                        click: () =>
+                                                            this._appendMacroSelector(
+                                                                DOM.encoder.increased
+                                                            ),
+                                                    },
+                                                }),
+                                            ],
                                         }),
                                     ],
                                 }),
                                 utils.create({
-                                    type: 'span',
-                                    text: 'Encoder decrease: ',
+                                    type: 'details',
                                     attributes: {
-                                        class: 'dialog-encoder',
-                                    },
-                                }),
-                                utils.create({
-                                    attributes: {
-                                        class: 'dialog-macros dialog-encoder',
+                                        class: 'dialog-details',
+                                        open: true,
                                     },
                                     children: [
-                                        (DOM.encoder.decreased = utils.create({
-                                            type: 'div',
-                                            attributes: {
-                                                class: 'dialog-encoder dialog-sortable',
-                                            },
-                                        })),
                                         utils.create({
-                                            type: 'i',
+                                            type: 'summary',
+                                            text: 'Encoder decrease: ',
                                             attributes: {
-                                                class: 'dialog-button add fa-solid fa-plus',
+                                                class: 'dialog-encoder',
                                             },
-                                            events: {
-                                                click: () =>
-                                                    this._appendMacroSelector(
-                                                        DOM.encoder.decreased
-                                                    ),
+                                        }),
+                                        utils.create({
+                                            attributes: {
+                                                class: 'dialog-macros dialog-encoder',
                                             },
+                                            children: [
+                                                (DOM.encoder.decreased = utils.create({
+                                                    type: 'div',
+                                                    attributes: {
+                                                        class: 'dialog-encoder dialog-sortable',
+                                                    },
+                                                })),
+                                                utils.create({
+                                                    type: 'i',
+                                                    attributes: {
+                                                        class: 'dialog-button add fa-solid fa-plus',
+                                                    },
+                                                    events: {
+                                                        click: () =>
+                                                            this._appendMacroSelector(
+                                                                DOM.encoder.decreased
+                                                            ),
+                                                    },
+                                                }),
+                                            ],
                                         }),
                                     ],
                                 }),
@@ -295,6 +336,52 @@ class EditDialog {
         DOM.container.instance = this;
 
         return DOM;
+    }
+
+    /**
+     * Drags a dialog element based on mouse movements.
+     * @param {MouseEvent} event - The mouse event that triggered the drag.
+     */
+    _onDragDialog(event) {
+        event.preventDefault();
+
+        let pos1 = 0;
+        let pos2 = 0;
+        let pos3 = event.clientX;
+        let pos4 = event.clientY;
+
+        document.onmouseup = () => _endDragDialog();
+        document.onmousemove = (e) => _dragDialog(e);
+
+        const _dragDialog = (event) => {
+            event.preventDefault();
+
+            pos1 = pos3 - event.clientX;
+            pos2 = pos4 - event.clientY;
+            pos3 = event.clientX;
+            pos4 = event.clientY;
+
+            const offsetTop = this.DOM.dialog.offsetTop - pos2;
+            const offsetLeft = this.DOM.dialog.offsetLeft - pos1;
+
+            utils.style(this.DOM.dialog, {
+                top: `${offsetTop}px`,
+                left: `${offsetLeft}px`,
+            });
+        };
+
+        const _endDragDialog = () => {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        };
+    }
+
+    /**
+     * Updates the header text with the label input value.
+     * @param {Event} event - The input event triggering this function.
+     */
+    _onLabelInput(event) {
+        this.DOM.header.innerText = this.DOM.label.value;
     }
 
     /**
