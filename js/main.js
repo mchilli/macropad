@@ -20,6 +20,7 @@ class App {
      * Initializes a new instance of the App class.
      * @constructor
      * @param {Object} options - Configuration options.
+     * @param {Element} options.mainContainer - Main Container for the app.
      * @param {Element} options.appControlsContainer - Container for application controls.
      * @param {Element} options.deviceControlsContainer - Container for device controls.
      * @param {number} options.keyChunkSize - Size of key chunks.
@@ -27,12 +28,15 @@ class App {
      * @param {Element} options.keyEntriesControlsContainer - Container for key entry controls.
      */
     constructor({
+        mainContainer = undefined,
         appControlsContainer = undefined,
         deviceControlsContainer = undefined,
         keyChunkSize = 9,
         keyEntriesContainer = undefined,
         keyEntriesControlsContainer = undefined,
     } = {}) {
+        this.mainContainer = mainContainer;
+
         this.macroStack = [];
         this.appControlsContainer = appControlsContainer;
         this.appControls = this._initAppControls(this.appControlsContainer);
@@ -465,7 +469,7 @@ class App {
     keyControlsHandler(keyInstance, command) {
         switch (command) {
             case 'edit':
-                document.body.appendChild(
+                this.mainContainer.appendChild(
                     new EditDialog({
                         keyInstance: keyInstance,
                         onButtonPressed: this.editDialogControlsHandler.bind(this),
@@ -724,6 +728,7 @@ class App {
 
 // Initialize the App instance.
 const app = new App({
+    mainContainer: document.querySelector('.main-container'),
     appControlsContainer: document.querySelector('.app-controls'),
     deviceControlsContainer: document.querySelector('.device-controls'),
     keyChunkSize: 9,

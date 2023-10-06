@@ -17,7 +17,7 @@ $key-control-padding: 2px;
 }
 
 body {
-    margin: 0;
+    margin: $key-entries-gap;
 }
 
 // global classes
@@ -38,7 +38,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: $key-entries-gap;
 
     .key-entries {
         display: grid;

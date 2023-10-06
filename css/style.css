@@ -8255,7 +8255,7 @@ readers do not read off random characters that represent icons */
 }
 
 body {
-  margin: 0;
+  margin: 10px;
 }
 
 .hidden {
@@ -8274,7 +8274,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 10px;
 }
 .main-container .key-entries {
   display: grid;
