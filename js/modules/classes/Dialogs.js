@@ -6,7 +6,19 @@ import { getMacroByValue, getMacroByType } from './MacroDict.js';
 
 import * as utils from '../utils.js';
 
+/**
+ * Represents a dialog for editing key settings.
+ * @class
+ */
 class EditDialog {
+    /**
+     * Initializes a new instance of the EditDialog class.
+     * @constructor
+     * @param {Object} options - The options for configuring the dialog.
+     * @param {Object} options.keyInstance - The key instance to be edited.
+     * @param {Function} options.onButtonPressed - The callback function for button presses.
+     * @returns {HTMLElement} - The container DOM element for the dialog.
+     */
     constructor({ keyInstance = null, onButtonPressed = () => {} } = {}) {
         this.keyInstance = keyInstance;
         this.onButtonPressed = onButtonPressed;
@@ -17,6 +29,10 @@ class EditDialog {
         return this.DOM.container;
     }
 
+    /**
+     * Initializes the DOM structure for the dialog.
+     * @returns {Object} - An object containing the DOM elements.
+     */
     _initDOM() {
         let DOM = {
             encoder: {},
@@ -129,8 +145,7 @@ class EditDialog {
                                                 class: 'dialog-button add fa-solid fa-plus',
                                             },
                                             events: {
-                                                click: () =>
-                                                    this._appendSingleMacro(DOM.content, 'wait'),
+                                                click: () => this._appendMacroSelector(DOM.content),
                                             },
                                         }),
                                     ],
@@ -160,10 +175,7 @@ class EditDialog {
                                             },
                                             events: {
                                                 click: () =>
-                                                    this._appendSingleMacro(
-                                                        DOM.encoder.switch,
-                                                        'wait'
-                                                    ),
+                                                    this._appendMacroSelector(DOM.encoder.switch),
                                             },
                                         }),
                                     ],
@@ -193,9 +205,8 @@ class EditDialog {
                                             },
                                             events: {
                                                 click: () =>
-                                                    this._appendSingleMacro(
-                                                        DOM.encoder.increased,
-                                                        'wait'
+                                                    this._appendMacroSelector(
+                                                        DOM.encoder.increased
                                                     ),
                                             },
                                         }),
@@ -226,9 +237,8 @@ class EditDialog {
                                             },
                                             events: {
                                                 click: () =>
-                                                    this._appendSingleMacro(
-                                                        DOM.encoder.decreased,
-                                                        'wait'
+                                                    this._appendMacroSelector(
+                                                        DOM.encoder.decreased
                                                     ),
                                             },
                                         }),
@@ -287,10 +297,17 @@ class EditDialog {
         return DOM;
     }
 
+    /**
+     * Removes the dialog from the DOM.
+     */
     removeDOM() {
         this.DOM.container.parentNode.removeChild(this.DOM.container);
     }
 
+    /**
+     * Handles the change event of the dialog type select input.
+     * Updates the dialog's visual style based on the selected type.
+     */
     _onChangeType() {
         const type = this.DOM.type.value;
 
@@ -298,6 +315,11 @@ class EditDialog {
         this.DOM.dialog.classList.add(type);
     }
 
+    /**
+     * Initializes a sortable macro list for a given container.
+     * @param {HTMLElement} container - The container element for the macro list.
+     * @param {string} group - The grouping identifier for the Sortable instance.
+     */
     _initSortableMacroLists(container, group) {
         new Sortable(container, {
             group: group,
@@ -306,13 +328,23 @@ class EditDialog {
         });
     }
 
-    _appendSingleMacro(container, type) {
-        const entry = getMacroByType(type);
+    /**
+     * Appends a macro selector to the specified container.
+     * @param {HTMLElement} container - The container element to which the macro selector will be added.
+     * @param {string} type - The type of macro selector to append.
+     */
+    _appendMacroSelector(container, type) {
+        const entry = getMacroByType('selector');
         entry.instance.addAdditionalControls();
 
         utils.appendElements(container, [entry]);
     }
 
+    /**
+     * Appends multiple macros to the specified container based on their values.
+     * @param {HTMLElement} container - The container element to which macros will be added.
+     * @param {Array<string>} content - An array of macro values to append.
+     */
     _appendMultipleMacros(container, content) {
         const entries = content.map((value) => {
             const entry = getMacroByValue(value);
@@ -322,6 +354,9 @@ class EditDialog {
         utils.appendElements(container, entries);
     }
 
+    /**
+     * Sets the initial values and configuration of the dialog.
+     */
     _setValues() {
         const key = this.keyInstance;
         const DOM = this.DOM;

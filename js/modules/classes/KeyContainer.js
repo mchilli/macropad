@@ -2,7 +2,22 @@
 
 import * as utils from '../utils.js';
 
+/**
+ * Represents a KeyContainer class for managing keyboard keys.
+ * @class KeyContainer
+ */
 export default class KeyContainer {
+    /**
+     * Creates an instance of KeyContainer.
+     * @constructor
+     * @param {Object} options - The options for initializing the KeyContainer.
+     * @param {string} [options.type='blank'] - The type of the key container.
+     * @param {string} [options.label=''] - The label for the key container.
+     * @param {number[]} [options.color=[255, 255, 255]] - The color of the key container.
+     * @param {Array} [options.content=[]] - The content of the key container.
+     * @param {Object} [options.encoder={}] - The encoder configuration.
+     * @param {Function} [options.onButtonPressed=()=>{}] - The callback function for button presses.
+     */
     constructor({
         type = 'blank',
         label = '',
@@ -31,6 +46,10 @@ export default class KeyContainer {
         return this.DOM.container;
     }
 
+    /**
+     * Initializes the DOM elements for the KeyContainer.
+     * @returns {Object} - An object containing DOM elements.
+     */
     _initDOM() {
         let DOM = {};
 
@@ -143,6 +162,9 @@ export default class KeyContainer {
         return DOM;
     }
 
+    /**
+     * Clears the data of the KeyContainer instance.
+     */
     clearData() {
         this.setType();
         this.setLabel();
@@ -151,6 +173,10 @@ export default class KeyContainer {
         this.setEncoder();
     }
 
+    /**
+     * Retrieves the data associated with the KeyContainer.
+     * @returns {Object} - The data associated with the KeyContainer.
+     */
     getData() {
         switch (this.type) {
             case 'blank':
@@ -175,6 +201,10 @@ export default class KeyContainer {
         }
     }
 
+    /**
+     * Sets the type of the KeyContainer.
+     * @param {string} [type='blank'] - The type to set for the KeyContainer.
+     */
     setType(type = 'blank') {
         this.type = type;
         this.DOM.container.classList.remove('blank', 'macro', 'group');
@@ -185,6 +215,10 @@ export default class KeyContainer {
         this.DOM.type.children[0].className = this._getTypeIcon();
     }
 
+    /**
+     * Returns the CSS class for the type icon based on the KeyContainer's type.
+     * @returns {string} - The CSS class for the type icon.
+     */
     _getTypeIcon() {
         switch (this.type) {
             case 'blank':
@@ -199,11 +233,19 @@ export default class KeyContainer {
         }
     }
 
+    /**
+     * Sets the label for the KeyContainer.
+     * @param {string} [label=''] - The label to set for the KeyContainer.
+     */
     setLabel(label = '') {
         this.label = label;
         this.DOM.label.innerText = this.label;
     }
 
+    /**
+     * Sets the color for the KeyContainer.
+     * @param {number[]} [color=[255, 255, 255]] - The color to set for the KeyContainer.
+     */
     setColor(color = [255, 255, 255]) {
         this.color = color;
         const [r, g, b] = this.color;
@@ -212,10 +254,18 @@ export default class KeyContainer {
         });
     }
 
+    /**
+     * Sets the content for the KeyContainer.
+     * @param {Array} [content=[]] - The content to set for the KeyContainer.
+     */
     setContent(content = []) {
         this.content = content;
     }
 
+    /**
+     * Sets the encoder configuration for the KeyContainer.
+     * @param {Object} [encoder={switch: [], increased: [], decreased: []}] - The encoder configuration to set.
+     */
     setEncoder(
         encoder = {
             switch: [],

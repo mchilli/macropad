@@ -1,3 +1,6 @@
+/**!
+ * @author	MCHilli   <https://github.com/mchilli>
+ */
 'use strict';
 
 import KeyContainer from './modules/classes/KeyContainer.js';
@@ -8,9 +11,14 @@ import { EditDialog } from './modules/classes/Dialogs.js';
 
 import * as utils from './modules/utils.js';
 
+/**
+ * Represents the main application class for managing macros on a Macropad device.
+ * @class
+ */
 class App {
     /**
-     * Constructor for the App class.
+     * Initializes a new instance of the App class.
+     * @constructor
      * @param {Object} options - Configuration options.
      * @param {Element} options.appControlsContainer - Container for application controls.
      * @param {Element} options.deviceControlsContainer - Container for device controls.
@@ -722,5 +730,3 @@ const app = new App({
     keyEntriesContainer: document.querySelector('.key-entries'),
     keyEntriesControlsContainer: document.querySelector('.key-entries-controls'),
 });
-
-window.app = app;

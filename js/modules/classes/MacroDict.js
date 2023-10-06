@@ -2,11 +2,19 @@
 
 import * as utils from '../utils.js';
 
+/**
+ * Base class for creating macros.
+ * @class
+ */
 class MacroBase {
     constructor() {
         this.DOM = this._initDOM();
     }
 
+    /**
+     * Initializes the DOM elements for the macro.
+     * @returns {Object} An object representing the DOM elements.
+     */
     _initDOM() {
         let DOM = {};
 
@@ -30,10 +38,16 @@ class MacroBase {
         return DOM;
     }
 
+    /**
+     * Removes the DOM elements associated with the macro.
+     */
     _removeDOM() {
         this.DOM.container.parentNode.removeChild(this.DOM.container);
     }
 
+    /**
+     * Adds additional controls to the macro entry.
+     */
     addAdditionalControls() {
         utils.appendElements(this.DOM.container, [
             utils.create({
@@ -49,11 +63,119 @@ class MacroBase {
         ]);
     }
 
+    /**
+     * Get the value of the macro.
+     * @returns {any} The value of the macro.
+     */
     getValue() {
-        return 'BaseClass';
+        return false;
     }
 }
 
+/**
+ * Represents a selector macro.
+ * @class
+ * @extends MacroBase
+ */
+class MacroSelector extends MacroBase {
+    constructor() {
+        super();
+
+        this.inputWidth = 180;
+
+        this._extendDOM();
+
+        return this.DOM.container;
+    }
+
+    /**
+     * Extends the DOM elements for the selector macro.
+     */
+    _extendDOM() {
+        utils.appendElements(this.DOM.container, [
+            (this.input = utils.create({
+                type: 'select',
+                attributes: {
+                    style: `width:${this.inputWidth}px;`,
+                },
+                events: {
+                    change: (e) => this._macroSelected(e.target.value),
+                },
+                children: [
+                    utils.create({
+                        type: 'option',
+                        text: 'Select a macro type',
+                        attributes: {
+                            disabled: true,
+                            selected: true,
+                            style: 'display: none;',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
+                        text: 'Wait',
+                        attributes: {
+                            value: 'wait',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
+                        text: 'String',
+                        attributes: {
+                            value: 'string',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
+                        text: 'Keycode',
+                        attributes: {
+                            value: 'kc',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
+                        text: 'Consumer Control Code',
+                        attributes: {
+                            value: 'ccc',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
+                        text: 'Mouse Event',
+                        attributes: {
+                            value: 'mse',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
+                        text: 'Device Function',
+                        attributes: {
+                            value: 'sys',
+                        },
+                    }),
+                ],
+            })),
+        ]);
+    }
+
+    /**
+     * Handles the selection of a macro type.
+     * @param {string} type - The selected macro type.
+     */
+    _macroSelected(type) {
+        const entry = getMacroByType(type);
+        entry.instance.addAdditionalControls();
+        this.DOM.container.parentNode.insertBefore(entry, this.DOM.container);
+
+        this._removeDOM();
+    }
+}
+
+/**
+ * Represents a wait macro.
+ * @class
+ * @extends MacroBase
+ */
 class MacroWait extends MacroBase {
     constructor(value = 0) {
         super();
@@ -66,11 +188,14 @@ class MacroWait extends MacroBase {
         return this.DOM.container;
     }
 
+    /**
+     * Extends the DOM elements for the wait macro.
+     */
     _extendDOM() {
         utils.appendElements(this.DOM.container, [
             utils.create({
                 type: 'span',
-                text: 'Wait',
+                text: 'Wait:',
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -90,11 +215,20 @@ class MacroWait extends MacroBase {
         ]);
     }
 
+    /**
+     * Get the value of the wait macro.
+     * @returns {number|false} The wait time in seconds or `false` if the value is 0.
+     */
     getValue() {
         return this.input.value === '0' ? false : parseFloat(Math.abs(this.input.value));
     }
 }
 
+/**
+ * Represents a string macro.
+ * @class
+ * @extends MacroBase
+ */
 class MacroString extends MacroBase {
     constructor(value = '') {
         super();
@@ -107,6 +241,9 @@ class MacroString extends MacroBase {
         return this.DOM.container;
     }
 
+    /**
+     * Extends the DOM elements for the string macro.
+     */
     _extendDOM() {
         utils.appendElements(this.DOM.container, [
             utils.create({
@@ -123,11 +260,20 @@ class MacroString extends MacroBase {
         ]);
     }
 
+    /**
+     * Get the value of the string macro.
+     * @returns {string|false} The string value or `false` if the value is an empty string.
+     */
     getValue() {
         return this.input.value === '' ? false : `${this.input.value}`;
     }
 }
 
+/**
+ * Represents a keycodes macro.
+ * @class
+ * @extends MacroBase
+ */
 class MacroKeycodes extends MacroBase {
     constructor(value = { kc: '' }) {
         super();
@@ -273,12 +419,11 @@ class MacroKeycodes extends MacroBase {
         return this.DOM.container;
     }
 
+    /**
+     * Extends the DOM elements for the keycodes macro.
+     */
     _extendDOM() {
         utils.appendElements(this.DOM.container, [
-            utils.create({
-                type: 'span',
-                text: 'Press',
-            }),
             (this.press = utils.create({
                 type: 'input',
                 attributes: {
@@ -290,7 +435,7 @@ class MacroKeycodes extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'Release',
+                text: 'Press',
             }),
             (this.release = utils.create({
                 type: 'input',
@@ -302,7 +447,7 @@ class MacroKeycodes extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'Key:',
+                text: 'Release:',
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -332,19 +477,31 @@ class MacroKeycodes extends MacroBase {
         this.release.checked = this.value.kc.slice(0, 1) === '-';
     }
 
+    /**
+     * Get the value of the keycodes macro.
+     * @returns {Object|false} An object representing the keycode value or `false` if no valid keycode is selected.
+     */
     getValue() {
         return this.input.value === ''
             ? false
             : { kc: `${this.release.checked ? '-' : ''}${this.input.value}` };
     }
 
-    makeUnique() {
+    /**
+     * Generates a unique ID for radio buttons in the keycodes macro.
+     */
+    _makeUnique() {
         this.uniqueId = utils.uniqueId();
         this.press.name = this.uniqueId;
         this.release.name = this.uniqueId;
     }
 }
 
+/**
+ * Represents a consumer control codes macro.
+ * @class
+ * @extends MacroBase
+ */
 class MacroConsumerControlCodes extends MacroBase {
     constructor(value = { ccc: '' }) {
         super();
@@ -373,6 +530,9 @@ class MacroConsumerControlCodes extends MacroBase {
         return this.DOM.container;
     }
 
+    /**
+     * Extends the DOM elements for the consumer control codes macro.
+     */
     _extendDOM() {
         utils.appendElements(this.DOM.container, [
             utils.create({
@@ -404,11 +564,20 @@ class MacroConsumerControlCodes extends MacroBase {
         ]);
     }
 
+    /**
+     * Get the value of the consumer control codes macro.
+     * @returns {Object|false} An object representing the consumer control code value or `false` if no valid code is selected.
+     */
     getValue() {
         return this.input.value === '' ? false : { ccc: this.input.value };
     }
 }
 
+/**
+ * Represents a mouse events macro.
+ * @class
+ * @extends MacroBase
+ */
 class MacroMouseEvents extends MacroBase {
     constructor(value = { mse: {} }) {
         super();
@@ -428,6 +597,9 @@ class MacroMouseEvents extends MacroBase {
         return this.DOM.container;
     }
 
+    /**
+     * Extends the DOM elements for the mouse events macro.
+     */
     _extendDOM() {
         utils.appendElements(this.DOM.container, [
             utils.create({
@@ -499,6 +671,10 @@ class MacroMouseEvents extends MacroBase {
         ]);
     }
 
+    /**
+     * Get the value of the mouse events macro.
+     * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
+     */
     getValue() {
         return ['0', ''].includes(this.x.value) &&
             ['0', ''].includes(this.y.value) &&
@@ -516,6 +692,11 @@ class MacroMouseEvents extends MacroBase {
     }
 }
 
+/**
+ * Represents a system functions macro.
+ * @class
+ * @extends MacroBase
+ */
 class MacroSystemFunctions extends MacroBase {
     constructor(value = { sys: '' }) {
         super();
@@ -536,6 +717,9 @@ class MacroSystemFunctions extends MacroBase {
         return this.DOM.container;
     }
 
+    /**
+     * Extends the DOM elements for the system functions macro.
+     */
     _extendDOM() {
         utils.appendElements(this.DOM.container, [
             utils.create({
@@ -567,13 +751,24 @@ class MacroSystemFunctions extends MacroBase {
         ]);
     }
 
+    /**
+     * Get the value of the system functions macro.
+     * @returns {Object|false} An object representing the system function value or `false` if no valid function is specified.
+     */
     getValue() {
         return this.input.value === '' ? false : { sys: this.input.value };
     }
 }
 
+/**
+ * Get a macro instance by type.
+ * @param {string} type - The type of the macro.
+ * @returns {MacroBase} A new instance of the specified macro type.
+ */
 export function getMacroByType(type) {
     switch (type) {
+        case 'selector':
+            return new MacroSelector();
         case 'wait':
             return new MacroWait();
         case 'string':
@@ -586,10 +781,16 @@ export function getMacroByType(type) {
             return new MacroMouseEvents();
         case 'sys':
             return new MacroSystemFunctions();
+        default:
+            return new MacroBase().DOM.container;
     }
-    return new MacroBase();
 }
 
+/**
+ * Get a macro instance based on its value.
+ * @param {any} value - The value of the macro.
+ * @returns {MacroBase} A new instance of the appropriate macro type based on the value.
+ */
 export function getMacroByValue(value) {
     switch (typeof value) {
         case 'number':
@@ -607,6 +808,7 @@ export function getMacroByValue(value) {
                 case value.hasOwnProperty('sys'):
                     return new MacroSystemFunctions(value);
             }
+        default:
+            return new MacroBase().DOM.container;
     }
-    return new MacroBase();
 }
