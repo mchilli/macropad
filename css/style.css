@@ -8274,6 +8274,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 10px;
 }
 .main-container .key-entries {
   display: grid;
@@ -8394,51 +8395,63 @@ body {
   height: 100%;
   width: 100%;
   display: grid;
-  align-items: center;
+  align-items: start;
   justify-content: center;
 }
 .dialog-container .dialog {
   display: grid;
+  grid-auto-columns: auto 40px;
   column-gap: 4px;
   width: fit-content;
+  min-width: 320px;
+  max-height: calc(100vh - 20px);
+  margin: 10px;
   background-color: white;
   border: 1px solid black;
   box-sizing: border-box;
   padding: 10px;
+  overflow: auto;
 }
 .dialog-container .dialog .dialog-inputs {
   grid-row: 1;
+  grid-column: 1/3;
   display: grid;
   align-items: start;
-  grid-template-columns: 100px 1fr;
-  align-items: start;
   row-gap: 4px;
-  margin-bottom: 4px;
 }
-.dialog-container .dialog.blank .dialog-inputs .label, .dialog-container .dialog.blank .dialog-inputs .color, .dialog-container .dialog.blank .dialog-inputs .content, .dialog-container .dialog.blank .dialog-inputs .encoder, .dialog-container .dialog.group .dialog-inputs .content, .dialog-container .dialog.macro .dialog-inputs .encoder {
-  display: none;
+.dialog-container .dialog .dialog-inputs .dialog-type-input,
+.dialog-container .dialog .dialog-inputs .dialog-label-input {
+  margin-right: 44px;
 }
-.dialog-container .dialog .dialog-sortable {
+.dialog-container .dialog .dialog-inputs .dialog-macros {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  gap: 4px;
+}
+.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable {
   display: grid;
   gap: 4px;
   border: 1px solid;
   box-sizing: border-box;
   padding: 4px;
-  min-height: 32px;
+  width: 100%;
+  min-height: 40px;
+}
+.dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
+  display: none;
 }
 .dialog-container .dialog .dialog-button {
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border: 1px solid grey;
   box-sizing: border-box;
   cursor: pointer;
 }
 .dialog-container .dialog .dialog-button.close {
+  grid-row: 1;
   grid-column: 2;
   background-color: lightcoral;
 }
@@ -8446,6 +8459,7 @@ body {
   grid-row: 2;
   grid-column: 2;
   background-color: cornflowerblue;
+  margin-top: 4px;
 }
 
 .macro-entry-container {
@@ -8456,7 +8470,6 @@ body {
   background: #6495ed;
   border: 1px solid gray;
   border-radius: 5px;
-  overflow: hidden;
 }
 .macro-entry-container .macro-entry-handle {
   cursor: grab;

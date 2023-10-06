@@ -2,7 +2,7 @@
 
 import Sortable from './Sortable.js';
 
-import { getMacroEntry } from './MacroDict.js';
+import { getMacroByValue, getMacroByType } from './MacroDict.js';
 
 import * as utils from '../utils.js';
 
@@ -34,40 +34,20 @@ class EditDialog {
                     children: [
                         utils.create({
                             attributes: {
-                                class: 'dialog-button close',
-                            },
-                            children: [
-                                utils.create({
-                                    type: 'i',
-                                    attributes: {
-                                        class: 'fa-solid fa-xmark',
-                                    },
-                                }),
-                            ],
-                            events: {
-                                click: () =>
-                                    this.onButtonPressed({
-                                        dialogInstance: this,
-                                        command: 'close',
-                                    }),
-                            },
-                        }),
-                        utils.create({
-                            attributes: {
                                 class: 'dialog-inputs',
                             },
                             children: [
                                 utils.create({
                                     type: 'span',
-                                    text: 'Select type: ',
+                                    text: 'Type: ',
                                     attributes: {
-                                        class: 'type',
+                                        class: 'dialog-type',
                                     },
                                 }),
                                 (DOM.type = utils.create({
                                     type: 'select',
                                     attributes: {
-                                        class: 'type',
+                                        class: 'dialog-type dialog-type-input',
                                     },
                                     children: [
                                         utils.create({
@@ -100,13 +80,13 @@ class EditDialog {
                                     type: 'span',
                                     text: 'Label: ',
                                     attributes: {
-                                        class: 'label',
+                                        class: 'dialog-label',
                                     },
                                 }),
                                 (DOM.label = utils.create({
                                     type: 'input',
                                     attributes: {
-                                        class: 'label',
+                                        class: 'dialog-label dialog-label-input',
                                         title: 'The label cannot be longer than 6 characters',
                                         maxlength: 6,
                                     },
@@ -115,74 +95,166 @@ class EditDialog {
                                     type: 'span',
                                     text: 'Color: ',
                                     attributes: {
-                                        class: 'color',
+                                        class: 'dialog-color',
                                     },
                                 }),
                                 (DOM.color = utils.create({
                                     type: 'input',
                                     attributes: {
                                         type: 'color',
-                                        class: 'color',
+                                        class: 'dialog-color',
                                     },
                                 })),
                                 utils.create({
                                     type: 'span',
                                     text: 'Content: ',
                                     attributes: {
-                                        class: 'content',
+                                        class: 'dialog-content',
                                     },
                                 }),
-                                (DOM.content = utils.create({
-                                    type: 'div',
+                                utils.create({
                                     attributes: {
-                                        class: 'content dialog-sortable',
+                                        class: 'dialog-macros dialog-content',
                                     },
-                                })),
+                                    children: [
+                                        (DOM.content = utils.create({
+                                            type: 'div',
+                                            attributes: {
+                                                class: 'dialog-content dialog-sortable',
+                                            },
+                                        })),
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'dialog-button add fa-solid fa-plus',
+                                            },
+                                            events: {
+                                                click: () =>
+                                                    this._appendSingleMacro(DOM.content, 'wait'),
+                                            },
+                                        }),
+                                    ],
+                                }),
                                 utils.create({
                                     type: 'span',
                                     text: 'Encoder switch: ',
                                     attributes: {
-                                        class: 'encoder',
+                                        class: 'dialog-encoder',
                                     },
                                 }),
-                                (DOM.encoder.switch = utils.create({
-                                    type: 'div',
+                                utils.create({
                                     attributes: {
-                                        class: 'encoder dialog-sortable',
+                                        class: 'dialog-macros dialog-encoder',
                                     },
-                                })),
+                                    children: [
+                                        (DOM.encoder.switch = utils.create({
+                                            type: 'div',
+                                            attributes: {
+                                                class: 'dialog-encoder dialog-sortable',
+                                            },
+                                        })),
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'dialog-button add fa-solid fa-plus',
+                                            },
+                                            events: {
+                                                click: () =>
+                                                    this._appendSingleMacro(
+                                                        DOM.encoder.switch,
+                                                        'wait'
+                                                    ),
+                                            },
+                                        }),
+                                    ],
+                                }),
                                 utils.create({
                                     type: 'span',
                                     text: 'Encoder increase: ',
                                     attributes: {
-                                        class: 'encoder',
+                                        class: 'dialog-encoder',
                                     },
                                 }),
-                                (DOM.encoder.increased = utils.create({
-                                    type: 'div',
+                                utils.create({
                                     attributes: {
-                                        class: 'encoder dialog-sortable',
+                                        class: 'dialog-macros dialog-encoder',
                                     },
-                                })),
+                                    children: [
+                                        (DOM.encoder.increased = utils.create({
+                                            type: 'div',
+                                            attributes: {
+                                                class: 'dialog-encoder dialog-sortable',
+                                            },
+                                        })),
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'dialog-button add fa-solid fa-plus',
+                                            },
+                                            events: {
+                                                click: () =>
+                                                    this._appendSingleMacro(
+                                                        DOM.encoder.increased,
+                                                        'wait'
+                                                    ),
+                                            },
+                                        }),
+                                    ],
+                                }),
                                 utils.create({
                                     type: 'span',
                                     text: 'Encoder decrease: ',
                                     attributes: {
-                                        class: 'encoder',
+                                        class: 'dialog-encoder',
                                     },
                                 }),
-                                (DOM.encoder.decreased = utils.create({
-                                    type: 'div',
+                                utils.create({
                                     attributes: {
-                                        class: 'encoder dialog-sortable',
+                                        class: 'dialog-macros dialog-encoder',
                                     },
-                                })),
-                                (DOM.macroList = utils.create({
-                                    attributes: {
-                                        class: 'macro-list',
-                                    },
-                                })),
+                                    children: [
+                                        (DOM.encoder.decreased = utils.create({
+                                            type: 'div',
+                                            attributes: {
+                                                class: 'dialog-encoder dialog-sortable',
+                                            },
+                                        })),
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'dialog-button add fa-solid fa-plus',
+                                            },
+                                            events: {
+                                                click: () =>
+                                                    this._appendSingleMacro(
+                                                        DOM.encoder.decreased,
+                                                        'wait'
+                                                    ),
+                                            },
+                                        }),
+                                    ],
+                                }),
                             ],
+                        }),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-button close',
+                            },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-xmark',
+                                    },
+                                }),
+                            ],
+                            events: {
+                                click: () =>
+                                    this.onButtonPressed({
+                                        dialogInstance: this,
+                                        command: 'close',
+                                    }),
+                            },
                         }),
                         utils.create({
                             attributes: {
@@ -226,20 +298,28 @@ class EditDialog {
         this.DOM.dialog.classList.add(type);
     }
 
-    _appendMacroEntries(container, content, group) {
-        utils.appendElements(
-            container,
-            content.map((value) => {
-                const entry = getMacroEntry(value);
-                entry.instance.addAdditionalControls();
-                return entry;
-            })
-        );
+    _initSortableMacroLists(container, group) {
         new Sortable(container, {
             group: group,
             handle: '.macro-entry-handle',
             animation: 150,
         });
+    }
+
+    _appendSingleMacro(container, type) {
+        const entry = getMacroByType(type);
+        entry.instance.addAdditionalControls();
+
+        utils.appendElements(container, [entry]);
+    }
+
+    _appendMultipleMacros(container, content) {
+        const entries = content.map((value) => {
+            const entry = getMacroByValue(value);
+            entry.instance.addAdditionalControls();
+            return entry;
+        });
+        utils.appendElements(container, entries);
     }
 
     _setValues() {
@@ -255,14 +335,19 @@ class EditDialog {
         DOM.label.value = key.label;
         DOM.color.value = utils.rgbToHex(key.color);
 
+        this._initSortableMacroLists(DOM.content, 'content');
+        this._initSortableMacroLists(DOM.encoder.switch, 'encoder');
+        this._initSortableMacroLists(DOM.encoder.decreased, 'encoder');
+        this._initSortableMacroLists(DOM.encoder.increased, 'encoder');
+
         switch (key.type) {
             case 'macro':
-                this._appendMacroEntries(DOM.content, key.content, 'content');
+                this._appendMultipleMacros(DOM.content, key.content);
                 break;
             case 'group':
-                this._appendMacroEntries(DOM.encoder.switch, key.encoder.switch, 'encoder');
-                this._appendMacroEntries(DOM.encoder.decreased, key.encoder.decreased, 'encoder');
-                this._appendMacroEntries(DOM.encoder.increased, key.encoder.increased, 'encoder');
+                this._appendMultipleMacros(DOM.encoder.switch, key.encoder.switch);
+                this._appendMultipleMacros(DOM.encoder.decreased, key.encoder.decreased);
+                this._appendMultipleMacros(DOM.encoder.increased, key.encoder.increased);
                 break;
 
             default:

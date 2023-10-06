@@ -91,7 +91,7 @@ class MacroWait extends MacroBase {
     }
 
     getValue() {
-        return this.input.value === '0' ? false : parseFloat(this.input.value);
+        return this.input.value === '0' ? false : parseFloat(Math.abs(this.input.value));
     }
 }
 
@@ -572,7 +572,25 @@ class MacroSystemFunctions extends MacroBase {
     }
 }
 
-export function getMacroEntry(value) {
+export function getMacroByType(type) {
+    switch (type) {
+        case 'wait':
+            return new MacroWait();
+        case 'string':
+            return new MacroString();
+        case 'kc':
+            return new MacroKeycodes();
+        case 'ccc':
+            return new MacroConsumerControlCodes();
+        case 'mse':
+            return new MacroMouseEvents();
+        case 'sys':
+            return new MacroSystemFunctions();
+    }
+    return new MacroBase();
+}
+
+export function getMacroByValue(value) {
     switch (typeof value) {
         case 'number':
             return new MacroWait(value);
