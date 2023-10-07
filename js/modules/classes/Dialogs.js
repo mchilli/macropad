@@ -361,8 +361,14 @@ class EditDialog {
             pos3 = event.clientX;
             pos4 = event.clientY;
 
-            const offsetTop = this.DOM.dialog.offsetTop - pos2;
-            const offsetLeft = this.DOM.dialog.offsetLeft - pos1;
+            const offsetTop = Math.max(this.DOM.dialog.offsetTop - pos2, 0);
+            const offsetLeft = Math.max(
+                Math.min(
+                    this.DOM.dialog.offsetLeft - pos1,
+                    window.innerWidth - this.DOM.dialog.offsetWidth
+                ),
+                0
+            );
 
             utils.style(this.DOM.dialog, {
                 top: `${offsetTop}px`,

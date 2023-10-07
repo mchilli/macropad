@@ -477,10 +477,14 @@ class App {
 
                 const dialogDOM = dialog.instance.DOM.dialog;
                 const keyDOM = keyInstance.DOM.container;
-                const offsetTop =
-                    keyDOM.offsetTop + keyDOM.offsetHeight / 2 - dialogDOM.offsetHeight / 2;
-                const offsetLeft =
-                    keyDOM.offsetLeft + keyDOM.offsetWidth / 2 - dialogDOM.offsetWidth / 2;
+                const offsetTop = Math.max(
+                    keyDOM.offsetTop + keyDOM.offsetHeight / 2 - dialogDOM.offsetHeight / 2,
+                    0
+                );
+                const offsetLeft = Math.max(
+                    keyDOM.offsetLeft + keyDOM.offsetWidth / 2 - dialogDOM.offsetWidth / 2,
+                    0
+                );
 
                 utils.style(dialogDOM, {
                     top: `${offsetTop}px`,
