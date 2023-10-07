@@ -303,12 +303,17 @@ class App {
         switch (command) {
             case 'get_macros':
             case 'save_macros':
+                await this.serialConnection.send({
+                    command: command,
+                });
+                break;
             case 'soft_reset':
             case 'hard_reset':
             case 'enable_usb':
                 await this.serialConnection.send({
                     command: command,
                 });
+                this.serialConnection.close();
                 break;
             case 'set_macros':
                 try {
@@ -316,7 +321,6 @@ class App {
                         command: 'set_macros',
                         content: this.macroStack[0],
                     });
-                    // console.log(this.macroStack[0]);
                 } catch (e) {
                     console.error('can`t parse json string');
                 }
