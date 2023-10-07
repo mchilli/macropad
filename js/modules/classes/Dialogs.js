@@ -165,26 +165,23 @@ class EditDialog {
                                 utils.create({
                                     type: 'details',
                                     attributes: {
-                                        class: 'dialog-details',
+                                        class: 'dialog-encoder',
                                         open: true,
                                     },
                                     children: [
                                         utils.create({
                                             type: 'summary',
                                             text: 'Encoder switch: ',
-                                            attributes: {
-                                                class: 'dialog-encoder',
-                                            },
                                         }),
                                         utils.create({
                                             attributes: {
-                                                class: 'dialog-macros dialog-encoder',
+                                                class: 'dialog-macros',
                                             },
                                             children: [
                                                 (DOM.encoder.switch = utils.create({
                                                     type: 'div',
                                                     attributes: {
-                                                        class: 'dialog-encoder dialog-sortable',
+                                                        class: 'dialog-sortable',
                                                     },
                                                 })),
                                                 utils.create({
@@ -206,26 +203,23 @@ class EditDialog {
                                 utils.create({
                                     type: 'details',
                                     attributes: {
-                                        class: 'dialog-details',
+                                        class: 'dialog-encoder',
                                         open: true,
                                     },
                                     children: [
                                         utils.create({
                                             type: 'summary',
                                             text: 'Encoder increase: ',
-                                            attributes: {
-                                                class: 'dialog-encoder',
-                                            },
                                         }),
                                         utils.create({
                                             attributes: {
-                                                class: 'dialog-macros dialog-encoder',
+                                                class: 'dialog-macros',
                                             },
                                             children: [
                                                 (DOM.encoder.increased = utils.create({
                                                     type: 'div',
                                                     attributes: {
-                                                        class: 'dialog-encoder dialog-sortable',
+                                                        class: 'dialog-sortable',
                                                     },
                                                 })),
                                                 utils.create({
@@ -247,26 +241,23 @@ class EditDialog {
                                 utils.create({
                                     type: 'details',
                                     attributes: {
-                                        class: 'dialog-details',
+                                        class: 'dialog-encoder',
                                         open: true,
                                     },
                                     children: [
                                         utils.create({
                                             type: 'summary',
                                             text: 'Encoder decrease: ',
-                                            attributes: {
-                                                class: 'dialog-encoder',
-                                            },
                                         }),
                                         utils.create({
                                             attributes: {
-                                                class: 'dialog-macros dialog-encoder',
+                                                class: 'dialog-macros',
                                             },
                                             children: [
                                                 (DOM.encoder.decreased = utils.create({
                                                     type: 'div',
                                                     attributes: {
-                                                        class: 'dialog-encoder dialog-sortable',
+                                                        class: 'dialog-sortable',
                                                     },
                                                 })),
                                                 utils.create({
