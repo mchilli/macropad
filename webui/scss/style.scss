@@ -151,8 +151,8 @@ body {
     .app-controls,
     .device-controls,
     .key-entries-controls {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        display: flex;
+        flex-wrap: wrap;
         gap: $key-entries-gap;
         margin-bottom: $key-entries-gap;
 

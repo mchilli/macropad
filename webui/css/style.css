@@ -8361,8 +8361,8 @@ body {
 .main-container .app-controls,
 .main-container .device-controls,
 .main-container .key-entries-controls {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 10px;
 }
