@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MCHPad Web UI</title>
+        <script src="Connection.js"></script>
+        <script src="Sortable.js"></script>
+    </head>
+    <body>
+        <button id="connect">connect</button>
+        <button id="disconnect">disconnect</button>
+        <span id="connection-status">Disconnected</span>
+        <br />
+        <br />
+        <span>Response:</span>
+        <br />
+        <textarea name="data" id="data" cols="80" rows="40"></textarea>
+        <br />
+        <br />
+        <button class="simple-cmd" data-cmd="get_macros">load Macros</button>
+        <button id="send" data-cmd="">send Macros</button>
+        <button class="simple-cmd" data-cmd="save_macros">save Macros</button>
+        <button class="simple-cmd" data-cmd="enable_usb">enable USB</button>
+        <button class="simple-cmd" data-cmd="soft_reset">Softreset</button>
+        <button class="simple-cmd" data-cmd="hard_reset">Hardreset</button>
+
+        <script src="main.js"></script>
+
+        <pre style="position: absolute; top: 0; right: 0">
+    Macro Types:
+        "group": a group containing more groups or macros
+        "macro": a macro that will be executed
+        "blank": a blank spacer for formating
+
+    Keycodes (kc):
+        A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+        ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
+        ENTER, RETURN, ESCAPE, BACKSPACE, TAB, SPACEBAR, SPACE, MINUS, EQUALS, LEFT_BRACKET, RIGHT_BRACKET,
+        BACKSLASH, POUND, SEMICOLON, QUOTE, GRAVE_ACCENT, COMMA, PERIOD, FORWARD_SLASH, CAPS_LOCK,
+        F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20, F21, F22,
+        F23, F24, PRINT_SCREEN, SCROLL_LOCK, PAUSE, INSERT, HOME, PAGE_UP, DELETE, END, PAGE_DOWN,
+        RIGHT_ARROW, LEFT_ARROW, DOWN_ARROW, UP_ARROW, KEYPAD_NUMLOCK, KEYPAD_FORWARD_SLASH, KEYPAD_ASTERISK,
+        KEYPAD_MINUS, KEYPAD_PLUS, KEYPAD_ENTER, KEYPAD_ONE, KEYPAD_TWO, KEYPAD_THREE, KEYPAD_FOUR, KEYPAD_FIVE,
+        KEYPAD_SIX, KEYPAD_SEVEN, KEYPAD_EIGHT, KEYPAD_NINE, KEYPAD_ZERO, KEYPAD_PERIOD, KEYPAD_BACKSLASH,
+        APPLICATION, POWER, KEYPAD_EQUALS, LEFT_CONTROL, CONTROL, LEFT_SHIFT, SHIFT, LEFT_ALT, ALT, OPTION,
+        LEFT_GUI, GUI, WINDOWS, COMMAND, RIGHT_CONTROL, RIGHT_SHIFT, RIGHT_ALT, RIGHT_GUI
+
+    Consumer Control Codes (ccc):
+        MUTE, VOLUME_INCREMENT, VOLUME_DECREMENT, RECORD, FAST_FORWARD, REWIND, SCAN_NEXT_TRACK,
+        SCAN_PREVIOUS_TRACK, STOP, EJECT, PLAY_PAUSE, BRIGHTNESS_DECREMENT, BRIGHTNESS_INCREMENT
+
+    Mouse Events (mse):
+        'x': horizontally Mouse movement (e.g. 10 | -10)
+        'y': vertically Mouse movement (e.g. 10 | -10)
+        'w': Mousewheel movement (e.g. 1 | -1)
+        'b': LEFT, MIDDLE, RIGHT
+
+    System Functions (sys):
+        enable_USB, soft_reset, hard_reset, decrease_brightness, increase_brightness
+
+    Serial Connection Commands:
+        get_macros, set_macros, save_macros, enable_usb, soft_reset, hard_reset
+        </pre>
+    </body>
+</html>

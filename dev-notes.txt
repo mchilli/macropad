@@ -1,33 +1,50 @@
-Macro Types:
+Key Types:
     "group": a group containing more groups or macros
     "macro": a macro that will be executed
     "blank": a blank spacer for formating
 
-Keycodes (kc):
-    A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-    ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
-    ENTER, RETURN, ESCAPE, BACKSPACE, TAB, SPACEBAR, SPACE, MINUS, EQUALS, LEFT_BRACKET, RIGHT_BRACKET,
-    BACKSLASH, POUND, SEMICOLON, QUOTE, GRAVE_ACCENT, COMMA, PERIOD, FORWARD_SLASH, CAPS_LOCK,
-    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20, F21, F22,
-    F23, F24, PRINT_SCREEN, SCROLL_LOCK, PAUSE, INSERT, HOME, PAGE_UP, DELETE, END, PAGE_DOWN,
-    RIGHT_ARROW, LEFT_ARROW, DOWN_ARROW, UP_ARROW, KEYPAD_NUMLOCK, KEYPAD_FORWARD_SLASH, KEYPAD_ASTERISK,
-    KEYPAD_MINUS, KEYPAD_PLUS, KEYPAD_ENTER, KEYPAD_ONE, KEYPAD_TWO, KEYPAD_THREE, KEYPAD_FOUR, KEYPAD_FIVE,
-    KEYPAD_SIX, KEYPAD_SEVEN, KEYPAD_EIGHT, KEYPAD_NINE, KEYPAD_ZERO, KEYPAD_PERIOD, KEYPAD_BACKSLASH,
-    APPLICATION, POWER, KEYPAD_EQUALS, LEFT_CONTROL, CONTROL, LEFT_SHIFT, SHIFT, LEFT_ALT, ALT, OPTION,
-    LEFT_GUI, GUI, WINDOWS, COMMAND, RIGHT_CONTROL, RIGHT_SHIFT, RIGHT_ALT, RIGHT_GUI
+Macro Types:
 
-Consumer Control Codes (ccc):
-    MUTE, VOLUME_INCREMENT, VOLUME_DECREMENT, RECORD, FAST_FORWARD, REWIND, SCAN_NEXT_TRACK,
-    SCAN_PREVIOUS_TRACK, STOP, EJECT, PLAY_PAUSE, BRIGHTNESS_DECREMENT, BRIGHTNESS_INCREMENT
+    Wait (e.g. 0.1)
 
-Mouse Events (mse):
-    'x': horizontally Mouse movement (e.g. 10 | -10)
-    'y': vertically Mouse movement (e.g. 10 | -10)
-    'w': Mousewheel movement (e.g. 1 | -1)
-    'b': LEFT, MIDDLE, RIGHT
+    String Input (e.g. 'Hello World')
+       
+    Keycodes (e.g. {'kc': 'CONTROL'}):
+        A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+        ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
+        ENTER, RETURN, ESCAPE, BACKSPACE, TAB, SPACEBAR, SPACE, MINUS, EQUALS, LEFT_BRACKET, RIGHT_BRACKET,
+        BACKSLASH, POUND, SEMICOLON, QUOTE, GRAVE_ACCENT, COMMA, PERIOD, FORWARD_SLASH, CAPS_LOCK,
+        F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20, F21, F22,
+        F23, F24, PRINT_SCREEN, SCROLL_LOCK, PAUSE, INSERT, HOME, PAGE_UP, DELETE, END, PAGE_DOWN,
+        RIGHT_ARROW, LEFT_ARROW, DOWN_ARROW, UP_ARROW, KEYPAD_NUMLOCK, KEYPAD_FORWARD_SLASH, KEYPAD_ASTERISK,
+        KEYPAD_MINUS, KEYPAD_PLUS, KEYPAD_ENTER, KEYPAD_ONE, KEYPAD_TWO, KEYPAD_THREE, KEYPAD_FOUR, KEYPAD_FIVE,
+        KEYPAD_SIX, KEYPAD_SEVEN, KEYPAD_EIGHT, KEYPAD_NINE, KEYPAD_ZERO, KEYPAD_PERIOD, KEYPAD_BACKSLASH,
+        APPLICATION, POWER, KEYPAD_EQUALS, LEFT_CONTROL, CONTROL, LEFT_SHIFT, SHIFT, LEFT_ALT, ALT, OPTION,
+        LEFT_GUI, GUI, WINDOWS, COMMAND, RIGHT_CONTROL, RIGHT_SHIFT, RIGHT_ALT, RIGHT_GUI
 
-System Functions (sys):
-    enable_USB, soft_reset, hard_reset, decrease_brightness, increase_brightness
+    Consumer Control Codes (e.g. {'ccc': 'PLAY_PAUSE'}):
+        MUTE, VOLUME_INCREMENT, VOLUME_DECREMENT, RECORD, FAST_FORWARD, REWIND, SCAN_NEXT_TRACK,
+        SCAN_PREVIOUS_TRACK, STOP, EJECT, PLAY_PAUSE, BRIGHTNESS_DECREMENT, BRIGHTNESS_INCREMENT
+
+    Mouse Events (e.g. {'mse': {'x': 10, 'y': -10, 'w': 1, 'b': 'LEFT'}}):
+        'x': horizontally Mouse movement (e.g. 10 | -10)
+        'y': vertically Mouse movement (e.g. 10 | -10)
+        'w': Mousewheel movement (e.g. 1 | -1)
+        'b': LEFT, MIDDLE, RIGHT
+
+    System Functions (e.g. {'sys': 'soft_reset'}):
+        enable_USB, soft_reset, hard_reset, decrease_brightness, increase_brightness
+
+
 
 Serial Connection Commands:
     get_macros, set_macros, save_macros, enable_usb, soft_reset, hard_reset
+
+
+
+Browser limitation:
+    only Chromebased Browsers
+
+Used libraries:
+    SortableJS   - https://github.com/SortableJS/Sortable
+    Font Awesome - https://fontawesome.com/
