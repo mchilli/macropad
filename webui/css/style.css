@@ -8271,6 +8271,10 @@ body {
   cursor: pointer;
 }
 
+.github-corner svg {
+  color: antiquewhite;
+}
+
 .main-container {
   display: flex;
   flex-direction: column;

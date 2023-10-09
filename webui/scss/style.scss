@@ -48,6 +48,11 @@ body {
 }
 
 // project classes
+
+.github-corner svg {
+    color: $color-altwhite;
+}
+
 .main-container {
     display: flex;
     flex-direction: column;
