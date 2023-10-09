@@ -8271,6 +8271,8 @@ body {
   cursor: pointer;
 }
 
+.github-corner:active,
+.github-corner:visited,
 .github-corner svg {
   color: antiquewhite;
 }
