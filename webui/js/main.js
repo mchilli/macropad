@@ -38,6 +38,15 @@ class App {
         this.mainContainer = mainContainer;
 
         this.macroStack = [];
+        const savedMacros = localStorage.getItem('macros');
+        if (savedMacros !== null) {
+            try {
+                this.macroStack.push(JSON.parse(savedMacros));
+            } catch (e) {
+                console.error('appConstructor - can`t parse json string');
+            }
+        }
+
         this.appControlsContainer = appControlsContainer;
         this.appControls = this._initAppControls(this.appControlsContainer);
 
@@ -47,14 +56,21 @@ class App {
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
         this.keyChunkSize = keyChunkSize;
-        this.groupPageStack = [0];
-        this.groupNameStack = ['Macros'];
+        this._initGroupStacks();
 
         this.keyEntriesContainer = keyEntriesContainer;
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
 
-        this._newEmptyKeyEntries();
+        this.macroStack.length === 0 ? this._newEmptyKeyEntries() : this._initializeKeys();
+    }
+
+    /**
+     * Initializes group-related stacks for navigation and organization.
+     */
+    _initGroupStacks() {
+        this.groupPageStack = [0];
+        this.groupNameStack = ['Macros'];
     }
 
     /**
@@ -90,6 +106,7 @@ class App {
             switch (payload.ACK) {
                 case 'macros':
                     this._clearAllKeyEntries();
+                    this._initGroupStacks();
                     this.macroStack = [];
 
                     let importedMacros = payload.CONTENT;
@@ -104,7 +121,7 @@ class App {
                     response = payload.ACK;
                     break;
             }
-            // console.log('Response: ' + response);
+            console.log(`serialReceivedData - response: ${response}`);
         }
     }
 
@@ -177,7 +194,6 @@ class App {
     _appControlsHandler(command) {
         switch (command) {
             case 'connection':
-                // this.deviceConnected ? this.serialConnection.close() : this._initSerialConnection();
                 if (this.deviceConnected) {
                     this.serialConnection.close();
                     this._newEmptyKeyEntries();
@@ -316,14 +332,10 @@ class App {
                 this.serialConnection.close();
                 break;
             case 'set_macros':
-                try {
-                    await this.serialConnection.send({
-                        command: 'set_macros',
-                        content: this.macroStack[0],
-                    });
-                } catch (e) {
-                    console.error('can`t parse json string');
-                }
+                await this.serialConnection.send({
+                    command: 'set_macros',
+                    content: this.macroStack[0],
+                });
                 break;
 
             default:
@@ -600,6 +612,8 @@ class App {
 
         const lastIndex = this.macroStack.length - 1;
         this.macroStack[lastIndex].splice(0, this.macroStack[lastIndex].length, ...macros);
+
+        localStorage.setItem('macros', JSON.stringify(this.macroStack[0]));
     }
 
     /**
@@ -612,6 +626,7 @@ class App {
             this._appendKeysToContainer(key);
         }
 
+        this._reReadKeyEntries();
         this._updateKeyChunkPage();
     }
 
@@ -628,6 +643,7 @@ class App {
      */
     _newEmptyKeyEntries() {
         this._clearAllKeyEntries();
+        this._initGroupStacks();
         this.macroStack = [];
 
         const emptyKeys = Array(this.keyChunkSize)

@@ -10,7 +10,7 @@ import * as utils from '../utils.js';
  * Represents a dialog for editing key settings.
  * @class
  */
-class EditDialog {
+export class EditDialog {
     /**
      * Initializes a new instance of the EditDialog class.
      * @constructor
@@ -474,5 +474,3 @@ class EditDialog {
         }
     }
 }
-
-export { EditDialog };

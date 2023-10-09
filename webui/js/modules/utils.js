@@ -10,7 +10,7 @@
  * @param {Object} options.events - An object containing event listeners to attach (default: {}).
  * @returns {HTMLElement} - The created HTML element.
  */
-function create({
+export function create({
     type = 'div',
     text = undefined,
     attributes = {},
@@ -39,7 +39,7 @@ function create({
  * @param {Object} attributes - An object containing CSS style properties and their values.
  * @throws {Error} - Throws an error if the target is not a valid HTMLElement.
  */
-function style(target = document.documentElement, attributes = {}) {
+export function style(target = document.documentElement, attributes = {}) {
     if (!(target instanceof HTMLElement)) {
         throw new Error('The target must be a valid HTMLElement.');
     }
@@ -58,7 +58,7 @@ function style(target = document.documentElement, attributes = {}) {
  * @param {Element} container - The container element to which the elements will be appended.
  * @param {Array} elements - An array of elements to append.
  */
-function appendElements(container, elements) {
+export function appendElements(container, elements) {
     for (const element of elements) {
         container.appendChild(element);
     }
@@ -68,7 +68,7 @@ function appendElements(container, elements) {
  * Generates a random unique identifier (ID) consisting of alphanumeric characters.
  * @returns {string} - A random unique identifier.
  */
-function uniqueId() {
+export function uniqueId() {
     let ID = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     for (let i = 0; i < 12; i++) {
@@ -82,7 +82,7 @@ function uniqueId() {
  * @param {string} s - The input string to capitalize.
  * @returns {string} - The input string with the first letter capitalized.
  */
-function capitalize(s) {
+export function capitalize(s) {
     return s[0].toUpperCase() + s.slice(1);
 }
 
@@ -91,7 +91,7 @@ function capitalize(s) {
  * @param {string} hexcolor - The hexadecimal color string (e.g., '#RRGGBB').
  * @returns {Array} - An array representing the RGB color values [R, G, B].
  */
-function hexToRGB(hexcolor) {
+export function hexToRGB(hexcolor) {
     const r = parseInt(hexcolor.substr(1, 2), 16);
     const g = parseInt(hexcolor.substr(3, 2), 16);
     const b = parseInt(hexcolor.substr(5, 2), 16);
@@ -103,12 +103,10 @@ function hexToRGB(hexcolor) {
  * @param {Array} rgb - An array representing the RGB color values [R, G, B].
  * @returns {string} - The hexadecimal color string (e.g., '#RRGGBB').
  */
-function rgbToHex([r, g, b]) {
+export function rgbToHex([r, g, b]) {
     const intToHex = (c) => {
         const hex = c.toString(16);
         return hex.length == 1 ? '0' + hex : hex;
     };
     return '#' + intToHex(r) + intToHex(g) + intToHex(b);
 }
-
-export { create, style, appendElements, uniqueId, capitalize, hexToRGB, rgbToHex };
