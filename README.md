@@ -1,6 +1,6 @@
-#### MacroPad by MCHilli
+# MacroPad by MCHilli
 
-This is an Adafruit MacroPad Script for Macros which can be configured over a [WebUI](https://mchilli.github.io/macropad/)
+This is an Adafruit MacroPad Script for Macros which can be configured over a <a href="https://mchilli.github.io/macropad/" target="_blank">WebUI</a>
 
 ##### Browser limitation:
 
