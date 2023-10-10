@@ -5,8 +5,8 @@ $shadow-color: #808080bf;
 $color-blue: #03a9f4;
 $color-red: lightcoral;
 $color-green: #cddc39;
-$color-black: grey;
-$color-darkgrey: #505050;
+$color-grey: grey;
+$color-black: #404040;
 $color-white: white;
 $color-altwhite: antiquewhite;
 
@@ -32,6 +32,7 @@ $macro-entry-height: 30px;
 body {
     margin: $key-entries-gap;
     background-color: $color-altwhite;
+    color: $color-black;
 }
 
 // global classes
@@ -52,6 +53,7 @@ body {
 .github-corner:active,
 .github-corner:visited,
 .github-corner svg {
+    fill: $color-black;
     color: $color-altwhite;
 }
 
@@ -179,7 +181,7 @@ body {
 
         .button {
             background-color: $color-blue;
-            border: 1px solid $color-black;
+            border: 1px solid $color-grey;
         }
     }
 }
@@ -212,7 +214,7 @@ body {
             align-items: center;
             justify-content: center;
             height: $dialog-button-size;
-            background-color: $color-darkgrey;
+            background-color: $color-black;
             color: $color-white;
             font-weight: bold;
             font-size: large;
@@ -246,7 +248,7 @@ body {
                     display: grid;
                     gap: $dialog-gap;
                     background-color: $color-white;
-                    border: 1px solid $color-black;
+                    border: 1px solid $color-grey;
                     box-sizing: border-box;
                     padding: $dialog-gap;
                     max-height: $macro-entry-height * 5 + $dialog-gap * 6;
@@ -259,7 +261,7 @@ body {
                         height: $macro-entry-height;
                         padding: $dialog-gap;
                         background-color: $color-green;
-                        border: 1px solid $color-black;
+                        border: 1px solid $color-grey;
                         border-radius: calc($key-control-border-radius / 2);
                         box-sizing: border-box;
 
@@ -286,28 +288,77 @@ body {
         }
 
         .dialog-button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: $dialog-button-size;
-            height: $dialog-button-size;
-            background-color: $color-white;
-            border: 1px solid $color-black;
-            box-sizing: border-box;
-            cursor: pointer;
-
-            &.close {
-                grid-row: 1;
-                grid-column: 2;
-                background-color: $color-red;
-            }
-
-            &.ok {
-                grid-row: 3;
-                grid-column: 2;
-                background-color: $color-blue;
-                margin-top: 4px;
-            }
+            border: 1px solid $color-grey;
         }
+
+        .dialog-button.close {
+            grid-row: 1;
+            grid-column: 2;
+            border-bottom: 1px solid $color-grey;
+            border-left: 1px solid $color-grey;
+        }
+
+        .dialog-button.ok {
+            grid-row: 3;
+            grid-column: 2;
+            margin-top: 4px;
+            border-top: 1px solid $color-grey;
+            border-left: 1px solid $color-grey;
+        }
+    }
+}
+
+.notification-container {
+    display: flex;
+    flex-direction: column-reverse;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    .notification {
+        display: grid;
+        grid-auto-columns: auto $dialog-button-size;
+        align-items: center;
+        position: relative;
+        min-height: $dialog-button-size;
+        background-color: $color-black;
+        font-weight: bold;
+        color: $color-white;
+        border: 1px solid $color-grey;
+        border-radius: 4px;
+        box-sizing: border-box;
+        overflow: hidden;
+
+        .notification-message {
+            padding: 0 calc($dialog-button-size / 4);
+        }
+
+        .dialog-button.close {
+            border-left: 1px solid $color-grey;
+        }
+    }
+}
+
+.dialog-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: $dialog-button-size;
+    height: $dialog-button-size;
+    background-color: $color-white;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &.close {
+        grid-row: 1;
+        grid-column: 2;
+        background-color: $color-red;
+    }
+
+    &.ok {
+        grid-row: 3;
+        grid-column: 2;
+        background-color: $color-blue;
+        margin-top: 4px;
     }
 }

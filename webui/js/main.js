@@ -7,7 +7,7 @@ import KeyContainer from './modules/classes/KeyContainer.js';
 import SerialConnectionHandler from './modules/classes/SerialConnectionHandler.js';
 import Sortable from './modules/classes/Sortable.js';
 
-import { EditDialog } from './modules/classes/Dialogs.js';
+import { EditDialog, NotificationDialog } from './modules/classes/Dialogs.js';
 
 import * as utils from './modules/utils.js';
 
@@ -29,6 +29,7 @@ class App {
      */
     constructor({
         mainContainer = undefined,
+        notificationContainer = undefined,
         appControlsContainer = undefined,
         deviceControlsContainer = undefined,
         keyChunkSize = 9,
@@ -36,6 +37,7 @@ class App {
         keyEntriesControlsContainer = undefined,
     } = {}) {
         this.mainContainer = mainContainer;
+        this.notificationContainer = notificationContainer;
 
         this.macroStack = [];
         const savedMacros = localStorage.getItem('macros');
@@ -101,19 +103,33 @@ class App {
         if ('ERR' in payload) {
             console.warn('Error: ' + payload.ERR);
         } else if ('ACK' in payload) {
-            let response;
+            let notificationMessage;
+            let response = payload.ACK;
 
             switch (payload.ACK) {
                 case 'macros':
                     const importedMacros = payload.CONTENT;
                     this._newKeyEntries(importedMacros);
 
+                    notificationMessage = 'Macros received from Macropad';
                     response = JSON.stringify(importedMacros);
                     break;
+                case 'Macros received':
+                    notificationMessage = 'Macros sended to Macropad';
+                    break;
+                case 'Macros saved':
+                    notificationMessage = 'Macros saved on Macropad';
+                    break;
                 default:
-                    response = payload.ACK;
+                    notificationMessage = response;
                     break;
             }
+
+            new NotificationDialog({
+                parent: this.notificationContainer,
+                message: notificationMessage,
+            });
+
             console.log(`serialReceivedData - response: ${response}`);
         }
     }
@@ -130,6 +146,11 @@ class App {
             ? 'fa-solid fa-link-slash'
             : 'fa-solid fa-link';
         this.deviceControlsContainer.classList.toggle('hidden', !this.deviceConnected);
+
+        new NotificationDialog({
+            parent: this.notificationContainer,
+            message: this.deviceConnected ? 'Connected to Macropad' : 'Disconnected from Macropad',
+        });
     }
 
     /**
@@ -246,6 +267,11 @@ class App {
                     try {
                         const importedMacros = JSON.parse(content);
                         this._newKeyEntries(importedMacros);
+
+                        new NotificationDialog({
+                            parent: this.notificationContainer,
+                            message: 'Macros loaded from file',
+                        });
                     } catch (error) {
                         console.error('appControlsHandler - can`t parse json string');
                     }
@@ -805,6 +831,7 @@ class App {
 // Initialize the App instance.
 const app = new App({
     mainContainer: document.querySelector('.main-container'),
+    notificationContainer: document.querySelector('.notification-container'),
     appControlsContainer: document.querySelector('.app-controls'),
     deviceControlsContainer: document.querySelector('.device-controls'),
     keyChunkSize: 9,

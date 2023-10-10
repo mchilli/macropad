@@ -8257,6 +8257,7 @@ readers do not read off random characters that represent icons */
 body {
   margin: 10px;
   background-color: antiquewhite;
+  color: #404040;
 }
 
 .hidden {
@@ -8274,6 +8275,7 @@ body {
 .github-corner:active,
 .github-corner:visited,
 .github-corner svg {
+  fill: #404040;
   color: antiquewhite;
 }
 
@@ -8424,7 +8426,7 @@ body {
   align-items: center;
   justify-content: center;
   height: 40px;
-  background-color: #505050;
+  background-color: #404040;
   color: white;
   font-weight: bold;
   font-size: large;
@@ -8483,22 +8485,66 @@ body {
   display: none;
 }
 .dialog-container .dialog .dialog-button {
+  border: 1px solid grey;
+}
+.dialog-container .dialog .dialog-button.close {
+  grid-row: 1;
+  grid-column: 2;
+  border-bottom: 1px solid grey;
+  border-left: 1px solid grey;
+}
+.dialog-container .dialog .dialog-button.ok {
+  grid-row: 3;
+  grid-column: 2;
+  margin-top: 4px;
+  border-top: 1px solid grey;
+  border-left: 1px solid grey;
+}
+
+.notification-container {
+  display: flex;
+  flex-direction: column-reverse;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+.notification-container .notification {
+  display: grid;
+  grid-auto-columns: auto 40px;
+  align-items: center;
+  position: relative;
+  min-height: 40px;
+  background-color: #404040;
+  font-weight: bold;
+  color: white;
+  border: 1px solid grey;
+  border-radius: 4px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.notification-container .notification .notification-message {
+  padding: 0 10px;
+}
+.notification-container .notification .dialog-button.close {
+  border-left: 1px solid grey;
+}
+
+.dialog-button {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 40px;
   height: 40px;
   background-color: white;
-  border: 1px solid grey;
   box-sizing: border-box;
   cursor: pointer;
 }
-.dialog-container .dialog .dialog-button.close {
+.dialog-button.close {
   grid-row: 1;
   grid-column: 2;
   background-color: lightcoral;
 }
-.dialog-container .dialog .dialog-button.ok {
+.dialog-button.ok {
   grid-row: 3;
   grid-column: 2;
   background-color: #03a9f4;

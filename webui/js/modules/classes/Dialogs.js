@@ -6,11 +6,24 @@ import { getMacroByValue, getMacroByType } from './MacroDict.js';
 
 import * as utils from '../utils.js';
 
+class BaseDialog {
+    /**
+     * Removes the Notification's DOM element by fading it out and then removing it from its parent.
+     */
+    removeDOM() {
+        this.DOM.container.style.opacity = 0;
+
+        setTimeout(() => {
+            this.DOM.container.parentNode.removeChild(this.DOM.container);
+        }, this.fadeOutTime);
+    }
+}
+
 /**
  * Represents a dialog for editing key settings.
  * @class
  */
-export class EditDialog {
+export class EditDialog extends BaseDialog {
     /**
      * Initializes a new instance of the EditDialog class.
      * @constructor
@@ -20,8 +33,11 @@ export class EditDialog {
      * @returns {HTMLElement} - The container DOM element for the dialog.
      */
     constructor({ keyInstance = null, onButtonPressed = () => {} } = {}) {
+        super();
         this.keyInstance = keyInstance;
         this.onButtonPressed = onButtonPressed;
+
+        this.fadeOutTime = 250;
 
         this.DOM = this._initDOM();
         this._setValues();
@@ -41,6 +57,7 @@ export class EditDialog {
         DOM.container = utils.create({
             attributes: {
                 class: 'dialog-container',
+                style: `transition: opacity ${this.fadeOutTime / 1000}s ease`,
             },
             children: [
                 (DOM.dialog = utils.create({
@@ -382,13 +399,6 @@ export class EditDialog {
     }
 
     /**
-     * Removes the dialog from the DOM.
-     */
-    removeDOM() {
-        this.DOM.container.parentNode.removeChild(this.DOM.container);
-    }
-
-    /**
      * Handles the change event of the dialog type select input.
      * Updates the dialog's visual style based on the selected type.
      */
@@ -471,5 +481,88 @@ export class EditDialog {
             default:
                 break;
         }
+    }
+}
+
+/**
+ * Represents a notification.
+ * @class
+ */
+export class NotificationDialog extends BaseDialog {
+    /**
+     * Initializes a new instance of the NotificationDialog class.
+     * @constructor
+     * @param {Object} options - The options for configuring the dialog.
+     * @param {HTMLElement} [options.parent=document.body] - The parent element to which the Notification will be appended.
+     * @param {string} [options.message=''] - The message to be displayed in the Notification.
+     * @param {number} [options.timeout=1000] - The duration (in milliseconds) for which the Notification will be displayed before automatically fading out.
+     * @param {boolean} [options.permanent=false] - Whether the Notification should remain visible until manually closed.
+     */
+    constructor({ parent = document.body, message = '', timeout = 2000, permanent = false } = {}) {
+        super();
+        this.parent = parent;
+        this.message = message;
+        this.timeout = timeout;
+        this.permanent = permanent;
+
+        this.fadeOutTime = 250;
+
+        this.DOM = this._initDOM();
+
+        this.parent.appendChild(this.DOM.container);
+
+        if (!this.permanent) {
+            setTimeout(() => {
+                this.removeDOM();
+            }, this.timeout);
+        }
+    }
+
+    /**
+     * Initializes the DOM structure for the dialog.
+     * @returns {Object} - An object containing the DOM elements.
+     */
+    _initDOM() {
+        let DOM = {};
+
+        DOM.container = utils.create({
+            attributes: {
+                class: 'notification',
+                style: `transition: opacity ${this.fadeOutTime / 1000}s ease`,
+            },
+            children: [
+                utils.create({
+                    text: this.message,
+                    attributes: {
+                        class: 'notification-message',
+                    },
+                }),
+            ],
+        });
+
+        if (this.permanent) {
+            utils.appendElements(DOM.container, [
+                utils.create({
+                    attributes: {
+                        class: 'dialog-button close',
+                    },
+                    children: [
+                        utils.create({
+                            type: 'i',
+                            attributes: {
+                                class: 'fa-solid fa-xmark',
+                            },
+                        }),
+                    ],
+                    events: {
+                        click: () => this.removeDOM(),
+                    },
+                }),
+            ]);
+        }
+
+        DOM.container.instance = this;
+
+        return DOM;
     }
 }
