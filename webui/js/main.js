@@ -62,7 +62,7 @@ class App {
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
 
-        this.macroStack.length === 0 ? this._newEmptyKeyEntries() : this._initializeKeys();
+        this.macroStack.length === 0 ? this._newKeyEntries() : this._initializeKeys();
     }
 
     /**
@@ -105,15 +105,8 @@ class App {
 
             switch (payload.ACK) {
                 case 'macros':
-                    this._clearAllKeyEntries();
-                    this._initGroupStacks();
-                    this.macroStack = [];
-
-                    let importedMacros = payload.CONTENT;
-
-                    this.macroStack.push(this._fillUpKeysEntries(importedMacros));
-
-                    this._initializeKeys();
+                    const importedMacros = payload.CONTENT;
+                    this._newKeyEntries(importedMacros);
 
                     response = JSON.stringify(importedMacros);
                     break;
@@ -180,9 +173,48 @@ class App {
                     click: () => this._appControlsHandler('new'),
                 },
             }),
+            save: utils.create({
+                attributes: {
+                    title: 'Save',
+                    class: 'button',
+                },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-floppy-disk',
+                        },
+                    }),
+                ],
+                events: {
+                    click: () => this._appControlsHandler('save'),
+                },
+            }),
+            open: utils.create({
+                attributes: {
+                    title: 'Open',
+                    class: 'button',
+                },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-folder-open',
+                        },
+                    }),
+                ],
+                events: {
+                    click: () => this._appControlsHandler('open'),
+                },
+            }),
         };
 
-        utils.appendElements(container, [appControls.new, appControls.connection]);
+        utils.appendElements(container, [
+            appControls.new,
+            appControls.open,
+            appControls.save,
+            appControls.connection,
+        ]);
 
         return appControls;
     }
@@ -196,13 +228,28 @@ class App {
             case 'connection':
                 if (this.deviceConnected) {
                     this.serialConnection.close();
-                    this._newEmptyKeyEntries();
+                    this._newKeyEntries();
                 } else {
                     this._initSerialConnection();
                 }
                 break;
             case 'new':
-                this._newEmptyKeyEntries();
+                this._newKeyEntries();
+                break;
+            case 'save':
+                if (!this.macroStack[0].every((key) => key.type === 'blank')) {
+                    utils.downloadObjectAsJson(this.macroStack[0], 'macros.json');
+                }
+                break;
+            case 'open':
+                utils.openFile('.json').then((content) => {
+                    try {
+                        const importedMacros = JSON.parse(content);
+                        this._newKeyEntries(importedMacros);
+                    } catch (error) {
+                        console.error('appControlsHandler - can`t parse json string');
+                    }
+                });
                 break;
 
             default:
@@ -639,18 +686,14 @@ class App {
     }
 
     /**
-     * Clear all macros and creates complete new empty key entries.
+     * Clear all macros and creates complete new key entries.
      */
-    _newEmptyKeyEntries() {
+    _newKeyEntries(entries = []) {
         this._clearAllKeyEntries();
         this._initGroupStacks();
         this.macroStack = [];
 
-        const emptyKeys = Array(this.keyChunkSize)
-            .fill()
-            .map(() => this._emptyKeyEntry());
-
-        this.macroStack.push(emptyKeys);
+        this.macroStack.push(this._fillUpKeysEntries(entries));
 
         this._initializeKeys();
     }
@@ -660,9 +703,7 @@ class App {
      */
     _appendEmptyKeyEntries() {
         const currentMacroStack = this.macroStack[this.macroStack.length - 1];
-        const emptyKeys = Array(this.keyChunkSize)
-            .fill()
-            .map(() => this._emptyKeyEntry());
+        const emptyKeys = this._fillUpKeysEntries([]);
 
         currentMacroStack.push(...emptyKeys);
 

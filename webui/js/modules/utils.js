@@ -110,3 +110,61 @@ export function rgbToHex([r, g, b]) {
     };
     return '#' + intToHex(r) + intToHex(g) + intToHex(b);
 }
+
+/**
+ * Converts a JavaScript object to a JSON file and offers it for download.
+ * @param {Object} obj - The JavaScript object to be converted to JSON.
+ * @param {string} [filename="data.json"] - The name of the downloaded JSON file (optional).
+ */
+export function downloadObjectAsJson(obj, filename = 'data.json') {
+    const json = JSON.stringify(obj);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+
+    a.addEventListener('click', () => {
+        URL.revokeObjectURL(url);
+    });
+
+    a.dispatchEvent(
+        new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: false,
+        })
+    );
+}
+
+/**
+ * Opens a file selection dialog to allow the user to choose a file with the specified file type(s).
+ * Reads the selected file's content as text and returns it.
+ * @param {string} [accept='*'] - The file type(s) accepted by the file selection dialog
+ *                                (e.g., '.txt', 'image/*'). Defaults to accepting all file types.
+ * @returns {Promise<string>} A promise that resolves with the text content of the selected file
+ *                           or rejects with an error message if no file is selected or an error occurs.
+ */
+export function openFile(accept = '*') {
+    return new Promise((resolve, reject) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = accept;
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            input.remove();
+            if (!file) {
+                reject('No file selected');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                const content = reader.result;
+                resolve(content);
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    });
+}

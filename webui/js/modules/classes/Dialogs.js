@@ -415,9 +415,8 @@ export class EditDialog {
     /**
      * Appends a macro selector to the specified container.
      * @param {HTMLElement} container - The container element to which the macro selector will be added.
-     * @param {string} type - The type of macro selector to append.
      */
-    _appendMacroSelector(container, type) {
+    _appendMacroSelector(container) {
         const entry = getMacroByType('selector');
         entry.instance.addAdditionalControls();
 
