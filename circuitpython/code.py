@@ -1,3 +1,7 @@
+"""
+    @Author: MCHilli   <https://github.com/mchilli>
+"""
+
 import json
 import time
 
@@ -7,8 +11,6 @@ import supervisor
 import usb_cdc
 from adafruit_display_text.label import Label
 from adafruit_macropad import MacroPad
-from adafruit_hid.keyboard_layout_win_de import KeyboardLayout as LayoutDE
-from adafruit_hid.keycode import Keycode
 from adafruit_hid.consumer_control_code import ConsumerControlCode
 from adafruit_hid.mouse import Mouse
 
@@ -18,46 +20,55 @@ from utils.system import System
 
 supervisor.runtime.autoreload = False
 
-"""
-    Macro Types:
-        "group": a group containing more groups or macros
-        "macro": a macro that will be executed
-        "blank": a blank spacer for formating
-    
-    Keycodes (kc):
-        A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-        ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, 
-        ENTER, RETURN, ESCAPE, BACKSPACE, TAB, SPACEBAR, SPACE, MINUS, EQUALS, LEFT_BRACKET, RIGHT_BRACKET,
-        BACKSLASH, POUND, SEMICOLON, QUOTE, GRAVE_ACCENT, COMMA, PERIOD, FORWARD_SLASH, CAPS_LOCK,
-        F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20, F21, F22,
-        F23, F24, PRINT_SCREEN, SCROLL_LOCK, PAUSE, INSERT, HOME, PAGE_UP, DELETE, END, PAGE_DOWN,
-        RIGHT_ARROW, LEFT_ARROW, DOWN_ARROW, UP_ARROW, KEYPAD_NUMLOCK, KEYPAD_FORWARD_SLASH, KEYPAD_ASTERISK,
-        KEYPAD_MINUS, KEYPAD_PLUS, KEYPAD_ENTER, KEYPAD_ONE, KEYPAD_TWO, KEYPAD_THREE, KEYPAD_FOUR, KEYPAD_FIVE,
-        KEYPAD_SIX, KEYPAD_SEVEN, KEYPAD_EIGHT, KEYPAD_NINE, KEYPAD_ZERO, KEYPAD_PERIOD, KEYPAD_BACKSLASH,
-        APPLICATION, POWER, KEYPAD_EQUALS, LEFT_CONTROL, CONTROL, LEFT_SHIFT, SHIFT, LEFT_ALT, ALT, OPTION,
-        LEFT_GUI, GUI, WINDOWS, COMMAND, RIGHT_CONTROL, RIGHT_SHIFT, RIGHT_ALT, RIGHT_GUI
+MACROFILE = "macros.json" # The file in which the macros are saved
+SLEEPTIME = 10 # Time in seconds until the display turns off
+KEYBOARDLAYOUT = 'us' # Supported keyboard layouts: br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
 
-    Consumer Control Codes (ccc):
-        MUTE, VOLUME_INCREMENT, VOLUME_DECREMENT, RECORD, FAST_FORWARD, REWIND, SCAN_NEXT_TRACK,
-        SCAN_PREVIOUS_TRACK, STOP, EJECT, PLAY_PAUSE, BRIGHTNESS_DECREMENT, BRIGHTNESS_INCREMENT
+if KEYBOARDLAYOUT == 'br':
+    from adafruit_hid.keyboard_layout_win_br import KeyboardLayout
+    from adafruit_hid.keycode_win_br import Keycode
+elif KEYBOARDLAYOUT == 'cz':
+    from adafruit_hid.keyboard_layout_win_cz import KeyboardLayout
+    from adafruit_hid.keycode_win_cz import Keycode
+elif KEYBOARDLAYOUT == 'da':
+    from adafruit_hid.keyboard_layout_win_da import KeyboardLayout
+    from adafruit_hid.keycode_win_da import Keycode
+elif KEYBOARDLAYOUT == 'de':
+    from adafruit_hid.keyboard_layout_win_de import KeyboardLayout
+    from adafruit_hid.keycode_win_de import Keycode
+elif KEYBOARDLAYOUT == 'es':
+    from adafruit_hid.keyboard_layout_win_es import KeyboardLayout
+    from adafruit_hid.keycode_win_es import Keycode
+elif KEYBOARDLAYOUT == 'fr':
+    from adafruit_hid.keyboard_layout_win_fr import KeyboardLayout
+    from adafruit_hid.keycode_win_fr import Keycode
+elif KEYBOARDLAYOUT == 'hu':
+    from adafruit_hid.keyboard_layout_win_hu import KeyboardLayout
+    from adafruit_hid.keycode_win_hu import Keycode
+elif KEYBOARDLAYOUT == 'it':
+    from adafruit_hid.keyboard_layout_win_it import KeyboardLayout
+    from adafruit_hid.keycode_win_it import Keycode
+elif KEYBOARDLAYOUT == 'po':
+    from adafruit_hid.keyboard_layout_win_po import KeyboardLayout
+    from adafruit_hid.keycode_win_po import Keycode
+elif KEYBOARDLAYOUT == 'sw':
+    from adafruit_hid.keyboard_layout_win_sw import KeyboardLayout
+    from adafruit_hid.keycode_win_sw import Keycode
+elif KEYBOARDLAYOUT == 'tr':
+    from adafruit_hid.keyboard_layout_win_tr import KeyboardLayout
+    from adafruit_hid.keycode_win_tr import Keycode
+elif KEYBOARDLAYOUT == 'uk':
+    from adafruit_hid.keyboard_layout_win_uk import KeyboardLayout
+    from adafruit_hid.keycode_win_uk import Keycode
+else:
+    from adafruit_hid.keyboard_layout_us import KeyboardLayout
+    from adafruit_hid.keycode import Keycode
 
-    Mouse Events (mse):
-        'x': horizontally Mouse movement (e.g. 10 | -10)
-        'y': vertically Mouse movement (e.g. 10 | -10)
-        'w': Mousewheel movement (e.g. 1 | -1)
-        'b': LEFT, MIDDLE, RIGHT
-
-    System Functions (sys): 
-        enable_USB, soft_reset, hard_reset, decrease_brightness, increase_brightness
-"""
-
-MACROFILE = "macros.json"
-SLEEPTIME = 10
 
 class MacroApp():
     """ Main Class """
     def __init__(self) -> None:
-        self.macropad = MacroPad(layout_class=LayoutDE)
+        self.macropad = MacroPad(layout_class=KeyboardLayout)
         self.macropad.display.auto_refresh = False
         self.macropad.display.brightness = 0.1
         self.macropad.pixels.auto_write = False
