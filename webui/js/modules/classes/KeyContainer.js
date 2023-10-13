@@ -138,7 +138,7 @@ export default class KeyContainer {
                         utils.create({
                             attributes: {
                                 title: 'Edit',
-                                class: 'button',
+                                class: 'button edit',
                             },
                             children: [
                                 utils.create({

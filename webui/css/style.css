@@ -8349,6 +8349,15 @@ body {
   padding: 2px 0 0 2px;
   box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
 }
+.main-container .key-entries .key-container .key-controls .button.edit:hover {
+  color: #4fc1e9;
+}
+.main-container .key-entries .key-container .key-controls .button.open:hover {
+  color: #add468;
+}
+.main-container .key-entries .key-container .key-controls .button.delete:hover {
+  color: #fc6e51;
+}
 .main-container .key-entries .key-container .key-type-icon,
 .main-container .key-entries .key-container .button {
   width: 22px;
@@ -8395,6 +8404,7 @@ body {
 .main-container .app-controls .button,
 .main-container .device-controls .button,
 .main-container .key-entries-controls .button {
+  position: relative;
   background-color: #4fc1e9;
   border: 1px solid #808080;
 }
@@ -8404,10 +8414,15 @@ body {
   pointer-events: none;
 }
 
-.dialog-container::before {
+.dialog-container {
   position: absolute;
   top: 0;
   left: 0;
+  height: 100%;
+  width: 100%;
+}
+.dialog-container::before {
+  display: block;
   height: 100%;
   width: 100%;
   content: "";
@@ -8557,24 +8572,41 @@ body {
   border-left: 1px solid #808080;
 }
 
-.dialog-button {
+.dialog-container .dialog-button,
+.notification-container .dialog-button {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
   width: 40px;
   height: 40px;
   background-color: #ffffff;
   box-sizing: border-box;
   cursor: pointer;
 }
-.dialog-button.close {
+.dialog-container .dialog-button.close,
+.notification-container .dialog-button.close {
   grid-row: 1;
   grid-column: 2;
   background-color: #fc6e51;
 }
-.dialog-button.ok {
+.dialog-container .dialog-button.ok,
+.notification-container .dialog-button.ok {
   grid-row: 3;
   grid-column: 2;
   background-color: #4fc1e9;
   margin-top: 4px;
+}
+
+.main-container .app-controls .button:hover:after,
+.main-container .device-controls .button:hover:after,
+.main-container .key-entries-controls .button:hover:after,
+.dialog-container .dialog-button:hover:after,
+.notification-container .dialog-button:hover:after {
+  display: block;
+  content: "";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  box-shadow: inset 0px 0px 5px 2px rgba(128, 128, 128, 0.7490196078);
 }
