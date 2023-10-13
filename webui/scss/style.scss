@@ -192,11 +192,17 @@ body {
 }
 
 .dialog-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
+    &::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        content: '';
+        background-color: $color-white;
+        opacity: 0.5;
+        backdrop-filter: blur(1px);
+    }
 
     .dialog {
         display: grid;
