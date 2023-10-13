@@ -799,6 +799,10 @@ class App {
         return { type: 'blank' };
     }
 
+    /**
+     * Checks if all entries in the first element of the 'macroStack' array are of type 'blank'.
+     * @returns {boolean} True if all entries are of type 'blank', otherwise false.
+     */
     _allKeyEntriesEmpty() {
         return this.macroStack[0].every((key) => key.type === 'blank');
     }
