@@ -182,7 +182,7 @@ body {
         .info {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-evenly;
             align-items: center;
             width: $key-entry-size;
             height: calc($key-entry-size / 2);

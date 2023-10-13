@@ -142,10 +142,14 @@ class App {
         this.appControls.connection.childNodes[0].className = this.deviceConnected
             ? 'fa-solid fa-link-slash'
             : 'fa-solid fa-link';
+        this.appControls.connection.childNodes[1].innerText = this.deviceConnected
+            ? 'Disconnect'
+            : 'Connect';
+
         this.deviceControlsContainer.classList.toggle('hidden', !this.deviceConnected);
 
         this._notify(
-            this.deviceConnected ? 'success' : 'warning',
+            this.deviceConnected ? 'success' : 'info',
             this.deviceConnected ? 'Connected to macropad' : 'Disconnected from macropad'
         );
     }
@@ -169,6 +173,9 @@ class App {
                             class: 'fa-solid fa-link',
                         },
                     }),
+                    utils.create({
+                        text: 'Connect',
+                    }),
                 ],
                 events: {
                     click: (event) => this._appControlsHandler(event, 'connection'),
@@ -185,6 +192,9 @@ class App {
                         attributes: {
                             class: 'fa-solid fa-file',
                         },
+                    }),
+                    utils.create({
+                        text: 'New',
                     }),
                 ],
                 events: {
@@ -203,6 +213,9 @@ class App {
                             class: 'fa-solid fa-floppy-disk',
                         },
                     }),
+                    utils.create({
+                        text: 'Save',
+                    }),
                 ],
                 events: {
                     click: (event) => this._appControlsHandler(event, 'save'),
@@ -219,6 +232,9 @@ class App {
                         attributes: {
                             class: 'fa-solid fa-folder-open',
                         },
+                    }),
+                    utils.create({
+                        text: 'Open',
                     }),
                 ],
                 events: {
@@ -249,7 +265,7 @@ class App {
                 const importedMacros = JSON.parse(content);
                 this._newKeyEntries(importedMacros);
 
-                this._notify('info', 'Macros loaded from file');
+                this._notify('success', 'Macros loaded from file');
             } catch (error) {
                 console.error("appControlsHandler - can't parse JSON string:");
             }
@@ -277,7 +293,7 @@ class App {
                 break;
             case 'new':
                 if (this._allKeyEntriesEmpty()) {
-                    this._notify('warning', 'No macros configured');
+                    this._notify('info', 'No macros configured');
                 } else {
                     new ConfirmationDialog({
                         position: {
@@ -296,7 +312,7 @@ class App {
                 break;
             case 'save':
                 if (this._allKeyEntriesEmpty()) {
-                    this._notify('warning', 'No macros configured');
+                    this._notify('info', 'No macros configured');
                 } else {
                     utils.downloadObjectAsJson(this.macroStack[0], 'macros.json');
                 }
@@ -346,6 +362,9 @@ class App {
                             class: 'fa-solid fa-download',
                         },
                     }),
+                    utils.create({
+                        text: 'Download',
+                    }),
                 ],
                 events: {
                     click: (event) => this._deviceControlsHandler(event, 'getMacros'),
@@ -363,6 +382,9 @@ class App {
                             class: 'fa-solid fa-upload',
                         },
                     }),
+                    utils.create({
+                        text: 'Upload',
+                    }),
                 ],
                 events: {
                     click: (event) => this._deviceControlsHandler(event, 'setMacros'),
@@ -370,15 +392,18 @@ class App {
             }),
             save: utils.create({
                 attributes: {
-                    title: 'Save on Macropad',
+                    title: 'Store on Macropad',
                     class: 'button',
                 },
                 children: [
                     utils.create({
                         type: 'i',
                         attributes: {
-                            class: 'fa-solid fa-floppy-disk',
+                            class: 'fa-solid fa-hard-drive',
                         },
+                    }),
+                    utils.create({
+                        text: 'Store',
                     }),
                 ],
                 events: {
@@ -386,28 +411,58 @@ class App {
                 },
             }),
             softreset: utils.create({
-                text: 'soft reset',
                 attributes: {
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-screwdriver-wrench',
+                        },
+                    }),
+                    utils.create({
+                        text: 'Soft Reset',
+                    }),
+                ],
                 events: {
                     click: (event) => this._deviceControlsHandler(event, 'softReset'),
                 },
             }),
             hardreset: utils.create({
-                text: 'hard reset',
                 attributes: {
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-screwdriver-wrench',
+                        },
+                    }),
+                    utils.create({
+                        text: 'Hard Reset',
+                    }),
+                ],
                 events: {
                     click: (event) => this._deviceControlsHandler(event, 'hardReset'),
                 },
             }),
             enableusb: utils.create({
-                text: 'enable USB',
                 attributes: {
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-screwdriver-wrench',
+                        },
+                    }),
+                    utils.create({
+                        text: 'Enable USB',
+                    }),
+                ],
                 events: {
                     click: (event) => this._deviceControlsHandler(event, 'enableUSB'),
                 },
@@ -534,6 +589,9 @@ class App {
                             class: 'fa-solid fa-arrow-right',
                         },
                     }),
+                    utils.create({
+                        text: 'Next',
+                    }),
                 ],
                 events: {
                     click: () => this._keyChunkControlsHandler('next'),
@@ -550,6 +608,9 @@ class App {
                         attributes: {
                             class: 'fa-solid fa-arrow-left',
                         },
+                    }),
+                    utils.create({
+                        text: 'Previous',
                     }),
                 ],
                 events: {
@@ -887,10 +948,14 @@ class App {
             this.groupPageStack[this.groupPageStack.length - 1] + 1
         } / ${pageCount}`;
 
-        this.keyEntriesControls.back.childNodes[0].className =
-            this.macroStack.length > 1 && this.groupPageStack[this.groupPageStack.length - 1] === 0
-                ? 'fa-solid fa-arrow-turn-up fa-flip-horizontal'
-                : 'fa-solid fa-arrow-left';
+        const firstPageOfGroup =
+            this.macroStack.length > 1 && this.groupPageStack[this.groupPageStack.length - 1] === 0;
+        this.keyEntriesControls.back.childNodes[0].className = firstPageOfGroup
+            ? 'fa-solid fa-arrow-turn-up fa-flip-horizontal'
+            : 'fa-solid fa-arrow-left';
+        this.keyEntriesControls.back.childNodes[1].innerText = firstPageOfGroup
+            ? 'Close'
+            : 'Previous';
     }
 
     /**
