@@ -1,14 +1,14 @@
 @import 'fontawesome.scss';
 @import 'solid.scss';
 
-$shadow-color: #808080bf;
-$color-blue: #03a9f4;
-$color-red: lightcoral;
-$color-green: #cddc39;
-$color-grey: grey;
+$color-blue: #4fc1e9;
+$color-red: #fc6e51;
+$color-green: #add468;
+$color-yellow: #ffce54;
+$color-grey: #808080;
 $color-black: #404040;
-$color-white: white;
-$color-altwhite: antiquewhite;
+$color-white: #ffffff;
+$shadow-color: #808080bf;
 
 $key-entry-size: 100px;
 $key-entries-gap: 10px;
@@ -31,7 +31,7 @@ $macro-entry-height: 30px;
 
 body {
     margin: $key-entries-gap;
-    background-color: $color-altwhite;
+    background-color: $color-white;
     color: $color-black;
 }
 
@@ -54,7 +54,7 @@ body {
 .github-corner:visited,
 .github-corner svg {
     fill: $color-black;
-    color: $color-altwhite;
+    color: $color-white;
 }
 
 .main-container {
@@ -89,7 +89,7 @@ body {
             .key-type-icon {
                 grid-row: 1;
                 cursor: help;
-                background-color: $color-altwhite;
+                background-color: $color-white;
                 border-radius: $key-control-border-radius 0 $key-control-border-radius 0;
                 padding: 0 $key-control-padding 0 0;
                 box-shadow: $key-control-shadow-inset;
@@ -99,7 +99,7 @@ body {
                 justify-self: end;
                 grid-row: 1;
                 cursor: grab;
-                background-color: $color-altwhite;
+                background-color: $color-white;
                 border-radius: 0 $key-control-border-radius 0 $key-control-border-radius;
                 padding: 0 0 0 $key-control-padding;
                 box-shadow: $key-control-shadow-inset;
@@ -116,7 +116,7 @@ body {
                 align-self: center;
                 font-weight: bold;
                 word-break: break-all;
-                background-color: $color-altwhite;
+                background-color: $color-white;
                 border-radius: $key-control-border-radius;
                 padding: $key-control-padding $key-control-padding * 3;
                 box-shadow: $key-control-shadow-inset;
@@ -127,7 +127,7 @@ body {
                 grid-row: 3;
                 grid-column: 1/3;
                 justify-self: end;
-                background-color: $color-altwhite;
+                background-color: $color-white;
                 border-radius: $key-control-border-radius 0 $key-control-border-radius 0;
                 padding: $key-control-padding 0 0 $key-control-padding;
                 box-shadow: $key-control-shadow-inset;
@@ -162,6 +162,7 @@ body {
     .key-entries-controls {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;
         gap: $key-entries-gap;
         margin-bottom: $key-entries-gap;
 
@@ -182,6 +183,10 @@ body {
         .button {
             background-color: $color-blue;
             border: 1px solid $color-grey;
+
+            i {
+                pointer-events: none;
+            }
         }
     }
 }
@@ -219,6 +224,13 @@ body {
             font-weight: bold;
             font-size: large;
             cursor: move;
+        }
+
+        .dialog-prompt {
+            grid-row: 2;
+            grid-column: 1;
+            max-width: 265px;
+            margin: 4px;
         }
 
         .dialog-inputs {
@@ -294,6 +306,7 @@ body {
         .dialog-button.close {
             grid-row: 1;
             grid-column: 2;
+            border: none;
             border-bottom: 1px solid $color-grey;
             border-left: 1px solid $color-grey;
         }
@@ -302,6 +315,7 @@ body {
             grid-row: 3;
             grid-column: 2;
             margin-top: 4px;
+            border: none;
             border-top: 1px solid $color-grey;
             border-left: 1px solid $color-grey;
         }
@@ -322,12 +336,23 @@ body {
         position: relative;
         min-height: $dialog-button-size;
         background-color: $color-black;
-        font-weight: bold;
-        color: $color-white;
         border: 1px solid $color-grey;
         border-radius: 4px;
         box-sizing: border-box;
         overflow: hidden;
+
+        &.info {
+            background-color: $color-blue;
+        }
+        &.success {
+            background-color: $color-green;
+        }
+        &.warning {
+            background-color: $color-yellow;
+        }
+        &.error {
+            background-color: $color-red;
+        }
 
         .notification-message {
             padding: 0 calc($dialog-button-size / 4);

@@ -7,7 +7,7 @@ import KeyContainer from './modules/classes/KeyContainer.js';
 import SerialConnectionHandler from './modules/classes/SerialConnectionHandler.js';
 import Sortable from './modules/classes/Sortable.js';
 
-import { EditDialog, NotificationDialog } from './modules/classes/Dialogs.js';
+import { EditDialog, ConfirmationDialog, NotificationDialog } from './modules/classes/Dialogs.js';
 
 import * as utils from './modules/utils.js';
 
@@ -111,24 +111,21 @@ class App {
                     const importedMacros = payload.CONTENT;
                     this._newKeyEntries(importedMacros);
 
-                    notificationMessage = 'Macros received from Macropad';
+                    notificationMessage = 'Received from macropad';
                     response = JSON.stringify(importedMacros);
                     break;
                 case 'Macros received':
-                    notificationMessage = 'Macros sended to Macropad';
+                    notificationMessage = 'Sended to macropad';
                     break;
                 case 'Macros saved':
-                    notificationMessage = 'Macros saved on Macropad';
+                    notificationMessage = 'Saved on macropad';
                     break;
                 default:
                     notificationMessage = response;
                     break;
             }
 
-            new NotificationDialog({
-                parent: this.notificationContainer,
-                message: notificationMessage,
-            });
+            this._notify('info', notificationMessage);
 
             console.log(`serialReceivedData - response: ${response}`);
         }
@@ -147,10 +144,10 @@ class App {
             : 'fa-solid fa-link';
         this.deviceControlsContainer.classList.toggle('hidden', !this.deviceConnected);
 
-        new NotificationDialog({
-            parent: this.notificationContainer,
-            message: this.deviceConnected ? 'Connected to Macropad' : 'Disconnected from Macropad',
-        });
+        this._notify(
+            this.deviceConnected ? 'success' : 'warning',
+            this.deviceConnected ? 'Connected to macropad' : 'Disconnected from macropad'
+        );
     }
 
     /**
@@ -174,7 +171,7 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._appControlsHandler('connection'),
+                    click: (event) => this._appControlsHandler(event, 'connection'),
                 },
             }),
             new: utils.create({
@@ -191,7 +188,7 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._appControlsHandler('new'),
+                    click: (event) => this._appControlsHandler(event, 'new'),
                 },
             }),
             save: utils.create({
@@ -208,7 +205,7 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._appControlsHandler('save'),
+                    click: (event) => this._appControlsHandler(event, 'save'),
                 },
             }),
             open: utils.create({
@@ -225,7 +222,7 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._appControlsHandler('open'),
+                    click: (event) => this._appControlsHandler(event, 'open'),
                 },
             }),
         };
@@ -242,40 +239,86 @@ class App {
 
     /**
      * Handles button actions for the application controls.
+     * @param {MouseEvent} event - The mouse event that triggered.
      * @param {string} command - The command associated with the button action.
      */
-    _appControlsHandler(command) {
+    _appControlsHandler(event, command) {
+        const openFile = async () => {
+            try {
+                const content = await utils.openFile('.json');
+                const importedMacros = JSON.parse(content);
+                this._newKeyEntries(importedMacros);
+
+                this._notify('info', 'Macros loaded from file');
+            } catch (error) {
+                console.error("appControlsHandler - can't parse JSON string:");
+            }
+        };
+
         switch (command) {
             case 'connection':
                 if (this.deviceConnected) {
-                    this.serialConnection.close();
-                    this._newKeyEntries();
+                    new ConfirmationDialog({
+                        position: {
+                            anchor: 'center',
+                            top: event.y,
+                            left: event.x,
+                        },
+                        title: 'Warning',
+                        prompt: 'Do you really want to disconnect?',
+                    })
+                        .then(async (response) => {
+                            this.serialConnection.close();
+                        })
+                        .catch((error) => {});
                 } else {
                     this._initSerialConnection();
                 }
                 break;
             case 'new':
-                this._newKeyEntries();
+                if (this._allKeyEntriesEmpty()) {
+                    this._notify('warning', 'No macros configured');
+                } else {
+                    new ConfirmationDialog({
+                        position: {
+                            anchor: 'center',
+                            top: event.y,
+                            left: event.x,
+                        },
+                        title: 'Warning',
+                        prompt: 'Do you really want to delete the current macros?',
+                    })
+                        .then((response) => {
+                            this._newKeyEntries();
+                        })
+                        .catch((error) => {});
+                }
                 break;
             case 'save':
-                if (!this.macroStack[0].every((key) => key.type === 'blank')) {
+                if (this._allKeyEntriesEmpty()) {
+                    this._notify('warning', 'No macros configured');
+                } else {
                     utils.downloadObjectAsJson(this.macroStack[0], 'macros.json');
                 }
                 break;
             case 'open':
-                utils.openFile('.json').then((content) => {
-                    try {
-                        const importedMacros = JSON.parse(content);
-                        this._newKeyEntries(importedMacros);
-
-                        new NotificationDialog({
-                            parent: this.notificationContainer,
-                            message: 'Macros loaded from file',
-                        });
-                    } catch (error) {
-                        console.error('appControlsHandler - can`t parse json string');
-                    }
-                });
+                if (this._allKeyEntriesEmpty()) {
+                    openFile();
+                } else {
+                    new ConfirmationDialog({
+                        position: {
+                            anchor: 'center',
+                            top: event.y,
+                            left: event.x,
+                        },
+                        title: 'Warning',
+                        prompt: 'Do you really want to replace the current macros?',
+                    })
+                        .then((response) => {
+                            openFile();
+                        })
+                        .catch((error) => {});
+                }
                 break;
 
             default:
@@ -305,7 +348,7 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._deviceControlsHandler('get_macros'),
+                    click: (event) => this._deviceControlsHandler(event, 'getMacros'),
                 },
             }),
             upload: utils.create({
@@ -322,7 +365,7 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._deviceControlsHandler('set_macros'),
+                    click: (event) => this._deviceControlsHandler(event, 'setMacros'),
                 },
             }),
             save: utils.create({
@@ -339,7 +382,7 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._deviceControlsHandler('save_macros'),
+                    click: (event) => this._deviceControlsHandler(event, 'saveMacros'),
                 },
             }),
             softreset: utils.create({
@@ -348,7 +391,7 @@ class App {
                     class: 'button',
                 },
                 events: {
-                    click: () => this._deviceControlsHandler('soft_reset'),
+                    click: (event) => this._deviceControlsHandler(event, 'softReset'),
                 },
             }),
             hardreset: utils.create({
@@ -357,7 +400,7 @@ class App {
                     class: 'button',
                 },
                 events: {
-                    click: () => this._deviceControlsHandler('hard_reset'),
+                    click: (event) => this._deviceControlsHandler(event, 'hardReset'),
                 },
             }),
             enableusb: utils.create({
@@ -366,7 +409,7 @@ class App {
                     class: 'button',
                 },
                 events: {
-                    click: () => this._deviceControlsHandler('enable_usb'),
+                    click: (event) => this._deviceControlsHandler(event, 'enableUSB'),
                 },
             }),
         };
@@ -385,30 +428,86 @@ class App {
 
     /**
      * Handles button actions for the device controls.
+     * @param {MouseEvent} event - The mouse event that triggered.
      * @param {string} command - The command associated with the button action.
      */
-    async _deviceControlsHandler(command) {
+    async _deviceControlsHandler(event, command) {
         if (!this.deviceConnected) return;
+        const COMMANDS = {
+            getMacros: 'get_macros',
+            setMacros: 'set_macros',
+            saveMacros: 'save_macros',
+            softReset: 'soft_reset',
+            hardReset: 'hard_reset',
+            enableUSB: 'enable_usb',
+        };
+
         switch (command) {
-            case 'get_macros':
-            case 'save_macros':
+            case 'getMacros':
+                if (this._allKeyEntriesEmpty()) {
+                    await this.serialConnection.send({
+                        command: COMMANDS[command],
+                    });
+                } else {
+                    new ConfirmationDialog({
+                        position: {
+                            anchor: 'center',
+                            top: event.y,
+                            left: event.x,
+                        },
+                        title: 'Warning',
+                        prompt: 'Do you really want to replace the current macros and load it from the macropad?',
+                    })
+                        .then(async (response) => {
+                            await this.serialConnection.send({
+                                command: COMMANDS[command],
+                            });
+                        })
+                        .catch((error) => {});
+                }
+                break;
+            case 'saveMacros':
                 await this.serialConnection.send({
-                    command: command,
+                    command: COMMANDS[command],
                 });
                 break;
-            case 'soft_reset':
-            case 'hard_reset':
-            case 'enable_usb':
-                await this.serialConnection.send({
-                    command: command,
-                });
-                this.serialConnection.close();
+            case 'softReset':
+            case 'hardReset':
+            case 'enableUSB':
+                new ConfirmationDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    title: 'Warning',
+                    prompt: 'Do you really want to reset the macropad?',
+                })
+                    .then(async (response) => {
+                        await this.serialConnection.send({
+                            command: COMMANDS[command],
+                        });
+                        this.serialConnection.close();
+                    })
+                    .catch((error) => {});
                 break;
-            case 'set_macros':
-                await this.serialConnection.send({
-                    command: 'set_macros',
-                    content: this.macroStack[0],
-                });
+            case 'setMacros':
+                new ConfirmationDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    title: 'Warning',
+                    prompt: 'Do you really want to send the current macros to the macropad?',
+                })
+                    .then(async (response) => {
+                        await this.serialConnection.send({
+                            command: COMMANDS[command],
+                            content: this.macroStack[0],
+                        });
+                    })
+                    .catch((error) => {});
                 break;
 
             default:
@@ -552,33 +651,29 @@ class App {
 
     /**
      * Handles button actions for individual key entries.
+     * @param {MouseEvent} event - The mouse event that triggered.
      * @param {KeyContainer} keyInstance - The KeyContainer instance associated with the button.
      * @param {string} command - The command associated with the button action.
      */
-    keyControlsHandler(keyInstance, command) {
+    keyControlsHandler(event, keyInstance, command) {
         switch (command) {
             case 'edit':
-                const dialog = new EditDialog({
-                    keyInstance: keyInstance,
-                    onButtonPressed: this.editDialogControlsHandler.bind(this),
-                });
-                this.mainContainer.appendChild(dialog);
-
-                const dialogDOM = dialog.instance.DOM.dialog;
                 const keyDOM = keyInstance.DOM.container;
-                const offsetTop = Math.max(
-                    keyDOM.offsetTop + keyDOM.offsetHeight / 2 - dialogDOM.offsetHeight / 2,
-                    0
-                );
-                const offsetLeft = Math.max(
-                    keyDOM.offsetLeft + keyDOM.offsetWidth / 2 - dialogDOM.offsetWidth / 2,
-                    0
-                );
+                const keyOffsetTop = keyDOM.offsetTop + keyDOM.offsetHeight / 2;
+                const keyOffsetLeft = keyDOM.offsetLeft + keyDOM.offsetWidth / 2;
 
-                utils.style(dialogDOM, {
-                    top: `${offsetTop}px`,
-                    left: `${offsetLeft}px`,
-                });
+                new EditDialog({
+                    position: {
+                        anchor: 'top center',
+                        top: keyOffsetTop,
+                        left: keyOffsetLeft,
+                    },
+                    keyInstance: keyInstance,
+                })
+                    .then((response) => {
+                        this.editDialogHandler(response);
+                    })
+                    .catch((error) => {});
                 break;
             case 'open':
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
@@ -596,8 +691,20 @@ class App {
                 this._initializeKeys();
                 break;
             case 'delete':
-                keyInstance.clearData();
-                this._reReadKeyEntries();
+                new ConfirmationDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    title: 'Warning',
+                    prompt: 'Do you really want to delete this key configuration?',
+                })
+                    .then((response) => {
+                        keyInstance.clearData();
+                        this._reReadKeyEntries();
+                    })
+                    .catch((error) => {});
                 break;
 
             default:
@@ -607,71 +714,52 @@ class App {
     }
 
     /**
-     * Handles button actions for dialogs.
-     * @param {Object} object - The object containing dialogInstance, keyInstance, and command.
-     * @param {EditDialog} object.dialogInstance - The Edit Dialog instance associated with the button.
-     * @param {KeyContainer} object.keyInstance - The KeyContainer instance associated with the button.
-     * @param {string} object.command - The command associated with the button action.
+     * Handle the editing of a dialog for configuring a key instance.
+     *
+     * @param {Object} options - Options for configuring the key instance's properties.
+     * @param {DialogInstance} options.dialogInstance - The dialog instance being edited.
+     * @param {KeyInstance} options.keyInstance - The key instance to configure and update.
      */
-    editDialogControlsHandler({ dialogInstance, keyInstance, command } = {}) {
-        switch (command) {
-            case 'close':
-                dialogInstance.removeDOM();
-                return;
-            case 'ok':
-                const dialogDOM = dialogInstance.DOM;
-                const type = dialogDOM.type.value;
-                const label = dialogDOM.label.value;
-                const color = utils.hexToRGB(dialogDOM.color.value);
+    editDialogHandler({ dialogInstance, keyInstance } = {}) {
+        const dialogDOM = dialogInstance.DOM;
+        const type = dialogDOM.type.value;
+        const label = dialogDOM.label.value;
+        const color = utils.hexToRGB(dialogDOM.color.value);
 
-                if (type === 'blank') {
-                    keyInstance.clearData();
-                } else if (label === '') {
-                    dialogDOM.label.placeholder = 'You must enter a label !!!';
-                    return;
-                } else {
-                    keyInstance.setType(type);
-                    keyInstance.setLabel(label);
-                    keyInstance.setColor(color);
+        if (type === 'blank') {
+            keyInstance.clearData();
+        } else {
+            keyInstance.setType(type);
+            keyInstance.setLabel(label);
+            keyInstance.setColor(color);
 
-                    switch (type) {
-                        case 'blank':
-                            keyInstance.clearData();
-                            break;
-                        case 'macro':
-                            const content = Array.from(dialogDOM.content.children)
-                                .map((entry) => entry.instance.getValue() || undefined)
-                                .filter((value) => value !== undefined);
+            switch (type) {
+                case 'macro':
+                    const content = Array.from(dialogDOM.content.children)
+                        .map((entry) => entry.instance.getValue() || undefined)
+                        .filter((value) => value !== undefined);
 
-                            keyInstance.setContent(content);
-                            break;
+                    keyInstance.setContent(content);
+                    break;
 
-                        case 'group':
-                            const encoder = {
-                                switch: Array.from(dialogDOM.encoder.switch.children)
-                                    .map((entry) => entry.instance.getValue() || undefined)
-                                    .filter((value) => value !== undefined),
-                                increased: Array.from(dialogDOM.encoder.increased.children)
-                                    .map((entry) => entry.instance.getValue() || undefined)
-                                    .filter((value) => value !== undefined),
-                                decreased: Array.from(dialogDOM.encoder.decreased.children)
-                                    .map((entry) => entry.instance.getValue() || undefined)
-                                    .filter((value) => value !== undefined),
-                            };
+                case 'group':
+                    const encoder = {
+                        switch: Array.from(dialogDOM.encoder.switch.children)
+                            .map((entry) => entry.instance.getValue() || undefined)
+                            .filter((value) => value !== undefined),
+                        increased: Array.from(dialogDOM.encoder.increased.children)
+                            .map((entry) => entry.instance.getValue() || undefined)
+                            .filter((value) => value !== undefined),
+                        decreased: Array.from(dialogDOM.encoder.decreased.children)
+                            .map((entry) => entry.instance.getValue() || undefined)
+                            .filter((value) => value !== undefined),
+                    };
 
-                            keyInstance.setEncoder(encoder);
-                            break;
-                    }
-                }
-
-                dialogInstance.removeDOM();
-                this._reReadKeyEntries();
-                break;
-
-            default:
-                console.error(`editDialogControlsHandler - unkown button: ${command}`);
-                break;
+                    keyInstance.setEncoder(encoder);
+                    break;
+            }
         }
+        this._reReadKeyEntries();
     }
 
     /**
@@ -709,6 +797,10 @@ class App {
      */
     _emptyKeyEntry() {
         return { type: 'blank' };
+    }
+
+    _allKeyEntriesEmpty() {
+        return this.macroStack[0].every((key) => key.type === 'blank');
     }
 
     /**
@@ -825,6 +917,19 @@ class App {
      */
     _clearAllKeyEntries() {
         this.keyEntriesContainer.innerHTML = '';
+    }
+
+    /**
+     * Display a notification message.
+     * @param {string} type - The type of the the notification (info, success, warning, error)
+     * @param {string} prompt - The message to display in the notification.
+     */
+    _notify(type, prompt) {
+        new NotificationDialog({
+            parent: this.notificationContainer,
+            type: type,
+            message: prompt,
+        });
     }
 }
 

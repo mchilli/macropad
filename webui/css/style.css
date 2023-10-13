@@ -8256,7 +8256,7 @@ readers do not read off random characters that represent icons */
 
 body {
   margin: 10px;
-  background-color: antiquewhite;
+  background-color: #ffffff;
   color: #404040;
 }
 
@@ -8276,7 +8276,7 @@ body {
 .github-corner:visited,
 .github-corner svg {
   fill: #404040;
-  color: antiquewhite;
+  color: #ffffff;
 }
 
 .main-container {
@@ -8310,7 +8310,7 @@ body {
 .main-container .key-entries .key-container .key-type-icon {
   grid-row: 1;
   cursor: help;
-  background-color: antiquewhite;
+  background-color: #ffffff;
   border-radius: 10px 0 10px 0;
   padding: 0 2px 0 0;
   box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
@@ -8319,7 +8319,7 @@ body {
   justify-self: end;
   grid-row: 1;
   cursor: grab;
-  background-color: antiquewhite;
+  background-color: #ffffff;
   border-radius: 0 10px 0 10px;
   padding: 0 0 0 2px;
   box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
@@ -8334,7 +8334,7 @@ body {
   align-self: center;
   font-weight: bold;
   word-break: break-all;
-  background-color: antiquewhite;
+  background-color: #ffffff;
   border-radius: 10px;
   padding: 2px 6px;
   box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
@@ -8344,7 +8344,7 @@ body {
   grid-row: 3;
   grid-column: 1/3;
   justify-self: end;
-  background-color: antiquewhite;
+  background-color: #ffffff;
   border-radius: 10px 0 10px 0;
   padding: 2px 0 0 2px;
   box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
@@ -8371,6 +8371,7 @@ body {
 .main-container .key-entries-controls {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -8394,8 +8395,13 @@ body {
 .main-container .app-controls .button,
 .main-container .device-controls .button,
 .main-container .key-entries-controls .button {
-  background-color: #03a9f4;
-  border: 1px solid grey;
+  background-color: #4fc1e9;
+  border: 1px solid #808080;
+}
+.main-container .app-controls .button i,
+.main-container .device-controls .button i,
+.main-container .key-entries-controls .button i {
+  pointer-events: none;
 }
 
 .dialog-container {
@@ -8412,7 +8418,7 @@ body {
   position: absolute;
   width: fit-content;
   min-width: 320px;
-  background-color: white;
+  background-color: #ffffff;
   border: 1px solid rgba(128, 128, 128, 0.7490196078);
   border-radius: 4px;
   box-sizing: border-box;
@@ -8427,10 +8433,16 @@ body {
   justify-content: center;
   height: 40px;
   background-color: #404040;
-  color: white;
+  color: #ffffff;
   font-weight: bold;
   font-size: large;
   cursor: move;
+}
+.dialog-container .dialog .dialog-prompt {
+  grid-row: 2;
+  grid-column: 1;
+  max-width: 265px;
+  margin: 4px;
 }
 .dialog-container .dialog .dialog-inputs {
   grid-row: 2;
@@ -8456,8 +8468,8 @@ body {
 .dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable {
   display: grid;
   gap: 4px;
-  background-color: white;
-  border: 1px solid grey;
+  background-color: #ffffff;
+  border: 1px solid #808080;
   box-sizing: border-box;
   padding: 4px;
   max-height: 174px;
@@ -8469,8 +8481,8 @@ body {
   align-items: center;
   height: 30px;
   padding: 4px;
-  background-color: #cddc39;
-  border: 1px solid grey;
+  background-color: #add468;
+  border: 1px solid #808080;
   border-radius: 5px;
   box-sizing: border-box;
 }
@@ -8485,20 +8497,22 @@ body {
   display: none;
 }
 .dialog-container .dialog .dialog-button {
-  border: 1px solid grey;
+  border: 1px solid #808080;
 }
 .dialog-container .dialog .dialog-button.close {
   grid-row: 1;
   grid-column: 2;
-  border-bottom: 1px solid grey;
-  border-left: 1px solid grey;
+  border: none;
+  border-bottom: 1px solid #808080;
+  border-left: 1px solid #808080;
 }
 .dialog-container .dialog .dialog-button.ok {
   grid-row: 3;
   grid-column: 2;
   margin-top: 4px;
-  border-top: 1px solid grey;
-  border-left: 1px solid grey;
+  border: none;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
 }
 
 .notification-container {
@@ -8515,18 +8529,28 @@ body {
   position: relative;
   min-height: 40px;
   background-color: #404040;
-  font-weight: bold;
-  color: white;
-  border: 1px solid grey;
+  border: 1px solid #808080;
   border-radius: 4px;
   box-sizing: border-box;
   overflow: hidden;
+}
+.notification-container .notification.info {
+  background-color: #4fc1e9;
+}
+.notification-container .notification.success {
+  background-color: #add468;
+}
+.notification-container .notification.warning {
+  background-color: #ffce54;
+}
+.notification-container .notification.error {
+  background-color: #fc6e51;
 }
 .notification-container .notification .notification-message {
   padding: 0 10px;
 }
 .notification-container .notification .dialog-button.close {
-  border-left: 1px solid grey;
+  border-left: 1px solid #808080;
 }
 
 .dialog-button {
@@ -8535,18 +8559,18 @@ body {
   align-items: center;
   width: 40px;
   height: 40px;
-  background-color: white;
+  background-color: #ffffff;
   box-sizing: border-box;
   cursor: pointer;
 }
 .dialog-button.close {
   grid-row: 1;
   grid-column: 2;
-  background-color: lightcoral;
+  background-color: #fc6e51;
 }
 .dialog-button.ok {
   grid-row: 3;
   grid-column: 2;
-  background-color: #03a9f4;
+  background-color: #4fc1e9;
   margin-top: 4px;
 }

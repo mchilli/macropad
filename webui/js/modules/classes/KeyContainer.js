@@ -115,7 +115,7 @@ export default class KeyContainer {
                                 }),
                             ],
                             events: {
-                                click: () => this.onButtonPressed(this, 'delete'),
+                                click: (event) => this.onButtonPressed(event, this, 'delete'),
                             },
                         }),
                         utils.create({
@@ -132,7 +132,7 @@ export default class KeyContainer {
                                 }),
                             ],
                             events: {
-                                click: () => this.onButtonPressed(this, 'open'),
+                                click: (event) => this.onButtonPressed(event, this, 'open'),
                             },
                         }),
                         utils.create({
@@ -149,7 +149,7 @@ export default class KeyContainer {
                                 }),
                             ],
                             events: {
-                                click: () => this.onButtonPressed(this, 'edit'),
+                                click: (event) => this.onButtonPressed(event, this, 'edit'),
                             },
                         }),
                     ],
