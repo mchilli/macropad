@@ -1,38 +1,38 @@
 @import 'fontawesome.scss';
 @import 'solid.scss';
 
-$color-blue: #4fc1e9;
-$color-red: #fc6e51;
-$color-green: #add468;
-$color-yellow: #ffce54;
-$color-grey: #808080;
-$color-black: #404040;
-$color-white: #ffffff;
-$shadow-color: #808080bf;
-
-$key-entry-size: 100px;
-$key-entries-gap: 10px;
-
-$key-control-button-size: 22px;
-$key-control-shadow-inset: inset 1px 1px 2px 0px $shadow-color;
-$key-control-border-radius: 10px;
-$key-control-padding: 2px;
-
-$dialog-button-size: 40px;
-$dialog-gap: 4px;
-
-$macro-entry-height: 30px;
-
 // document classes
 :root {
     font-family: monospace;
     user-select: none;
+
+    --color-blue: #4fc1e9;
+    --color-red: #fc6e51;
+    --color-green: #add468;
+    --color-yellow: #ffce54;
+    --color-grey: #808080;
+    --color-black: #404040;
+    --color-white: #ffffff;
+    --shadow-color: #808080bf;
+
+    --key-entry-size: 100px;
+    --key-entries-gap: 10px;
+
+    --key-control-button-size: 22px;
+    --key-control-shadow-inset: inset 1px 1px 2px 0px var(--shadow-color);
+    --key-control-border-radius: 10px;
+    --key-control-padding: 2px;
+
+    --dialog-button-size: 40px;
+    --dialog-gap: 4px;
+
+    --macro-entry-height: 30px;
 }
 
 body {
-    margin: $key-entries-gap;
-    background-color: $color-white;
-    color: $color-black;
+    margin: var(--key-entries-gap);
+    background-color: var(--color-white);
+    color: var(--color-black);
 }
 
 // global classes
@@ -53,8 +53,8 @@ body {
 .github-corner:active,
 .github-corner:visited,
 .github-corner svg {
-    fill: $color-black;
-    color: $color-white;
+    fill: var(--color-black);
+    color: var(--color-white);
 }
 
 // Main container
@@ -66,22 +66,22 @@ body {
     .key-entries {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: $key-entries-gap;
-        margin-bottom: calc($key-entries-gap / 2);
-        padding: calc($key-entries-gap / 2);
-        max-height: calc($key-entry-size * 3 + $key-entries-gap * 2);
+        gap: var(--key-entries-gap);
+        margin-bottom: calc(var(--key-entries-gap) / 2);
+        padding: calc(var(--key-entries-gap) / 2);
+        max-height: calc(var(--key-entry-size) * 3 + var(--key-entries-gap) * 2);
         overflow: hidden;
 
         .key-container {
             display: grid;
             grid-template-rows: max-content 1fr max-content;
-            width: $key-entry-size;
-            height: $key-entry-size;
-            border-top: 1px solid $shadow-color;
-            border-left: 1px solid $shadow-color;
-            border-radius: $key-control-border-radius;
+            width: var(--key-entry-size);
+            height: var(--key-entry-size);
+            border-top: 1px solid var(--shadow-color);
+            border-left: 1px solid var(--shadow-color);
+            border-radius: var(--key-control-border-radius);
             box-sizing: border-box;
-            box-shadow: 3px 3px 2px 1px $shadow-color;
+            box-shadow: 3px 3px 2px 1px var(--shadow-color);
 
             &.blank {
                 background-color: transparent !important;
@@ -90,20 +90,20 @@ body {
             .key-type-icon {
                 grid-row: 1;
                 cursor: help;
-                background-color: $color-white;
-                border-radius: $key-control-border-radius 0 $key-control-border-radius 0;
-                padding: 0 $key-control-padding 0 0;
-                box-shadow: $key-control-shadow-inset;
+                background-color: var(--color-white);
+                border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+                padding: 0 var(--key-control-padding) 0 0;
+                box-shadow: var(--key-control-shadow-inset);
             }
 
             .key-handle {
                 justify-self: end;
                 grid-row: 1;
                 cursor: grab;
-                background-color: $color-white;
-                border-radius: 0 $key-control-border-radius 0 $key-control-border-radius;
-                padding: 0 0 0 $key-control-padding;
-                box-shadow: $key-control-shadow-inset;
+                background-color: var(--color-white);
+                border-radius: 0 var(--key-control-border-radius) 0 var(--key-control-border-radius);
+                padding: 0 0 0 var(--key-control-padding);
+                box-shadow: var(--key-control-shadow-inset);
             }
 
             &.blank .key-label {
@@ -117,10 +117,10 @@ body {
                 align-self: center;
                 font-weight: bold;
                 word-break: break-all;
-                background-color: $color-white;
-                border-radius: $key-control-border-radius;
-                padding: $key-control-padding $key-control-padding * 3;
-                box-shadow: $key-control-shadow-inset;
+                background-color: var(--color-white);
+                border-radius: var(--key-control-border-radius);
+                padding: var(--key-control-padding) calc(var(--key-control-padding) * 3);
+                box-shadow: var(--key-control-shadow-inset);
             }
 
             .key-controls {
@@ -128,28 +128,28 @@ body {
                 grid-row: 3;
                 grid-column: 1/3;
                 justify-self: end;
-                background-color: $color-white;
-                border-radius: $key-control-border-radius 0 $key-control-border-radius 0;
-                padding: $key-control-padding 0 0 $key-control-padding;
-                box-shadow: $key-control-shadow-inset;
+                background-color: var(--color-white);
+                border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+                padding: var(--key-control-padding) 0 0 var(--key-control-padding);
+                box-shadow: var(--key-control-shadow-inset);
 
                 .button {
                     &.edit:hover {
-                        color: $color-blue;
+                        color: var(--color-blue);
                     }
                     &.open:hover {
-                        color: $color-green;
+                        color: var(--color-green);
                     }
                     &.delete:hover {
-                        color: $color-red;
+                        color: var(--color-red);
                     }
                 }
             }
 
             .key-type-icon,
             .button {
-                width: $key-control-button-size;
-                height: $key-control-button-size;
+                width: var(--key-control-button-size);
+                height: var(--key-control-button-size);
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -165,7 +165,7 @@ body {
             }
 
             &:nth-child(9n) {
-                margin-bottom: calc($key-entries-gap * 5);
+                margin-bottom: calc(var(--key-entries-gap) * 5);
             }
         }
     }
@@ -179,8 +179,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: $key-entries-gap;
-    margin-bottom: $key-entries-gap;
+    gap: var(--key-entries-gap);
+    margin-bottom: var(--key-entries-gap);
 
     .button,
     .info {
@@ -188,8 +188,8 @@ body {
         flex-direction: column;
         justify-content: space-evenly;
         align-items: center;
-        width: $key-entry-size;
-        height: calc($key-entry-size / 2);
+        width: var(--key-entry-size);
+        height: calc(var(--key-entry-size) / 2);
         box-sizing: border-box;
         align-self: flex-end;
         user-select: none;
@@ -198,8 +198,8 @@ body {
 
     .button {
         position: relative;
-        background-color: $color-blue;
-        border: 1px solid $color-grey;
+        background-color: var(--color-blue);
+        border: 1px solid var(--color-grey);
 
         i {
             pointer-events: none;
@@ -220,23 +220,23 @@ body {
         height: 100%;
         width: 100%;
         content: '';
-        background-color: $color-white;
+        background-color: var(--color-white);
         opacity: 0.5;
         backdrop-filter: blur(1px);
     }
 
     .dialog {
         display: grid;
-        grid-auto-columns: auto $dialog-button-size;
-        column-gap: $dialog-gap;
+        grid-auto-columns: auto var(--dialog-button-size);
+        column-gap: var(--dialog-gap);
         position: absolute;
         width: fit-content;
         min-width: 320px;
-        background-color: $color-white;
-        border: 1px solid $shadow-color;
-        border-radius: $dialog-gap;
+        background-color: var(--color-white);
+        border: 1px solid var(--shadow-color);
+        border-radius: var(--dialog-gap);
         box-sizing: border-box;
-        box-shadow: 5px 5px 4px 2px $shadow-color;
+        box-shadow: 5px 5px 4px 2px var(--shadow-color);
         overflow: auto;
 
         .dialog-header {
@@ -245,9 +245,9 @@ body {
             display: grid;
             align-items: center;
             justify-content: center;
-            height: $dialog-button-size;
-            background-color: $color-black;
-            color: $color-white;
+            height: var(--dialog-button-size);
+            background-color: var(--color-black);
+            color: var(--color-white);
             font-weight: bold;
             font-size: large;
             cursor: move;
@@ -265,12 +265,12 @@ body {
             grid-column: 1 / 3;
             display: grid;
             align-items: start;
-            row-gap: $dialog-gap;
-            margin-left: $dialog-gap;
-            margin-top: $dialog-gap;
+            row-gap: var(--dialog-gap);
+            margin-left: var(--dialog-gap);
+            margin-top: var(--dialog-gap);
 
             .dialog-input-shorten {
-                margin-right: $dialog-button-size + $dialog-gap;
+                margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
             }
 
             .dialog-details summary {
@@ -279,28 +279,28 @@ body {
 
             .dialog-macros {
                 display: grid;
-                grid-template-columns: 1fr $dialog-button-size;
-                gap: $dialog-gap;
+                grid-template-columns: 1fr var(--dialog-button-size);
+                gap: var(--dialog-gap);
 
                 .dialog-sortable {
                     display: grid;
-                    gap: $dialog-gap;
-                    background-color: $color-white;
-                    border: 1px solid $color-grey;
+                    gap: var(--dialog-gap);
+                    background-color: var(--color-white);
+                    border: 1px solid var(--color-grey);
                     box-sizing: border-box;
-                    padding: $dialog-gap;
-                    max-height: $macro-entry-height * 5 + $dialog-gap * 6;
+                    padding: var(--dialog-gap);
+                    max-height: calc(var(--macro-entry-height) * 5 + var(--dialog-gap) * 6);
                     overflow: auto;
 
                     .macro-entry-container {
                         display: flex;
-                        gap: $dialog-gap;
+                        gap: var(--dialog-gap);
                         align-items: center;
-                        height: $macro-entry-height;
-                        padding: $dialog-gap;
-                        background-color: $color-green;
-                        border: 1px solid $color-grey;
-                        border-radius: calc($key-control-border-radius / 2);
+                        height: var(--macro-entry-height);
+                        padding: var(--dialog-gap);
+                        background-color: var(--color-green);
+                        border: 1px solid var(--color-grey);
+                        border-radius: calc(var(--key-control-border-radius) / 2);
                         box-sizing: border-box;
 
                         .macro-entry-handle {
@@ -318,7 +318,7 @@ body {
 
         .dialog-reboot-buttons {
             grid-column: 1 / 3;
-            margin: $key-entries-gap;
+            margin: var(--key-entries-gap);
         }
 
         &.blank .dialog-inputs .dialog-label,
@@ -331,15 +331,16 @@ body {
         }
 
         .dialog-button {
-            border: 1px solid $color-grey;
+            border: 1px solid var(--color-grey);
+            border-right: none;
         }
 
         .dialog-button.close {
             grid-row: 1;
             grid-column: 2;
             border: none;
-            border-bottom: 1px solid $color-grey;
-            border-left: 1px solid $color-grey;
+            border-bottom: 1px solid var(--color-grey);
+            border-left: 1px solid var(--color-grey);
         }
 
         .dialog-button.ok {
@@ -347,8 +348,8 @@ body {
             grid-column: 2;
             margin-top: 4px;
             border: none;
-            border-top: 1px solid $color-grey;
-            border-left: 1px solid $color-grey;
+            border-top: 1px solid var(--color-grey);
+            border-left: 1px solid var(--color-grey);
         }
     }
 }
@@ -363,35 +364,35 @@ body {
 
     .notification {
         display: grid;
-        grid-auto-columns: auto $dialog-button-size;
+        grid-auto-columns: auto var(--dialog-button-size);
         align-items: center;
         position: relative;
-        min-height: $dialog-button-size;
-        background-color: $color-black;
-        border: 1px solid $color-grey;
+        min-height: var(--dialog-button-size);
+        background-color: var(--color-black);
+        border: 1px solid var(--color-grey);
         border-radius: 4px;
         box-sizing: border-box;
         overflow: hidden;
 
         &.info {
-            background-color: $color-blue;
+            background-color: var(--color-blue);
         }
         &.success {
-            background-color: $color-green;
+            background-color: var(--color-green);
         }
         &.warning {
-            background-color: $color-yellow;
+            background-color: var(--color-yellow);
         }
         &.error {
-            background-color: $color-red;
+            background-color: var(--color-red);
         }
 
         .notification-message {
-            padding: 0 calc($dialog-button-size / 4);
+            padding: 0 calc(var(--dialog-button-size) / 4);
         }
 
         .dialog-button.close {
-            border-left: 1px solid $color-grey;
+            border-left: 1px solid var(--color-grey);
         }
     }
 }
@@ -403,22 +404,22 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    width: $dialog-button-size;
-    height: $dialog-button-size;
-    background-color: $color-white;
+    width: var(--dialog-button-size);
+    height: var(--dialog-button-size);
+    background-color: var(--color-white);
     box-sizing: border-box;
     cursor: pointer;
 
     &.close {
         grid-row: 1;
         grid-column: 2;
-        background-color: $color-red;
+        background-color: var(--color-red);
     }
 
     &.ok {
         grid-row: 3;
         grid-column: 2;
-        background-color: $color-blue;
+        background-color: var(--color-blue);
         margin-top: 4px;
     }
 }
@@ -435,5 +436,5 @@ body {
     width: 100%;
     height: 100%;
     position: absolute;
-    box-shadow: inset 0px 0px 5px 2px $shadow-color;
+    box-shadow: inset 0px 0px 5px 2px var(--shadow-color);
 }

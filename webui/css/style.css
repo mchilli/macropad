@@ -8252,12 +8252,29 @@ readers do not read off random characters that represent icons */
 :root {
   font-family: monospace;
   user-select: none;
+  --color-blue: #4fc1e9;
+  --color-red: #fc6e51;
+  --color-green: #add468;
+  --color-yellow: #ffce54;
+  --color-grey: #808080;
+  --color-black: #404040;
+  --color-white: #ffffff;
+  --shadow-color: #808080bf;
+  --key-entry-size: 100px;
+  --key-entries-gap: 10px;
+  --key-control-button-size: 22px;
+  --key-control-shadow-inset: inset 1px 1px 2px 0px var(--shadow-color);
+  --key-control-border-radius: 10px;
+  --key-control-padding: 2px;
+  --dialog-button-size: 40px;
+  --dialog-gap: 4px;
+  --macro-entry-height: 30px;
 }
 
 body {
-  margin: 10px;
-  background-color: #ffffff;
-  color: #404040;
+  margin: var(--key-entries-gap);
+  background-color: var(--color-white);
+  color: var(--color-black);
 }
 
 .hidden {
@@ -8275,8 +8292,8 @@ body {
 .github-corner:active,
 .github-corner:visited,
 .github-corner svg {
-  fill: #404040;
-  color: #ffffff;
+  fill: var(--color-black);
+  color: var(--color-white);
 }
 
 .main-container {
@@ -8287,22 +8304,22 @@ body {
 .main-container .key-entries {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 5px;
-  padding: 5px;
-  max-height: 320px;
+  gap: var(--key-entries-gap);
+  margin-bottom: calc(var(--key-entries-gap) / 2);
+  padding: calc(var(--key-entries-gap) / 2);
+  max-height: calc(var(--key-entry-size) * 3 + var(--key-entries-gap) * 2);
   overflow: hidden;
 }
 .main-container .key-entries .key-container {
   display: grid;
   grid-template-rows: max-content 1fr max-content;
-  width: 100px;
-  height: 100px;
-  border-top: 1px solid rgba(128, 128, 128, 0.7490196078);
-  border-left: 1px solid rgba(128, 128, 128, 0.7490196078);
-  border-radius: 10px;
+  width: var(--key-entry-size);
+  height: var(--key-entry-size);
+  border-top: 1px solid var(--shadow-color);
+  border-left: 1px solid var(--shadow-color);
+  border-radius: var(--key-control-border-radius);
   box-sizing: border-box;
-  box-shadow: 3px 3px 2px 1px rgba(128, 128, 128, 0.7490196078);
+  box-shadow: 3px 3px 2px 1px var(--shadow-color);
 }
 .main-container .key-entries .key-container.blank {
   background-color: transparent !important;
@@ -8310,19 +8327,19 @@ body {
 .main-container .key-entries .key-container .key-type-icon {
   grid-row: 1;
   cursor: help;
-  background-color: #ffffff;
-  border-radius: 10px 0 10px 0;
-  padding: 0 2px 0 0;
-  box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
+  background-color: var(--color-white);
+  border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+  padding: 0 var(--key-control-padding) 0 0;
+  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container .key-handle {
   justify-self: end;
   grid-row: 1;
   cursor: grab;
-  background-color: #ffffff;
-  border-radius: 0 10px 0 10px;
-  padding: 0 0 0 2px;
-  box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
+  background-color: var(--color-white);
+  border-radius: 0 var(--key-control-border-radius) 0 var(--key-control-border-radius);
+  padding: 0 0 0 var(--key-control-padding);
+  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container.blank .key-label {
   display: none;
@@ -8334,34 +8351,34 @@ body {
   align-self: center;
   font-weight: bold;
   word-break: break-all;
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 2px 6px;
-  box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
+  background-color: var(--color-white);
+  border-radius: var(--key-control-border-radius);
+  padding: var(--key-control-padding) calc(var(--key-control-padding) * 3);
+  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container .key-controls {
   display: flex;
   grid-row: 3;
   grid-column: 1/3;
   justify-self: end;
-  background-color: #ffffff;
-  border-radius: 10px 0 10px 0;
-  padding: 2px 0 0 2px;
-  box-shadow: inset 1px 1px 2px 0px rgba(128, 128, 128, 0.7490196078);
+  background-color: var(--color-white);
+  border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+  padding: var(--key-control-padding) 0 0 var(--key-control-padding);
+  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container .key-controls .button.edit:hover {
-  color: #4fc1e9;
+  color: var(--color-blue);
 }
 .main-container .key-entries .key-container .key-controls .button.open:hover {
-  color: #add468;
+  color: var(--color-green);
 }
 .main-container .key-entries .key-container .key-controls .button.delete:hover {
-  color: #fc6e51;
+  color: var(--color-red);
 }
 .main-container .key-entries .key-container .key-type-icon,
 .main-container .key-entries .key-container .button {
-  width: 22px;
-  height: 22px;
+  width: var(--key-control-button-size);
+  height: var(--key-control-button-size);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -8373,7 +8390,7 @@ body {
   display: none;
 }
 .main-container .key-entries .key-container:nth-child(9n) {
-  margin-bottom: 50px;
+  margin-bottom: calc(var(--key-entries-gap) * 5);
 }
 
 .main-container .app-controls,
@@ -8383,8 +8400,8 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: var(--key-entries-gap);
+  margin-bottom: var(--key-entries-gap);
 }
 .main-container .app-controls .button,
 .main-container .app-controls .info,
@@ -8398,8 +8415,8 @@ body {
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-  width: 100px;
-  height: 50px;
+  width: var(--key-entry-size);
+  height: calc(var(--key-entry-size) / 2);
   box-sizing: border-box;
   align-self: flex-end;
   user-select: none;
@@ -8410,8 +8427,8 @@ body {
 .main-container .key-entries-controls .button,
 .dialog-container .dialog-reboot-buttons .button {
   position: relative;
-  background-color: #4fc1e9;
-  border: 1px solid #808080;
+  background-color: var(--color-blue);
+  border: 1px solid var(--color-grey);
 }
 .main-container .app-controls .button i,
 .main-container .device-controls .button i,
@@ -8432,22 +8449,22 @@ body {
   height: 100%;
   width: 100%;
   content: "";
-  background-color: #ffffff;
+  background-color: var(--color-white);
   opacity: 0.5;
   backdrop-filter: blur(1px);
 }
 .dialog-container .dialog {
   display: grid;
-  grid-auto-columns: auto 40px;
-  column-gap: 4px;
+  grid-auto-columns: auto var(--dialog-button-size);
+  column-gap: var(--dialog-gap);
   position: absolute;
   width: fit-content;
   min-width: 320px;
-  background-color: #ffffff;
-  border: 1px solid rgba(128, 128, 128, 0.7490196078);
-  border-radius: 4px;
+  background-color: var(--color-white);
+  border: 1px solid var(--shadow-color);
+  border-radius: var(--dialog-gap);
   box-sizing: border-box;
-  box-shadow: 5px 5px 4px 2px rgba(128, 128, 128, 0.7490196078);
+  box-shadow: 5px 5px 4px 2px var(--shadow-color);
   overflow: auto;
 }
 .dialog-container .dialog .dialog-header {
@@ -8456,9 +8473,9 @@ body {
   display: grid;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  background-color: #404040;
-  color: #ffffff;
+  height: var(--dialog-button-size);
+  background-color: var(--color-black);
+  color: var(--color-white);
   font-weight: bold;
   font-size: large;
   cursor: move;
@@ -8474,40 +8491,40 @@ body {
   grid-column: 1/3;
   display: grid;
   align-items: start;
-  row-gap: 4px;
-  margin-left: 4px;
-  margin-top: 4px;
+  row-gap: var(--dialog-gap);
+  margin-left: var(--dialog-gap);
+  margin-top: var(--dialog-gap);
 }
 .dialog-container .dialog .dialog-inputs .dialog-input-shorten {
-  margin-right: 44px;
+  margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
 }
 .dialog-container .dialog .dialog-inputs .dialog-details summary {
   cursor: pointer;
 }
 .dialog-container .dialog .dialog-inputs .dialog-macros {
   display: grid;
-  grid-template-columns: 1fr 40px;
-  gap: 4px;
+  grid-template-columns: 1fr var(--dialog-button-size);
+  gap: var(--dialog-gap);
 }
 .dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable {
   display: grid;
-  gap: 4px;
-  background-color: #ffffff;
-  border: 1px solid #808080;
+  gap: var(--dialog-gap);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-grey);
   box-sizing: border-box;
-  padding: 4px;
-  max-height: 174px;
+  padding: var(--dialog-gap);
+  max-height: calc(var(--macro-entry-height) * 5 + var(--dialog-gap) * 6);
   overflow: auto;
 }
 .dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container {
   display: flex;
-  gap: 4px;
+  gap: var(--dialog-gap);
   align-items: center;
-  height: 30px;
-  padding: 4px;
-  background-color: #add468;
-  border: 1px solid #808080;
-  border-radius: 5px;
+  height: var(--macro-entry-height);
+  padding: var(--dialog-gap);
+  background-color: var(--color-green);
+  border: 1px solid var(--color-grey);
+  border-radius: calc(var(--key-control-border-radius) / 2);
   box-sizing: border-box;
 }
 .dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container .macro-entry-handle {
@@ -8519,28 +8536,29 @@ body {
 }
 .dialog-container .dialog .dialog-reboot-buttons {
   grid-column: 1/3;
-  margin: 10px;
+  margin: var(--key-entries-gap);
 }
 .dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
   display: none;
 }
 .dialog-container .dialog .dialog-button {
-  border: 1px solid #808080;
+  border: 1px solid var(--color-grey);
+  border-right: none;
 }
 .dialog-container .dialog .dialog-button.close {
   grid-row: 1;
   grid-column: 2;
   border: none;
-  border-bottom: 1px solid #808080;
-  border-left: 1px solid #808080;
+  border-bottom: 1px solid var(--color-grey);
+  border-left: 1px solid var(--color-grey);
 }
 .dialog-container .dialog .dialog-button.ok {
   grid-row: 3;
   grid-column: 2;
   margin-top: 4px;
   border: none;
-  border-top: 1px solid #808080;
-  border-left: 1px solid #808080;
+  border-top: 1px solid var(--color-grey);
+  border-left: 1px solid var(--color-grey);
 }
 
 .notification-container {
@@ -8552,33 +8570,33 @@ body {
 }
 .notification-container .notification {
   display: grid;
-  grid-auto-columns: auto 40px;
+  grid-auto-columns: auto var(--dialog-button-size);
   align-items: center;
   position: relative;
-  min-height: 40px;
-  background-color: #404040;
-  border: 1px solid #808080;
+  min-height: var(--dialog-button-size);
+  background-color: var(--color-black);
+  border: 1px solid var(--color-grey);
   border-radius: 4px;
   box-sizing: border-box;
   overflow: hidden;
 }
 .notification-container .notification.info {
-  background-color: #4fc1e9;
+  background-color: var(--color-blue);
 }
 .notification-container .notification.success {
-  background-color: #add468;
+  background-color: var(--color-green);
 }
 .notification-container .notification.warning {
-  background-color: #ffce54;
+  background-color: var(--color-yellow);
 }
 .notification-container .notification.error {
-  background-color: #fc6e51;
+  background-color: var(--color-red);
 }
 .notification-container .notification .notification-message {
-  padding: 0 10px;
+  padding: 0 calc(var(--dialog-button-size) / 4);
 }
 .notification-container .notification .dialog-button.close {
-  border-left: 1px solid #808080;
+  border-left: 1px solid var(--color-grey);
 }
 
 .dialog-container .dialog-button,
@@ -8587,9 +8605,9 @@ body {
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 40px;
-  height: 40px;
-  background-color: #ffffff;
+  width: var(--dialog-button-size);
+  height: var(--dialog-button-size);
+  background-color: var(--color-white);
   box-sizing: border-box;
   cursor: pointer;
 }
@@ -8597,13 +8615,13 @@ body {
 .notification-container .dialog-button.close {
   grid-row: 1;
   grid-column: 2;
-  background-color: #fc6e51;
+  background-color: var(--color-red);
 }
 .dialog-container .dialog-button.ok,
 .notification-container .dialog-button.ok {
   grid-row: 3;
   grid-column: 2;
-  background-color: #4fc1e9;
+  background-color: var(--color-blue);
   margin-top: 4px;
 }
 
@@ -8618,5 +8636,5 @@ body {
   width: 100%;
   height: 100%;
   position: absolute;
-  box-shadow: inset 0px 0px 5px 2px rgba(128, 128, 128, 0.7490196078);
+  box-shadow: inset 0px 0px 5px 2px var(--shadow-color);
 }
