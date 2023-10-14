@@ -92,6 +92,8 @@ class App {
             } catch (e) {
                 console.warn('Error: No port selected');
             }
+        } else {
+            this._notify('error', 'Your browser does not support serial connections');
         }
     }
 
