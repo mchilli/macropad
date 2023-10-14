@@ -8472,8 +8472,7 @@ body {
   margin-left: 4px;
   margin-top: 4px;
 }
-.dialog-container .dialog .dialog-inputs .dialog-type-input,
-.dialog-container .dialog .dialog-inputs .dialog-label-input {
+.dialog-container .dialog .dialog-inputs .dialog-input-shorten {
   margin-right: 44px;
 }
 .dialog-container .dialog .dialog-inputs .dialog-details summary {

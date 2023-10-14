@@ -266,8 +266,7 @@ body {
             margin-left: $dialog-gap;
             margin-top: $dialog-gap;
 
-            .dialog-type-input,
-            .dialog-label-input {
+            .dialog-input-shorten {
                 margin-right: $dialog-button-size + $dialog-gap;
             }
 

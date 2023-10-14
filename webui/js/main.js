@@ -7,7 +7,12 @@ import KeyContainer from './modules/classes/KeyContainer.js';
 import SerialConnectionHandler from './modules/classes/SerialConnectionHandler.js';
 import Sortable from './modules/classes/Sortable.js';
 
-import { EditDialog, ConfirmationDialog, NotificationDialog } from './modules/classes/Dialogs.js';
+import {
+    EditDialog,
+    ConfirmationDialog,
+    SettingsDialog,
+    NotificationDialog,
+} from './modules/classes/Dialogs.js';
 
 import * as utils from './modules/utils.js';
 
@@ -53,6 +58,7 @@ class App {
         this.appControls = this._initAppControls(this.appControlsContainer);
 
         this.deviceConnected = false;
+        this.USBStorageEnabled = false;
         this.serialConnection = null;
         this.deviceControlsContainer = deviceControlsContainer;
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
@@ -103,9 +109,10 @@ class App {
      */
     _serialReceivedData(payload) {
         if ('ERR' in payload) {
+            this._notify('error', payload.ERR);
+
             console.warn('Error: ' + payload.ERR);
         } else if ('ACK' in payload) {
-            let notificationMessage;
             let response = payload.ACK;
 
             switch (payload.ACK) {
@@ -113,21 +120,54 @@ class App {
                     const importedMacros = payload.CONTENT;
                     this._newKeyEntries(importedMacros);
 
-                    notificationMessage = 'Received from macropad';
+                    this._notify('info', 'Received from macropad');
                     response = JSON.stringify(importedMacros);
                     break;
-                case 'Macros received':
-                    notificationMessage = 'Sended to macropad';
+                case 'settings':
+                    const importedSettings = payload.CONTENT;
+                    new SettingsDialog({
+                        position: {
+                            anchor: 'center',
+                            top: window.innerHeight / 3,
+                            left: window.innerWidth / 2,
+                        },
+                        settings: importedSettings,
+                        readonly: this.USBStorageEnabled,
+                    })
+                        .then(async (response) => {
+                            await this.serialConnection.send({
+                                command: 'set_settings',
+                                content: response.settings,
+                            });
+
+                            this._notify(
+                                'info',
+                                'Changed settings only take effect after a soft reset',
+                                true
+                            );
+                        })
+                        .catch((error) => {});
+                    response = JSON.stringify(importedSettings);
                     break;
-                case 'Macros saved':
-                    notificationMessage = 'Saved on macropad';
+                case 'usbenabled':
+                    const usbenabled = payload.CONTENT;
+                    this.USBStorageEnabled = usbenabled;
+
+                    this._notify('success', 'Connected to macropad');
+                    break;
+                case 'Macros received':
+                    this._notify('success', 'Sended to macropad');
+                    break;
+                case 'Macros stored':
+                    this._notify('success', 'Stored on macropad');
+                    break;
+                case 'Settings are set':
+                    this._notify('success', 'Settings set on macropad');
                     break;
                 default:
-                    notificationMessage = response;
+                    this._notify('info', response);
                     break;
             }
-
-            this._notify('info', notificationMessage);
 
             console.log(`serialReceivedData - response: ${response}`);
         }
@@ -150,10 +190,9 @@ class App {
 
         this.deviceControlsContainer.classList.toggle('hidden', !this.deviceConnected);
 
-        this._notify(
-            this.deviceConnected ? 'success' : 'info',
-            this.deviceConnected ? 'Connected to macropad' : 'Disconnected from macropad'
-        );
+        if (!this.deviceConnected) {
+            this._notify('info', 'Disconnected from macropad');
+        }
     }
 
     /**
@@ -394,7 +433,7 @@ class App {
             }),
             save: utils.create({
                 attributes: {
-                    title: 'Store on Macropad',
+                    title: 'Store on Macropad (only stored macros are available after reset)',
                     class: 'button',
                 },
                 children: [
@@ -414,6 +453,7 @@ class App {
             }),
             softreset: utils.create({
                 attributes: {
+                    title: 'Restart the script',
                     class: 'button',
                 },
                 children: [
@@ -433,6 +473,7 @@ class App {
             }),
             hardreset: utils.create({
                 attributes: {
+                    title: 'Restart the device (Disable USB storage)',
                     class: 'button',
                 },
                 children: [
@@ -452,6 +493,7 @@ class App {
             }),
             enableusb: utils.create({
                 attributes: {
+                    title: 'Enable USB storage (you cannot store on the device when USB is enabled)',
                     class: 'button',
                 },
                 children: [
@@ -469,6 +511,26 @@ class App {
                     click: (event) => this._deviceControlsHandler(event, 'enableUSB'),
                 },
             }),
+            settings: utils.create({
+                attributes: {
+                    title: '',
+                    class: 'button',
+                },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-screwdriver-wrench',
+                        },
+                    }),
+                    utils.create({
+                        text: 'Settings',
+                    }),
+                ],
+                events: {
+                    click: (event) => this._deviceControlsHandler(event, 'getSettings'),
+                },
+            }),
         };
 
         utils.appendElements(container, [
@@ -478,6 +540,7 @@ class App {
             deviceControls.softreset,
             deviceControls.hardreset,
             deviceControls.enableusb,
+            deviceControls.settings,
         ]);
 
         return deviceControls;
@@ -497,6 +560,8 @@ class App {
             softReset: 'soft_reset',
             hardReset: 'hard_reset',
             enableUSB: 'enable_usb',
+            getSettings: 'get_settings',
+            setSettings: 'set_settings',
         };
 
         switch (command) {
@@ -523,12 +588,29 @@ class App {
                         .catch((error) => {});
                 }
                 break;
+            case 'getSettings':
             case 'saveMacros':
                 await this.serialConnection.send({
                     command: COMMANDS[command],
                 });
                 break;
             case 'softReset':
+                new ConfirmationDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    title: 'Warning',
+                    prompt: 'Do you really want to reset the script?',
+                })
+                    .then(async (response) => {
+                        await this.serialConnection.send({
+                            command: COMMANDS[command],
+                        });
+                    })
+                    .catch((error) => {});
+                break;
             case 'hardReset':
             case 'enableUSB':
                 new ConfirmationDialog({
@@ -538,7 +620,7 @@ class App {
                         left: event.x,
                     },
                     title: 'Warning',
-                    prompt: 'Do you really want to reset the macropad?',
+                    prompt: 'Do you really want to reset the macropad and close the connection?',
                 })
                     .then(async (response) => {
                         await this.serialConnection.send({
@@ -721,15 +803,11 @@ class App {
     keyControlsHandler(event, keyInstance, command) {
         switch (command) {
             case 'edit':
-                const keyDOM = keyInstance.DOM.container;
-                const keyOffsetTop = keyDOM.offsetTop + keyDOM.offsetHeight / 2;
-                const keyOffsetLeft = keyDOM.offsetLeft + keyDOM.offsetWidth / 2;
-
                 new EditDialog({
                     position: {
-                        anchor: 'top center',
-                        top: keyOffsetTop,
-                        left: keyOffsetLeft,
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
                     },
                     keyInstance: keyInstance,
                 })
@@ -995,11 +1073,13 @@ class App {
      * @param {string} type - The type of the the notification (info, success, warning, error)
      * @param {string} prompt - The message to display in the notification.
      */
-    _notify(type, prompt) {
+    _notify(type, prompt, permanent = false) {
         new NotificationDialog({
             parent: this.notificationContainer,
             type: type,
             message: prompt,
+            timeout: 3000,
+            permanent: permanent,
         });
     }
 }

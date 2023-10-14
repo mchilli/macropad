@@ -159,9 +159,8 @@ export class EditDialog extends BaseDialog {
 
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
-        this._setPosition(this.DOM.dialog, this.position.anchor);
-
         this._setValues();
+        this._setPosition(this.DOM.dialog, this.position.anchor);
 
         return this.promise;
     }
@@ -183,7 +182,7 @@ export class EditDialog extends BaseDialog {
             children: [
                 (DOM.dialog = utils.create({
                     attributes: {
-                        class: `dialog edit-dialog ${this.keyInstance.type}`,
+                        class: `dialog ${this.keyInstance.type}`,
                     },
                     children: [
                         (DOM.header = utils.create({
@@ -201,7 +200,6 @@ export class EditDialog extends BaseDialog {
                             },
                             children: [
                                 utils.create({
-                                    type: 'span',
                                     text: 'Type: ',
                                     attributes: {
                                         class: 'dialog-type',
@@ -210,7 +208,7 @@ export class EditDialog extends BaseDialog {
                                 (DOM.type = utils.create({
                                     type: 'select',
                                     attributes: {
-                                        class: 'dialog-type dialog-type-input',
+                                        class: 'dialog-type dialog-input-shorten',
                                     },
                                     children: [
                                         utils.create({
@@ -240,7 +238,6 @@ export class EditDialog extends BaseDialog {
                                     },
                                 })),
                                 utils.create({
-                                    type: 'span',
                                     text: 'Label: ',
                                     attributes: {
                                         class: 'dialog-label',
@@ -249,7 +246,7 @@ export class EditDialog extends BaseDialog {
                                 (DOM.label = utils.create({
                                     type: 'input',
                                     attributes: {
-                                        class: 'dialog-label dialog-label-input',
+                                        class: 'dialog-label dialog-input-shorten',
                                         title: 'The label cannot be longer than 6 characters',
                                         maxlength: 6,
                                     },
@@ -258,7 +255,6 @@ export class EditDialog extends BaseDialog {
                                     },
                                 })),
                                 utils.create({
-                                    type: 'span',
                                     text: 'LED Color: ',
                                     attributes: {
                                         class: 'dialog-color',
@@ -272,7 +268,6 @@ export class EditDialog extends BaseDialog {
                                     },
                                 })),
                                 utils.create({
-                                    type: 'span',
                                     text: 'Content: ',
                                     attributes: {
                                         class: 'dialog-content',
@@ -713,6 +708,203 @@ export class ConfirmationDialog extends BaseDialog {
     _onOK() {
         this.resolve(this);
         this._removeFromParent(this.DOM.container);
+    }
+}
+
+/**
+ * Represents a confirmation dialog.
+ * @class
+ */
+export class SettingsDialog extends BaseDialog {
+    /**
+     * Initializes a new instance of the ConfirmationDialog class.
+     * @constructor
+     * @param {Object} options - Options for configuring the dialog:
+     * @param {HTMLElement} [options.parent=document.body] - The parent element to which the dialog will be appended.
+     * @param {Object} [options.position={}] - Positioning options for the dialog.
+     */
+    constructor({ parent = document.body, position = {}, settings = {}, readonly = false } = {}) {
+        super({ position: position });
+
+        this.parent = parent;
+        this.settings = settings;
+        this.readonly = readonly;
+        this.keyboardlayouts = [
+            ['Portuguese (Brazil)', 'br'],
+            ['Czech', 'cz'],
+            ['Danish', 'da'],
+            ['German', 'de'],
+            ['Spanish', 'es'],
+            ['French', 'fr'],
+            ['Hungarian', 'hu'],
+            ['Italian', 'it'],
+            ['Polish', 'po'],
+            ['Swedish', 'sw'],
+            ['Turkish', 'tr'],
+            ['English UK', 'uk'],
+            ['English US', 'us'],
+        ];
+
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+
+        this.DOM = this._initDOM();
+        this._appendToParent(this.parent, this.DOM.container);
+        this._setValues();
+        this._setPosition(this.DOM.dialog, this.position.anchor);
+
+        return this.promise;
+    }
+
+    /**
+     * Initializes the DOM structure for the dialog.
+     * @returns {Object} - An object containing the DOM elements.
+     */
+    _initDOM() {
+        let DOM = {};
+
+        DOM.container = utils.create({
+            attributes: {
+                class: 'dialog-container',
+                style: `transition: opacity ${this.fadeOutTime / 1000}s ease`,
+            },
+            children: [
+                (DOM.dialog = utils.create({
+                    attributes: {
+                        class: 'dialog',
+                    },
+                    children: [
+                        (DOM.header = utils.create({
+                            text: 'Settings',
+                            attributes: {
+                                class: 'dialog-header',
+                            },
+                            events: {
+                                mousedown: (event) => this._onDragDialog(this.DOM.dialog, event),
+                            },
+                        })),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-inputs',
+                            },
+                            children: [
+                                utils.create({
+                                    text: 'The settings can only be changed if the USB storage is disabled',
+                                    attributes: {
+                                        class: 'dialog-input-shorten',
+                                        style: this.readonly ? '' : 'display: none;',
+                                    },
+                                }),
+                                utils.create({
+                                    text: 'Keyboard Layout: ',
+                                }),
+                                (DOM.keyboardlayout = utils.create({
+                                    type: 'select',
+                                    attributes: {
+                                        class: 'dialog-input-shorten',
+                                    },
+                                    children: this.keyboardlayouts.map((value) => {
+                                        return utils.create({
+                                            type: 'option',
+                                            text: value[0],
+                                            attributes: {
+                                                value: value[1],
+                                            },
+                                        });
+                                    }),
+                                })),
+                                utils.create({
+                                    text: 'Display Timeout: ',
+                                }),
+                                (DOM.sleeptime = utils.create({
+                                    type: 'input',
+                                    attributes: {
+                                        type: 'number',
+                                        title: 'The display timeout in seconds',
+                                        class: 'dialog-input-shorten',
+                                        min: 1,
+                                    },
+                                })),
+                            ],
+                        }),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-button close',
+                            },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-xmark',
+                                    },
+                                }),
+                            ],
+                            events: {
+                                click: (event) => this._onClose(event),
+                            },
+                        }),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-button ok',
+                            },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-check',
+                                    },
+                                }),
+                            ],
+                            events: {
+                                click: (event) => this._onOK(event),
+                            },
+                        }),
+                    ],
+                })),
+            ],
+        });
+
+        DOM.keyboardlayout.disabled = this.readonly;
+        DOM.sleeptime.disabled = this.readonly;
+
+        return DOM;
+    }
+
+    /**
+     * Handle the close action for the dialog, rejecting the associated promise.
+     */
+    _onClose() {
+        this.reject(this);
+        this._removeFromParent(this.DOM.container);
+    }
+
+    /**
+     * Handle the OK action for the dialog. Resolves the associated promise.
+     */
+    _onOK() {
+        this.settings.keyboardlayout = this.DOM.keyboardlayout.value;
+        this.settings.sleeptime = parseInt(this.DOM.sleeptime.value);
+
+        this.resolve({ dialogInstance: this, settings: this.settings });
+        this._removeFromParent(this.DOM.container);
+    }
+
+    /**
+     * Sets the initial values and configuration of the dialog.
+     */
+    _setValues() {
+        const DOM = this.DOM;
+
+        for (const option of DOM.keyboardlayout.children) {
+            if (this.settings.keyboardlayout === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
+
+        DOM.sleeptime.value = this.settings.sleeptime;
     }
 }
 
