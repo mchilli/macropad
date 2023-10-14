@@ -8375,9 +8375,11 @@ body {
 .main-container .key-entries .key-container:nth-child(9n) {
   margin-bottom: 50px;
 }
+
 .main-container .app-controls,
 .main-container .device-controls,
-.main-container .key-entries-controls {
+.main-container .key-entries-controls,
+.dialog-container .dialog-reboot-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -8389,7 +8391,9 @@ body {
 .main-container .device-controls .button,
 .main-container .device-controls .info,
 .main-container .key-entries-controls .button,
-.main-container .key-entries-controls .info {
+.main-container .key-entries-controls .info,
+.dialog-container .dialog-reboot-buttons .button,
+.dialog-container .dialog-reboot-buttons .info {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -8403,14 +8407,16 @@ body {
 }
 .main-container .app-controls .button,
 .main-container .device-controls .button,
-.main-container .key-entries-controls .button {
+.main-container .key-entries-controls .button,
+.dialog-container .dialog-reboot-buttons .button {
   position: relative;
   background-color: #4fc1e9;
   border: 1px solid #808080;
 }
 .main-container .app-controls .button i,
 .main-container .device-controls .button i,
-.main-container .key-entries-controls .button i {
+.main-container .key-entries-controls .button i,
+.dialog-container .dialog-reboot-buttons .button i {
   pointer-events: none;
 }
 
@@ -8511,6 +8517,10 @@ body {
   margin: 0 0 0 auto;
   cursor: pointer;
 }
+.dialog-container .dialog .dialog-reboot-buttons {
+  grid-column: 1/3;
+  margin: 10px;
+}
 .dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
   display: none;
 }
@@ -8601,6 +8611,7 @@ body {
 .main-container .device-controls .button:hover:after,
 .main-container .key-entries-controls .button:hover:after,
 .dialog-container .dialog-button:hover:after,
+.dialog-container .dialog-reboot-buttons .button:hover:after,
 .notification-container .dialog-button:hover:after {
   display: block;
   content: "";

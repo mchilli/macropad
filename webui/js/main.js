@@ -11,6 +11,7 @@ import {
     EditDialog,
     ConfirmationDialog,
     SettingsDialog,
+    ResetDialog,
     NotificationDialog,
 } from './modules/classes/Dialogs.js';
 
@@ -451,69 +452,9 @@ class App {
                     click: (event) => this._deviceControlsHandler(event, 'saveMacros'),
                 },
             }),
-            softreset: utils.create({
-                attributes: {
-                    title: 'Restart the script',
-                    class: 'button',
-                },
-                children: [
-                    utils.create({
-                        type: 'i',
-                        attributes: {
-                            class: 'fa-solid fa-screwdriver-wrench',
-                        },
-                    }),
-                    utils.create({
-                        text: 'Soft Reset',
-                    }),
-                ],
-                events: {
-                    click: (event) => this._deviceControlsHandler(event, 'softReset'),
-                },
-            }),
-            hardreset: utils.create({
-                attributes: {
-                    title: 'Restart the device (Disable USB storage)',
-                    class: 'button',
-                },
-                children: [
-                    utils.create({
-                        type: 'i',
-                        attributes: {
-                            class: 'fa-solid fa-screwdriver-wrench',
-                        },
-                    }),
-                    utils.create({
-                        text: 'Hard Reset',
-                    }),
-                ],
-                events: {
-                    click: (event) => this._deviceControlsHandler(event, 'hardReset'),
-                },
-            }),
-            enableusb: utils.create({
-                attributes: {
-                    title: 'Enable USB storage (you cannot store on the device when USB is enabled)',
-                    class: 'button',
-                },
-                children: [
-                    utils.create({
-                        type: 'i',
-                        attributes: {
-                            class: 'fa-solid fa-screwdriver-wrench',
-                        },
-                    }),
-                    utils.create({
-                        text: 'Enable USB',
-                    }),
-                ],
-                events: {
-                    click: (event) => this._deviceControlsHandler(event, 'enableUSB'),
-                },
-            }),
             settings: utils.create({
                 attributes: {
-                    title: '',
+                    title: 'Open the dialog with device settings',
                     class: 'button',
                 },
                 children: [
@@ -531,16 +472,34 @@ class App {
                     click: (event) => this._deviceControlsHandler(event, 'getSettings'),
                 },
             }),
+            reboot: utils.create({
+                attributes: {
+                    title: 'Open the dialog with reboot options',
+                    class: 'button',
+                },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-power-off',
+                        },
+                    }),
+                    utils.create({
+                        text: 'Reboot',
+                    }),
+                ],
+                events: {
+                    click: (event) => this._deviceControlsHandler(event, 'reboot'),
+                },
+            }),
         };
 
         utils.appendElements(container, [
             deviceControls.download,
             deviceControls.upload,
             deviceControls.save,
-            deviceControls.softreset,
-            deviceControls.hardreset,
-            deviceControls.enableusb,
             deviceControls.settings,
+            deviceControls.reboot,
         ]);
 
         return deviceControls;
@@ -588,48 +547,24 @@ class App {
                         .catch((error) => {});
                 }
                 break;
+
             case 'getSettings':
             case 'saveMacros':
+            case 'softReset':
                 await this.serialConnection.send({
                     command: COMMANDS[command],
                 });
                 break;
-            case 'softReset':
-                new ConfirmationDialog({
-                    position: {
-                        anchor: 'center',
-                        top: event.y,
-                        left: event.x,
-                    },
-                    title: 'Warning',
-                    prompt: 'Do you really want to reset the script?',
-                })
-                    .then(async (response) => {
-                        await this.serialConnection.send({
-                            command: COMMANDS[command],
-                        });
-                    })
-                    .catch((error) => {});
-                break;
+
             case 'hardReset':
             case 'enableUSB':
-                new ConfirmationDialog({
-                    position: {
-                        anchor: 'center',
-                        top: event.y,
-                        left: event.x,
-                    },
-                    title: 'Warning',
-                    prompt: 'Do you really want to reset the macropad and close the connection?',
-                })
-                    .then(async (response) => {
-                        await this.serialConnection.send({
-                            command: COMMANDS[command],
-                        });
-                        this.serialConnection.close();
-                    })
-                    .catch((error) => {});
+                await this.serialConnection.send({
+                    command: COMMANDS[command],
+                });
+
+                this.serialConnection.close();
                 break;
+
             case 'setMacros':
                 new ConfirmationDialog({
                     position: {
@@ -645,6 +580,20 @@ class App {
                             command: COMMANDS[command],
                             content: this.macroStack[0],
                         });
+                    })
+                    .catch((error) => {});
+                break;
+
+            case 'reboot':
+                new ResetDialog({
+                    position: {
+                        anchor: 'center',
+                        top: window.innerHeight / 3,
+                        left: window.innerWidth / 2,
+                    },
+                })
+                    .then(async (response) => {
+                        this._deviceControlsHandler(response.event, response.command);
                     })
                     .catch((error) => {});
                 break;

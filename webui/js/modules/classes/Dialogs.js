@@ -712,16 +712,18 @@ export class ConfirmationDialog extends BaseDialog {
 }
 
 /**
- * Represents a confirmation dialog.
+ * Represents a settings dialog.
  * @class
  */
 export class SettingsDialog extends BaseDialog {
     /**
-     * Initializes a new instance of the ConfirmationDialog class.
+     * Initializes a new instance of the SettingsDialog class.
      * @constructor
      * @param {Object} options - Options for configuring the dialog:
      * @param {HTMLElement} [options.parent=document.body] - The parent element to which the dialog will be appended.
      * @param {Object} [options.position={}] - Positioning options for the dialog.
+     * @param {Object} [options.settings={}] - Device settings for the dialog.
+     * @param {Object} [options.readonly=false] - If settings are readonly.
      */
     constructor({ parent = document.body, position = {}, settings = {}, readonly = false } = {}) {
         super({ position: position });
@@ -905,6 +907,188 @@ export class SettingsDialog extends BaseDialog {
         }
 
         DOM.sleeptime.value = this.settings.sleeptime;
+    }
+}
+
+/**
+ * Represents a reset dialog.
+ * @class
+ */
+export class ResetDialog extends BaseDialog {
+    /**
+     * Initializes a new instance of the ResetDialog class.
+     * @constructor
+     * @param {Object} options - Options for configuring the dialog:
+     * @param {HTMLElement} [options.parent=document.body] - The parent element to which the dialog will be appended.
+     * @param {Object} [options.position={}] - Positioning options for the dialog.
+     */
+    constructor({ parent = document.body, position = {} } = {}) {
+        super({ position: position });
+
+        this.parent = parent;
+
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+
+        this.DOM = this._initDOM();
+        this._appendToParent(this.parent, this.DOM.container);
+        this._setPosition(this.DOM.dialog, this.position.anchor);
+
+        return this.promise;
+    }
+
+    /**
+     * Initializes the DOM structure for the dialog.
+     * @returns {Object} - An object containing the DOM elements.
+     */
+    _initDOM() {
+        let DOM = {};
+
+        DOM.container = utils.create({
+            attributes: {
+                class: 'dialog-container',
+                style: `transition: opacity ${this.fadeOutTime / 1000}s ease`,
+            },
+            children: [
+                (DOM.dialog = utils.create({
+                    attributes: {
+                        class: 'dialog',
+                    },
+                    children: [
+                        (DOM.header = utils.create({
+                            text: 'Reboot',
+                            attributes: {
+                                class: 'dialog-header',
+                            },
+                            events: {
+                                mousedown: (event) => this._onDragDialog(this.DOM.dialog, event),
+                            },
+                        })),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-reboot-buttons',
+                            },
+                            children: [
+                                utils.create({
+                                    attributes: {
+                                        title: 'Restart the script',
+                                        class: 'button',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-power-off',
+                                            },
+                                        }),
+                                        utils.create({
+                                            text: 'Soft Reboot',
+                                        }),
+                                    ],
+                                    events: {
+                                        click: (event) => this._onButton(event, 'softReset'),
+                                    },
+                                }),
+                                utils.create({
+                                    attributes: {
+                                        title: 'Reboot the device (Disable USB storage)',
+                                        class: 'button',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-power-off',
+                                            },
+                                        }),
+                                        utils.create({
+                                            text: 'Hard Reboot',
+                                        }),
+                                    ],
+                                    events: {
+                                        click: (event) => this._onButton(event, 'hardReset'),
+                                    },
+                                }),
+                                utils.create({
+                                    attributes: {
+                                        title: 'Enable USB storage (you cannot store on the device when USB is enabled)',
+                                        class: 'button',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-power-off',
+                                            },
+                                        }),
+                                        utils.create({
+                                            text: 'Enable USB',
+                                        }),
+                                    ],
+                                    events: {
+                                        click: (event) => this._onButton(event, 'enableUSB'),
+                                    },
+                                }),
+                            ],
+                        }),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-button close',
+                            },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-xmark',
+                                    },
+                                }),
+                            ],
+                            events: {
+                                click: (event) => this._onClose(event),
+                            },
+                        }),
+                    ],
+                })),
+            ],
+        });
+
+        return DOM;
+    }
+
+    /**
+     * Handle the close action for the dialog, rejecting the associated promise.
+     */
+    _onClose() {
+        this.reject(this);
+        this._removeFromParent(this.DOM.container);
+    }
+
+    /**
+     * Handle the button action for the dialog. Resolves the associated promise.
+     */
+    _onButton(event, command) {
+        const PROMPTS = {
+            softReset: 'Do you really want to reset the script?',
+            hardReset: 'Do you really want to reboot the macropad?',
+            enableUSB: 'Do you really want to reboot the macropad to enable USB storage?',
+        };
+
+        new ConfirmationDialog({
+            position: {
+                anchor: 'center',
+                top: event.y,
+                left: event.x,
+            },
+            title: 'Warning',
+            prompt: PROMPTS[command],
+        })
+            .then((response) => {
+                this.resolve({ dialogInstance: this, event: event, command: command });
+                this._removeFromParent(this.DOM.container);
+            })
+            .catch((error) => {});
     }
 }
 
