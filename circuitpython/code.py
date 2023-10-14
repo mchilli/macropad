@@ -7,6 +7,7 @@ import time
 
 import displayio
 import terminalio
+import storage
 import supervisor
 import usb_cdc
 from adafruit_display_text.label import Label
@@ -20,44 +21,52 @@ from utils.system import System
 
 supervisor.runtime.autoreload = False
 
+SETTINGSFILE = "settings.json" # The file in which the settings are saved
 MACROFILE = "macros.json" # The file in which the macros are saved
-SLEEPTIME = 10 # Time in seconds until the display turns off
-KEYBOARDLAYOUT = 'us' # Supported keyboard layouts: br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
 
-if KEYBOARDLAYOUT == 'br':
+try:
+    with open(SETTINGSFILE, "r") as f:
+        settings = json.loads(f.read())
+        SLEEPTIME = settings["sleeptime"]
+        KEYBOARDLAYOUT = settings["keyboardlayout"]
+except OSError:
+    SLEEPTIME = 2 # Time in seconds until the display turns off
+    KEYBOARDLAYOUT = "us" # Supported keyboard layouts: br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
+
+if KEYBOARDLAYOUT == "br":
     from adafruit_hid.keyboard_layout_win_br import KeyboardLayout
     from adafruit_hid.keycode_win_br import Keycode
-elif KEYBOARDLAYOUT == 'cz':
+elif KEYBOARDLAYOUT == "cz":
     from adafruit_hid.keyboard_layout_win_cz import KeyboardLayout
     from adafruit_hid.keycode_win_cz import Keycode
-elif KEYBOARDLAYOUT == 'da':
+elif KEYBOARDLAYOUT == "da":
     from adafruit_hid.keyboard_layout_win_da import KeyboardLayout
     from adafruit_hid.keycode_win_da import Keycode
-elif KEYBOARDLAYOUT == 'de':
+elif KEYBOARDLAYOUT == "de":
     from adafruit_hid.keyboard_layout_win_de import KeyboardLayout
     from adafruit_hid.keycode_win_de import Keycode
-elif KEYBOARDLAYOUT == 'es':
+elif KEYBOARDLAYOUT == "es":
     from adafruit_hid.keyboard_layout_win_es import KeyboardLayout
     from adafruit_hid.keycode_win_es import Keycode
-elif KEYBOARDLAYOUT == 'fr':
+elif KEYBOARDLAYOUT == "fr":
     from adafruit_hid.keyboard_layout_win_fr import KeyboardLayout
     from adafruit_hid.keycode_win_fr import Keycode
-elif KEYBOARDLAYOUT == 'hu':
+elif KEYBOARDLAYOUT == "hu":
     from adafruit_hid.keyboard_layout_win_hu import KeyboardLayout
     from adafruit_hid.keycode_win_hu import Keycode
-elif KEYBOARDLAYOUT == 'it':
+elif KEYBOARDLAYOUT == "it":
     from adafruit_hid.keyboard_layout_win_it import KeyboardLayout
     from adafruit_hid.keycode_win_it import Keycode
-elif KEYBOARDLAYOUT == 'po':
+elif KEYBOARDLAYOUT == "po":
     from adafruit_hid.keyboard_layout_win_po import KeyboardLayout
     from adafruit_hid.keycode_win_po import Keycode
-elif KEYBOARDLAYOUT == 'sw':
+elif KEYBOARDLAYOUT == "sw":
     from adafruit_hid.keyboard_layout_win_sw import KeyboardLayout
     from adafruit_hid.keycode_win_sw import Keycode
-elif KEYBOARDLAYOUT == 'tr':
+elif KEYBOARDLAYOUT == "tr":
     from adafruit_hid.keyboard_layout_win_tr import KeyboardLayout
     from adafruit_hid.keycode_win_tr import Keycode
-elif KEYBOARDLAYOUT == 'uk':
+elif KEYBOARDLAYOUT == "uk":
     from adafruit_hid.keyboard_layout_win_uk import KeyboardLayout
     from adafruit_hid.keycode_win_uk import Keycode
 else:
@@ -77,12 +86,52 @@ class MacroApp():
         self.serial_data = usb_cdc.data
         self.serial_last_state = False
         
+        self.settings = self._init_settings()
         self.macros = self._init_macros()
         self.keys = self._init_keys()
         self.toolbar = self._init_toolbar()
         self.encoder = Encoder(self.macropad)
 
         self.show_homescreen()
+
+    def _init_settings(self) -> dict:
+        """ initiate the settings json file
+
+        Returns:
+            dict: the json file as a dict
+        """
+        try:
+            with open(SETTINGSFILE, "r") as f:
+                return json.loads(f.read())
+        except OSError:
+            return {
+                "keyboardlayout": "us",
+                "sleeptime": 10
+            }
+
+    def _save_settings(self) -> None:
+        """ store the settings in the settingsfile
+        """
+        with open(SETTINGSFILE, "w") as f:
+            f.write(json.dumps(self.settings, separators=(",", ":")))
+
+    def _init_macros(self) -> list[dict]:
+        """ initiate the macro json file
+
+        Returns:
+            list[dict]: the json file as list of dicts
+        """
+        try:
+            with open(MACROFILE, "r") as f:
+                return json.loads(f.read())
+        except OSError:
+            return []
+        
+    def _save_macros(self) -> None:
+        """ store the macros in the macrofile
+        """
+        with open(MACROFILE, "w") as f:
+            f.write(json.dumps(self.macros, separators=(",", ":")))
 
     def _init_keys(self) -> list[Key]:
         """ Initiate the keys and a display group for each key
@@ -125,21 +174,6 @@ class MacroApp():
             "center": self.keys[1],
             "right": self.keys[2],
         }
-
-    def _init_macros(self) -> list[dict]:
-        """ initiate the macro json file
-
-        Returns:
-            list[dict]: the json file as list of dicts
-        """
-        with open(MACROFILE, "r") as f:
-            return json.loads(f.read())
-        
-    def _save_macros(self) -> None:
-        """ store the macros in the macrofile
-        """
-        with open(MACROFILE, "w") as f:
-            f.write(json.dumps(self.macros, separators=(',', ':')))
 
     def _init_group(self) -> None:
         """ initiate the group content
@@ -344,7 +378,28 @@ class MacroApp():
 
             command = payload['command']
 
-            if command == 'get_macros':
+            if command == 'get_settings':
+                response['ACK'] = 'settings'
+                response['CONTENT'] = self.settings
+                return response
+            
+            elif command == 'set_settings':
+                if 'content' not in payload.keys():
+                    response['ERR'] = 'No content: %s' % payload
+                    return response
+                
+                content = payload['content']
+                self.settings = content
+
+                try:
+                    self._save_settings()
+                    response['ACK'] = 'Settings are set'
+                except OSError as e:
+                    response['ERR'] = 'Cannot set settings because USB storage is enabled'
+
+                return response
+
+            elif command == 'get_macros':
                 response['ACK'] = 'macros'
                 response['CONTENT'] = self.macros
                 return response
@@ -360,14 +415,15 @@ class MacroApp():
                 self.show_homescreen()
 
                 response['ACK'] = 'Macros received'
-                # response['ACK'] = 'macros'
-                # response['CONTENT'] = self.macros
                 return response
             
             elif command == 'save_macros':
-                self._save_macros()
+                try:
+                    self._save_macros()
+                    response['ACK'] = 'Macros stored'
+                except OSError as e:
+                    response['ERR'] = 'Cannot store macros because USB storage is enabled'
 
-                response['ACK'] = 'Macros saved'
                 return response
             
             elif command == 'enable_usb':
@@ -419,11 +475,12 @@ class MacroApp():
 
             self.macropad.display.refresh()
 
-            # uncomment if something should be send after connection
-            # if self.serial_last_state != self.serial_data.connected:
-            #     self.serial_last_state = self.serial_data.connected
-            #     if self.serial_data.connected:
-            #         pass
+            # send after the connection is established
+            if self.serial_last_state != self.serial_data.connected:
+                self.serial_last_state = self.serial_data.connected
+                if self.serial_data.connected:
+                    readonly = storage.getmount('/').readonly
+                    self._send_serial_data({'ACK': 'usbenabled', 'CONTENT': readonly })
 
             if self.serial_data.connected:
                 if self.serial_data.in_waiting > 0:

@@ -40,6 +40,8 @@ Macro Types:
 Serial Connection Commands:
     get_macros, set_macros, save_macros, enable_usb, soft_reset, hard_reset
 
+Keyboardlayouts:
+    br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
 
 
 Browser limitation:
