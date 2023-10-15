@@ -2,7 +2,7 @@
 
 <img src="https://github.com/mchilli/macropad/blob/main/webui/img/macropad-128.png?raw=true" height="100">
 
-This is an [Adafruit MacroPad](https://www.adafruit.com/product/5128) script where you can configure your device over a [**WebUI**](https://mchilli.github.io/macropad/).
+This is an [Adafruit MacroPad](https://www.adafruit.com/product/5128) script that allows you to manage your macros via a [**WebUI**](https://mchilli.github.io/macropad/).
 
 ---
 
