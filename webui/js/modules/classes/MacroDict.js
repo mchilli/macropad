@@ -707,7 +707,7 @@ class MacroSystemFunctions extends MacroBase {
         this.autocompleteList = [
             'soft_reset',
             'hard_reset',
-            'enable_USB',
+            'enable_usb',
             'increase_brightness',
             'decrease_brightness',
         ];
