@@ -8451,7 +8451,6 @@ body {
   content: "";
   background-color: var(--color-white);
   opacity: 0.5;
-  backdrop-filter: blur(1px);
 }
 .dialog-container .dialog {
   display: grid;
