@@ -34,7 +34,7 @@ If you are happy with your configuration don't forget to `Store`! Otherwise your
 The first row of keys is for navigating through your macros and groups. To be honest the middle button in this row actually has no function. If you have a smart idea for it, let me know!
 It allows you to define different macros for the encoder that are available within groups. So there are nine macros or groups per page.
 
-Your can enable the USB storage either by pressing the yellow blinking key (top, left) when plugin the device, you can enable it through the WebUI under "reboot" or you can set a macro with the device function "enable_USB".
+Your can enable the USB storage either by pressing the yellow blinking key (top, left) when plugin the device, you can enable it through the WebUI under "reboot" or you can set a macro with the device function "enable_usb".
 
 #### Ideas:
 
