@@ -5,7 +5,7 @@ from adafruit_macropad import MacroPad
 USBENABLEDFILE = "usbenabled"
 
 class System():
-    def enable_USB(macropad:MacroPad=None) -> None:
+    def enable_usb(macropad:MacroPad=None) -> None:
         try:
             with open(USBENABLEDFILE, "a") as f: pass
             System.hard_reset()

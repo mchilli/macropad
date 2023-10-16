@@ -427,7 +427,7 @@ class MacroApp():
                 return response
             
             elif command == 'enable_usb':
-                System.enable_USB()
+                System.enable_usb()
 
                 response['ACK'] = 'Enable USB'
                 return response
