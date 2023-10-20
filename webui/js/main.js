@@ -67,6 +67,9 @@ class App {
         this.keyChunkSize = keyChunkSize;
         this._initGroupStacks();
 
+        this.clipboard = {
+            copiedKey: null,
+        };
         this.keyEntriesContainer = keyEntriesContainer;
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
@@ -759,6 +762,7 @@ class App {
                         left: event.x,
                     },
                     keyInstance: keyInstance,
+                    clipboard: this.clipboard,
                 })
                     .then((response) => {
                         this.editDialogHandler(response);
@@ -804,49 +808,36 @@ class App {
     }
 
     /**
-     * Handle the editing of a dialog for configuring a key instance.
-     *
-     * @param {Object} options - Options for configuring the key instance's properties.
-     * @param {DialogInstance} options.dialogInstance - The dialog instance being edited.
-     * @param {KeyInstance} options.keyInstance - The key instance to configure and update.
+     * Handles editing a dialog's response and updates a key instance accordingly.
+     * @param {Object} options - An object containing response and keyInstance properties.
+     * @param {Object} options.response - The response object to be edited.
+     * @param {KeyInstance} options.keyInstance - The key instance to update.
      */
-    editDialogHandler({ dialogInstance, keyInstance } = {}) {
-        const dialogDOM = dialogInstance.DOM;
-        const type = dialogDOM.type.value;
-        const label = dialogDOM.label.value;
-        const color = utils.hexToRGB(dialogDOM.color.value);
-
-        if (type === 'blank') {
+    editDialogHandler({ response, keyInstance } = {}) {
+        if (response.type === 'blank') {
             keyInstance.clearData();
         } else {
-            keyInstance.setType(type);
-            keyInstance.setLabel(label);
-            keyInstance.setColor(color);
-
-            switch (type) {
-                case 'macro':
-                    const content = Array.from(dialogDOM.content.children)
-                        .map((entry) => entry.instance.getValue() || undefined)
-                        .filter((value) => value !== undefined);
-
-                    keyInstance.setContent(content);
-                    break;
-
-                case 'group':
-                    const encoder = {
-                        switch: Array.from(dialogDOM.encoder.switch.children)
-                            .map((entry) => entry.instance.getValue() || undefined)
-                            .filter((value) => value !== undefined),
-                        increased: Array.from(dialogDOM.encoder.increased.children)
-                            .map((entry) => entry.instance.getValue() || undefined)
-                            .filter((value) => value !== undefined),
-                        decreased: Array.from(dialogDOM.encoder.decreased.children)
-                            .map((entry) => entry.instance.getValue() || undefined)
-                            .filter((value) => value !== undefined),
-                    };
-
-                    keyInstance.setEncoder(encoder);
-                    break;
+            for (const property in response) {
+                if (Object.hasOwnProperty.call(response, property)) {
+                    const value = response[property];
+                    switch (property) {
+                        case 'type':
+                            keyInstance.setType(value);
+                            break;
+                        case 'label':
+                            keyInstance.setLabel(value);
+                            break;
+                        case 'color':
+                            keyInstance.setColor(value);
+                            break;
+                        case 'content':
+                            keyInstance.setContent(value);
+                            break;
+                        case 'encoder':
+                            keyInstance.setEncoder(value);
+                            break;
+                    }
+                }
             }
         }
         this._reReadKeyEntries();
@@ -1021,6 +1012,7 @@ class App {
      * Display a notification message.
      * @param {string} type - The type of the the notification (info, success, warning, error)
      * @param {string} prompt - The message to display in the notification.
+     * @param {boolean} permanent - Whether the notification should be permanent (optional).
      */
     _notify(type, prompt, permanent = false) {
         new NotificationDialog({

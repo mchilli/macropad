@@ -163,10 +163,6 @@ body {
             &.macro .button.open {
                 display: none;
             }
-
-            &:nth-child(9n) {
-                margin-bottom: calc(var(--key-entries-gap) * 5);
-            }
         }
     }
 }
@@ -241,15 +237,34 @@ body {
         .dialog-header {
             grid-row: 1;
             grid-column: 1 / 3;
-            display: grid;
-            align-items: center;
-            justify-content: center;
+            display: flex;
+            gap: var(--dialog-gap);
+            margin-right: var(--dialog-button-size);
+            padding-right: var(--dialog-gap);
             height: var(--dialog-button-size);
             background-color: var(--color-black);
             color: var(--color-white);
-            font-weight: bold;
-            font-size: large;
-            cursor: move;
+
+            .dialog-header-label {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                font-weight: bold;
+                font-size: large;
+                cursor: move;
+            }
+
+            .dialog-button {
+                border-top: none;
+                color: var(--color-black);
+
+                .dialog-button-label {
+                    position: absolute;
+                    transform: rotate(-45deg);
+                    opacity: 0;
+                }
+            }
         }
 
         .dialog-prompt {
@@ -402,11 +417,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
+    flex-grow: 0;
     position: relative;
     width: var(--dialog-button-size);
     height: var(--dialog-button-size);
     background-color: var(--color-white);
     box-sizing: border-box;
+    overflow: hidden;
     cursor: pointer;
 
     &.close {

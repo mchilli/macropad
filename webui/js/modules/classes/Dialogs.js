@@ -48,15 +48,15 @@ class BaseDialog {
     }
 
     /**
-     * Set the position of an element within its container.
-     * @param {HTMLElement} element - The element to position.
-     * @param {string} position - The desired position for the dialog. Defaults to 'start start'.
-     *                           The position is defined by two space-separated values, where the first value
-     *                           determines the vertical position ('top', 'center', 'bottom', or 'start') and
-     *                           the second value determines the horizontal position ('left', 'center', 'right', or 'end').
+     * Positions an element within the viewport based on specified anchor points and offsets.
+     * @param {HTMLElement} element - The element to be positioned.
+     * @param {Object} [options] - An object with positioning options.
+     * @param {string} [options.anchor='top left'] - The anchor point for positioning.
+     * @param {number} [options.top=0] - The vertical offset from the anchor.
+     * @param {number} [options.left=0] - The horizontal offset from the anchor.
      */
-    _setPosition(element, position = 'start') {
-        const [anchorTop, anchorLeft = anchorTop] = position.split(' ');
+    _setPosition(element, { anchor = 'top left', top = 0, left = 0 } = {}) {
+        const [anchorTop, anchorLeft = anchorTop] = anchor.split(' ');
         const elementWidth = element.offsetWidth;
         const elementHeight = element.offsetHeight;
 
@@ -83,8 +83,8 @@ class BaseDialog {
         };
 
         utils.style(element, {
-            top: `${getPosition(anchorTop, elementHeight, this.position.top)}px`,
-            left: `${getPosition(anchorLeft, elementWidth, this.position.left)}px`,
+            top: `${getPosition(anchorTop, elementHeight, top)}px`,
+            left: `${getPosition(anchorLeft, elementWidth, left)}px`,
         });
     }
 
@@ -143,14 +143,22 @@ export class EditDialog extends BaseDialog {
      * @param {HTMLElement} [options.parent=document.body] - The parent element to which the dialog will be appended.
      * @param {Object} [options.position={}] - Positioning options for the dialog.
      * @param {Object} options.keyInstance - The key instance to be edited.
+     * @param {Object} [options.clipboard={}] - An object representing clipboard data.
      * @returns {HTMLElement} - The container DOM element for the dialog.
      */
-    constructor({ parent = document.body, position = {}, keyInstance = null } = {}) {
+    constructor({
+        parent = document.body,
+        position = {},
+        keyInstance = null,
+        clipboard = {},
+    } = {}) {
         super({ position: position });
 
         this.parent = parent;
         this.keyInstance = keyInstance;
         this.initType = keyInstance.type;
+        this.clipboard = clipboard;
+        this.pasted = false;
 
         this.promise = new Promise((resolve, reject) => {
             this.resolve = resolve;
@@ -159,8 +167,8 @@ export class EditDialog extends BaseDialog {
 
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
-        this._setValues();
-        this._setPosition(this.DOM.dialog, this.position.anchor);
+        this._setValues(this.keyInstance.getAllData());
+        this._setPosition(this.DOM.dialog, this.position);
 
         return this.promise;
     }
@@ -171,6 +179,7 @@ export class EditDialog extends BaseDialog {
      */
     _initDOM() {
         let DOM = {
+            header: {},
             encoder: {},
         };
 
@@ -185,15 +194,75 @@ export class EditDialog extends BaseDialog {
                         class: `dialog ${this.keyInstance.type}`,
                     },
                     children: [
-                        (DOM.header = utils.create({
-                            text: this.keyInstance.label || 'New',
+                        utils.create({
                             attributes: {
                                 class: 'dialog-header',
                             },
-                            events: {
-                                mousedown: (event) => this._onDragDialog(this.DOM.dialog, event),
-                            },
-                        })),
+                            children: [
+                                (DOM.header.label = utils.create({
+                                    text: this.keyInstance.label || 'New',
+                                    attributes: {
+                                        class: 'dialog-header-label',
+                                    },
+                                    events: {
+                                        mousedown: (event) =>
+                                            this._onDragDialog(this.DOM.dialog, event),
+                                    },
+                                })),
+                                (DOM.header.copy = utils.create({
+                                    attributes: {
+                                        title: 'Copy configuration',
+                                        class: 'dialog-button copy',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-copy',
+                                            },
+                                        }),
+                                        utils.create({
+                                            text: 'copied',
+                                            attributes: {
+                                                class: 'dialog-button-label',
+                                                style: `transition: opacity ${
+                                                    this.fadeOutTime / 1000
+                                                }s ease`,
+                                            },
+                                        }),
+                                    ],
+                                    events: {
+                                        click: (event) => this._onCopy(event),
+                                    },
+                                })),
+                                (DOM.header.paste = utils.create({
+                                    attributes: {
+                                        title: 'Paste configuration',
+                                        class: 'dialog-button paste',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-paste',
+                                            },
+                                        }),
+                                        utils.create({
+                                            text: 'pasted',
+                                            attributes: {
+                                                class: 'dialog-button-label',
+                                                style: `transition: opacity ${
+                                                    this.fadeOutTime / 1000
+                                                }s ease`,
+                                            },
+                                        }),
+                                    ],
+                                    events: {
+                                        click: (event) => this._onPaste(event),
+                                    },
+                                })),
+                            ],
+                        }),
                         utils.create({
                             attributes: {
                                 class: 'dialog-inputs',
@@ -459,7 +528,7 @@ export class EditDialog extends BaseDialog {
      */
     _onLabelInput(event) {
         const label = this.DOM.label.value || 'New';
-        this.DOM.header.innerText = label;
+        this.DOM.header.label.innerText = label;
     }
 
     /**
@@ -493,7 +562,7 @@ export class EditDialog extends BaseDialog {
         }
 
         const resolveAndRemove = () => {
-            this.resolve({ dialogInstance: this, keyInstance: this.keyInstance });
+            this.resolve({ response: this.prepareResponse(), keyInstance: this.keyInstance });
             this._removeFromParent(this.DOM.container);
         };
         if (this.DOM.type.value !== this.initType && this.initType !== 'blank') {
@@ -512,6 +581,66 @@ export class EditDialog extends BaseDialog {
                 .catch((error) => {});
         } else {
             resolveAndRemove();
+        }
+    }
+
+    /**
+     * Handles copying key configuration.
+     * @param {Event} event - The event triggering the copy action.
+     */
+    _onCopy(event) {
+        if (this.DOM.type.value !== 'blank') {
+            this.clipboard.copiedKey = this.keyInstance.getAllData();
+
+            const button = this.DOM.header.copy;
+            button.children[1].style.opacity = 1;
+            button.children[0].style.display = 'none';
+            setTimeout(() => {
+                button.children[1].style.opacity = 0;
+                button.children[0].style.display = 'block';
+            }, this.fadeOutTime);
+        }
+    }
+
+    /**
+     * Handles pasting key configuration.
+     * @param {Event} event - The event triggering the paste action.
+     */
+    _onPaste(event) {
+        const pasteConfiguration = () => {
+            this._setValues(this.clipboard.copiedKey);
+            this._onChangeType();
+            this._onLabelInput();
+
+            this.initType = this.DOM.type.value;
+            this.pasted = true;
+
+            const button = this.DOM.header.paste;
+            button.children[1].style.opacity = 1;
+            button.children[0].style.display = 'none';
+            setTimeout(() => {
+                button.children[1].style.opacity = 0;
+                button.children[0].style.display = 'block';
+            }, this.fadeOutTime);
+        };
+        if (this.clipboard.copiedKey !== null) {
+            if (this.DOM.type.value !== 'blank') {
+                new ConfirmationDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    title: 'Warning',
+                    prompt: 'Do you really want to replace this configuration?',
+                })
+                    .then((response) => {
+                        pasteConfiguration();
+                    })
+                    .catch((error) => {});
+            } else {
+                pasteConfiguration();
+            }
         }
     }
 
@@ -545,6 +674,7 @@ export class EditDialog extends BaseDialog {
      * @param {Array<string>} content - An array of macro values to append.
      */
     _appendMultipleMacros(container, content) {
+        container.innerHTML = '';
         const entries = content.map((value) => {
             const entry = getMacroByValue(value);
             entry.instance.addAdditionalControls();
@@ -554,10 +684,51 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
+     * Extracts and returns values from a container of macro entries.
+     * @param {HTMLElement} container - The container element containing macro entries.
+     * @returns {Array} An array of extracted values.
+     */
+    getMacroEntryValues(container) {
+        return Array.from(container.children)
+            .map((entry) => entry.instance.getValue() || undefined)
+            .filter((value) => value !== undefined);
+    }
+
+    /**
+     * Prepares a response object based on the current state of the DOM elements.
+     * @returns {Object} The response object containing relevant data.
+     */
+    prepareResponse() {
+        const DOM = this.DOM;
+        const type = DOM.type.value;
+        const values = { type };
+
+        if (type !== 'blank') {
+            values.label = DOM.label.value;
+            values.color = utils.hexToRGB(DOM.color.value);
+        }
+
+        if (this.pasted && type === 'group' && this.initType === 'group') {
+            values.content = JSON.parse(JSON.stringify(this.clipboard.copiedKey.content));
+        } else if (type === 'macro') {
+            values.content = this.getMacroEntryValues(DOM.content);
+        }
+
+        if (type === 'group') {
+            values.encoder = {
+                switch: this.getMacroEntryValues(DOM.encoder.switch),
+                increased: this.getMacroEntryValues(DOM.encoder.increased),
+                decreased: this.getMacroEntryValues(DOM.encoder.decreased),
+            };
+        }
+
+        return values;
+    }
+
+    /**
      * Sets the initial values and configuration of the dialog.
      */
-    _setValues() {
-        const key = this.keyInstance;
+    _setValues(key) {
         const DOM = this.DOM;
 
         for (const option of DOM.type.children) {
@@ -616,7 +787,7 @@ export class ConfirmationDialog extends BaseDialog {
 
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
-        this._setPosition(this.DOM.dialog, this.position.anchor);
+        this._setPosition(this.DOM.dialog, this.position);
 
         return this.promise;
     }
@@ -639,15 +810,26 @@ export class ConfirmationDialog extends BaseDialog {
                         class: 'dialog',
                     },
                     children: [
-                        (DOM.header = utils.create({
-                            text: this.title,
+                        utils.create({
                             attributes: {
                                 class: 'dialog-header',
                             },
+                            children: [
+                                utils.create({
+                                    text: this.title,
+                                    attributes: {
+                                        class: 'dialog-header-label',
+                                    },
+                                    events: {
+                                        mousedown: (event) =>
+                                            this._onDragDialog(this.DOM.dialog, event),
+                                    },
+                                }),
+                            ],
                             events: {
                                 mousedown: (event) => this._onDragDialog(this.DOM.dialog, event),
                             },
-                        })),
+                        }),
                         utils.create({
                             text: this.prompt,
                             attributes: {
@@ -755,7 +937,7 @@ export class SettingsDialog extends BaseDialog {
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
         this._setValues();
-        this._setPosition(this.DOM.dialog, this.position.anchor);
+        this._setPosition(this.DOM.dialog, this.position);
 
         return this.promise;
     }
@@ -779,13 +961,21 @@ export class SettingsDialog extends BaseDialog {
                     },
                     children: [
                         (DOM.header = utils.create({
-                            text: 'Settings',
                             attributes: {
                                 class: 'dialog-header',
                             },
-                            events: {
-                                mousedown: (event) => this._onDragDialog(this.DOM.dialog, event),
-                            },
+                            children: [
+                                utils.create({
+                                    text: 'Settings',
+                                    attributes: {
+                                        class: 'dialog-header-label',
+                                    },
+                                    events: {
+                                        mousedown: (event) =>
+                                            this._onDragDialog(this.DOM.dialog, event),
+                                    },
+                                }),
+                            ],
                         })),
                         utils.create({
                             attributes: {
@@ -934,7 +1124,7 @@ export class ResetDialog extends BaseDialog {
 
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
-        this._setPosition(this.DOM.dialog, this.position.anchor);
+        this._setPosition(this.DOM.dialog, this.position);
 
         return this.promise;
     }
@@ -958,13 +1148,21 @@ export class ResetDialog extends BaseDialog {
                     },
                     children: [
                         (DOM.header = utils.create({
-                            text: 'Reboot',
                             attributes: {
                                 class: 'dialog-header',
                             },
-                            events: {
-                                mousedown: (event) => this._onDragDialog(this.DOM.dialog, event),
-                            },
+                            children: [
+                                utils.create({
+                                    text: 'Reboot',
+                                    attributes: {
+                                        class: 'dialog-header-label',
+                                    },
+                                    events: {
+                                        mousedown: (event) =>
+                                            this._onDragDialog(this.DOM.dialog, event),
+                                    },
+                                }),
+                            ],
                         })),
                         utils.create({
                             attributes: {

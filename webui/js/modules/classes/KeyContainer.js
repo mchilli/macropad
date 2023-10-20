@@ -202,6 +202,20 @@ export default class KeyContainer {
     }
 
     /**
+     * Retrieves all data associated with the KeyContainer.
+     * @returns {Object} - The data associated with the KeyContainer.
+     */
+    getAllData() {
+        return {
+            type: this.type,
+            color: this.color,
+            label: this.label,
+            content: this.content,
+            encoder: this.encoder,
+        };
+    }
+
+    /**
      * Sets the type of the KeyContainer.
      * @param {string} [type='blank'] - The type to set for the KeyContainer.
      */
