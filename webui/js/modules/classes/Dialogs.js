@@ -1049,6 +1049,23 @@ export class SettingsDialog extends BaseDialog {
                                         min: 1,
                                     },
                                 })),
+                                utils.create({
+                                    attributes: {
+                                        class: 'dialog-input-shorten',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            text: 'use Unicode Font: ',
+                                        }),
+                                        (DOM.useunicodefont = utils.create({
+                                            type: 'input',
+                                            attributes: {
+                                                type: 'checkbox',
+                                                title: 'This slightly increases the initial loading time!',
+                                            },
+                                        })),
+                                    ],
+                                }),
                             ],
                         }),
                         utils.create({
@@ -1108,6 +1125,7 @@ export class SettingsDialog extends BaseDialog {
     _onOK() {
         this.settings.keyboardlayout = this.DOM.keyboardlayout.value;
         this.settings.sleeptime = parseInt(this.DOM.sleeptime.value);
+        this.settings.useunicodefont = this.DOM.useunicodefont.checked;
 
         this.resolve({ dialogInstance: this, settings: this.settings });
         this._removeFromParent(this.DOM.container);
@@ -1117,16 +1135,15 @@ export class SettingsDialog extends BaseDialog {
      * Sets the initial values and configuration of the dialog.
      */
     _setValues() {
-        const DOM = this.DOM;
-
-        for (const option of DOM.keyboardlayout.children) {
+        for (const option of this.DOM.keyboardlayout.children) {
             if (this.settings.keyboardlayout === option.value) {
                 option.selected = true;
                 break;
             }
         }
 
-        DOM.sleeptime.value = this.settings.sleeptime;
+        this.DOM.sleeptime.value = this.settings.sleeptime;
+        this.DOM.useunicodefont.checked = this.settings.useunicodefont;
     }
 }
 

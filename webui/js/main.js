@@ -142,11 +142,13 @@ class App {
                                 content: response.settings,
                             });
 
-                            this._notify(
-                                'info',
-                                'Changed settings only take effect after a soft reset',
-                                true
-                            );
+                            if (!this.USBStorageEnabled) {
+                                this._notify(
+                                    'info',
+                                    'Changed settings only take effect after a soft reset',
+                                    true
+                                );
+                            }
                         })
                         .catch((error) => {});
                     response = JSON.stringify(importedSettings);
