@@ -287,6 +287,14 @@ body {
                 margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
             }
 
+            .dialog-color {
+                display: flex;
+
+                input {
+                    width: 100%;
+                }
+            }
+
             .dialog-details summary {
                 cursor: pointer;
             }

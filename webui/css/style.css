@@ -8510,6 +8510,12 @@ body {
 .dialog-container .dialog .dialog-inputs .dialog-input-shorten {
   margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
 }
+.dialog-container .dialog .dialog-inputs .dialog-color {
+  display: flex;
+}
+.dialog-container .dialog .dialog-inputs .dialog-color input {
+  width: 100%;
+}
 .dialog-container .dialog .dialog-inputs .dialog-details summary {
   cursor: pointer;
 }

@@ -329,13 +329,28 @@ export class EditDialog extends BaseDialog {
                                         class: 'dialog-color',
                                     },
                                 }),
-                                (DOM.color = utils.create({
-                                    type: 'input',
+                                utils.create({
                                     attributes: {
-                                        type: 'color',
-                                        class: 'dialog-color',
+                                        class: 'dialog-color dialog-input-shorten',
                                     },
-                                })),
+                                    children: [
+                                        (DOM.colorPicker = utils.create({
+                                            type: 'input',
+                                            attributes: {
+                                                type: 'color',
+                                            },
+                                            events: {
+                                                input: (event) => this._onChangeColor(event),
+                                            },
+                                        })),
+                                        (DOM.colorText = utils.create({
+                                            type: 'input',
+                                            events: {
+                                                input: (event) => this._onChangeColor(event),
+                                            },
+                                        })),
+                                    ],
+                                }),
                                 utils.create({
                                     text: 'Content: ',
                                     attributes: {
@@ -543,6 +558,20 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
+     * Updates the selected color in the DOM elements.
+     * @param {Event} event - The input event that triggered the color change.
+     */
+    _onChangeColor(event) {
+        const color = event.target.value;
+        const isColorHexRegex = /^#[0-9A-Fa-f]{6}$/;
+
+        if (isColorHexRegex.test(color)) {
+            this.DOM.colorPicker.value = color;
+            this.DOM.colorText.value = color.toUpperCase();
+        }
+    }
+
+    /**
      * Handle the close action for the dialog, rejecting the associated promise.
      * @param {MouseEvent} event - The mouse event that triggered.
      */
@@ -705,7 +734,7 @@ export class EditDialog extends BaseDialog {
 
         if (type !== 'blank') {
             values.label = DOM.label.value;
-            values.color = utils.hexToRGB(DOM.color.value);
+            values.color = utils.hexToRGB(DOM.colorPicker.value);
         }
 
         if (this.pasted && type === 'group' && this.initType === 'group') {
@@ -738,7 +767,8 @@ export class EditDialog extends BaseDialog {
             }
         }
         DOM.label.value = key.label;
-        DOM.color.value = utils.rgbToHex(key.color);
+        DOM.colorPicker.value = utils.rgbToHex(key.color);
+        DOM.colorText.value = utils.rgbToHex(key.color).toUpperCase();
 
         this._initSortableMacroLists(DOM.content, 'content');
         this._initSortableMacroLists(DOM.encoder.switch, 'encoder');
