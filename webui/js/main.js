@@ -29,7 +29,6 @@ class App {
      * @param {Element} options.mainContainer - Main Container for the app.
      * @param {Element} options.appControlsContainer - Container for application controls.
      * @param {Element} options.deviceControlsContainer - Container for device controls.
-     * @param {number} options.keyChunkSize - Size of key chunks.
      * @param {Element} options.keyEntriesContainer - Container for key entries.
      * @param {Element} options.keyEntriesControlsContainer - Container for key entry controls.
      */
@@ -38,7 +37,6 @@ class App {
         notificationContainer = undefined,
         appControlsContainer = undefined,
         deviceControlsContainer = undefined,
-        keyChunkSize = 9,
         keyEntriesContainer = undefined,
         keyEntriesControlsContainer = undefined,
     } = {}) {
@@ -64,7 +62,7 @@ class App {
         this.deviceControlsContainer = deviceControlsContainer;
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
-        this.keyChunkSize = keyChunkSize;
+        this.keyChunkSize = 9;
         this._initGroupStacks();
 
         this.clipboard = {
@@ -1031,7 +1029,6 @@ const app = new App({
     notificationContainer: document.querySelector('.notification-container'),
     appControlsContainer: document.querySelector('.app-controls'),
     deviceControlsContainer: document.querySelector('.device-controls'),
-    keyChunkSize: 9,
     keyEntriesContainer: document.querySelector('.key-entries'),
     keyEntriesControlsContainer: document.querySelector('.key-entries-controls'),
 });
