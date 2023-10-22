@@ -126,7 +126,9 @@ export function downloadObjectAsJson(obj, filename = 'data.json') {
     a.download = filename;
 
     a.addEventListener('click', () => {
-        URL.revokeObjectURL(url);
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+        }, 40000);
     });
 
     a.dispatchEvent(
