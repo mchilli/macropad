@@ -47,7 +47,14 @@ class App {
         const savedMacros = localStorage.getItem('macros');
         if (savedMacros !== null) {
             try {
-                this.macroStack.push(JSON.parse(savedMacros));
+                const importedMacros = JSON.parse(savedMacros);
+
+                // workaround for old save files
+                const macros = Array.isArray(importedMacros)
+                    ? { label: 'Macros', content: importedMacros }
+                    : importedMacros;
+
+                this.macroStack.push(macros);
             } catch (e) {
                 console.error('appConstructor - can`t parse json string');
             }
@@ -300,11 +307,10 @@ class App {
             try {
                 const content = await utils.openFile('.json');
                 const importedMacros = JSON.parse(content);
+
+                // workaround for old save files
                 const macros = Array.isArray(importedMacros)
-                    ? {
-                          label: 'Macros',
-                          content: importedMacros,
-                      }
+                    ? { label: 'Macros', content: importedMacros }
                     : importedMacros;
 
                 this._newKeyEntries(macros);
