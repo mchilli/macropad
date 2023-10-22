@@ -31,7 +31,7 @@ USEUNICODEFONT = False # Use a unicode bitmap font, which will increas the initi
 
 try:
     with open(SETTINGSFILE, "r") as f:
-        settings = json.loads(f.read())
+        settings = json.load(f)
         if "sleeptime" in settings:
             SLEEPTIME = settings["sleeptime"]
         if "keyboardlayout" in settings:
@@ -110,7 +110,7 @@ class MacroApp():
         """
         try:
             with open(SETTINGSFILE, "r") as f:
-                return json.loads(f.read())
+                return json.load(f)
         except OSError:
             return {
                 "keyboardlayout": "us",
@@ -127,13 +127,22 @@ class MacroApp():
         """ initiate the macro json file
 
         Returns:
-            list[dict]: the json file as list of dicts
+            dict: the json file as dict
         """
         try:
             with open(MACROFILE, "r") as f:
-                return json.loads(f.read())
+                macros = json.load(f)
+                if isinstance(macros, list):
+                    return {
+                        "label": "Macros", 
+                        "content": macros,
+                    }
+                return macros
         except OSError:
-            return []
+            return {
+                "label": "Macros", 
+                "content": [],
+            }
         
     def _save_macros(self) -> None:
         """ store the macros in the macrofile
@@ -197,10 +206,8 @@ class MacroApp():
         self.current_tab = 0
         self.tabs_content = []
         self.tab_index_stack = []
-        self.group_stack = [{
-            "label": "Macros", 
-            "content": self.macros
-        }]
+        self.group_stack = [self.macros]
+
         self._init_group()
 
     def _set_toolbar(self, position:str, label:str, func:dict) -> None:

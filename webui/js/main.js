@@ -63,7 +63,7 @@ class App {
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
         this.keyChunkSize = 9;
-        this._initGroupStacks();
+        this.groupPageStack = [0];
 
         this.clipboard = {
             copiedKey: null,
@@ -73,14 +73,6 @@ class App {
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
 
         this.macroStack.length === 0 ? this._newKeyEntries() : this._initializeKeys();
-    }
-
-    /**
-     * Initializes group-related stacks for navigation and organization.
-     */
-    _initGroupStacks() {
-        this.groupPageStack = [0];
-        this.groupNameStack = ['Macros'];
     }
 
     /**
@@ -308,7 +300,14 @@ class App {
             try {
                 const content = await utils.openFile('.json');
                 const importedMacros = JSON.parse(content);
-                this._newKeyEntries(importedMacros);
+                const macros = Array.isArray(importedMacros)
+                    ? {
+                          label: 'Macros',
+                          content: importedMacros,
+                      }
+                    : importedMacros;
+
+                this._newKeyEntries(macros);
 
                 this._notify('success', 'Macros loaded from file');
             } catch (error) {
@@ -701,7 +700,6 @@ class App {
                 ) {
                     this.macroStack.pop();
                     this.groupPageStack.pop();
-                    this.groupNameStack.pop();
 
                     this._clearAllKeyEntries();
                     this._initializeKeys();
@@ -772,14 +770,13 @@ class App {
             case 'open':
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
                     if (key === keyInstance.DOM.container) {
-                        let macros = this.macroStack[this.macroStack.length - 1][i].content;
+                        let macros = this.macroStack[this.macroStack.length - 1].content[i];
                         this.macroStack.push(this._fillUpKeysEntries(macros));
                         break;
                     }
                 }
 
                 this.groupPageStack.push(0);
-                this.groupNameStack.push(keyInstance.label);
 
                 this._clearAllKeyEntries();
                 this._initializeKeys();
@@ -853,7 +850,11 @@ class App {
         }
 
         const lastIndex = this.macroStack.length - 1;
-        this.macroStack[lastIndex].splice(0, this.macroStack[lastIndex].length, ...macros);
+        this.macroStack[lastIndex].content.splice(
+            0,
+            this.macroStack[lastIndex].content.length,
+            ...macros
+        );
 
         localStorage.setItem('macros', JSON.stringify(this.macroStack[0]));
     }
@@ -862,7 +863,9 @@ class App {
      * Initializes the keys and appends them to the key entries container.
      */
     _initializeKeys() {
-        const currentMacroStack = this.macroStack[this.macroStack.length - 1];
+        const currentMacroStack = this._fillUpKeysEntries(
+            this.macroStack[this.macroStack.length - 1].content
+        );
 
         for (const key of currentMacroStack) {
             this._appendKeysToContainer(key);
@@ -885,18 +888,21 @@ class App {
      * @returns {boolean} True if all entries are of type 'blank', otherwise false.
      */
     _allKeyEntriesEmpty() {
-        return this.macroStack[0].every((key) => key.type === 'blank');
+        return this.macroStack[0].content.every((key) => key.type === 'blank');
     }
 
     /**
      * Clear all macros and creates complete new key entries.
      */
-    _newKeyEntries(entries = []) {
+    _newKeyEntries(
+        entries = {
+            label: 'Macros',
+            content: [],
+        }
+    ) {
         this._clearAllKeyEntries();
-        this._initGroupStacks();
-        this.macroStack = [];
 
-        this.macroStack.push(this._fillUpKeysEntries(entries));
+        this.macroStack = [entries];
 
         this._initializeKeys();
     }
@@ -905,7 +911,7 @@ class App {
      * Appends empty key entries to the current macro stack.
      */
     _appendEmptyKeyEntries() {
-        const currentMacroStack = this.macroStack[this.macroStack.length - 1];
+        const currentMacroStack = this.macroStack[this.macroStack.length - 1].content;
         const emptyKeys = this._fillUpKeysEntries([]);
 
         currentMacroStack.push(...emptyKeys);
@@ -960,7 +966,7 @@ class App {
         this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
 
         this.keyEntriesControls.page.children[0].innerHTML = `${
-            this.groupNameStack[this.groupNameStack.length - 1]
+            this.macroStack[this.macroStack.length - 1].label
         }`;
 
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
@@ -994,7 +1000,7 @@ class App {
                 this.keyEntriesContainer.removeChild(key);
             }
 
-            this.macroStack[this.macroStack.length - 1].splice(
+            this.macroStack[this.macroStack.length - 1].content.splice(
                 -this.keyChunkSize,
                 this.keyChunkSize
             );

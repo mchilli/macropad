@@ -1055,7 +1055,7 @@ export class SettingsDialog extends BaseDialog {
                                     },
                                     children: [
                                         utils.create({
-                                            text: 'use Unicode Font: ',
+                                            text: 'Unicode Font: ',
                                         }),
                                         (DOM.useunicodefont = utils.create({
                                             type: 'input',
