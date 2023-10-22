@@ -693,6 +693,7 @@ class App {
                     this.groupPageStack[this.groupPageStack.length - 1]--;
 
                     this._removeLastEmptyKeyChunk();
+                    this._reReadKeyEntries();
                     this._updateKeyChunkPage();
                 } else if (
                     this.groupPageStack[this.groupPageStack.length - 1] === 0 &&
@@ -729,7 +730,8 @@ class App {
             animation: 150,
             onStart: (event) => {},
             onEnd: (event) => {
-                this._reReadKeyEntries();
+                const pageOfElement = Math.floor(event.newIndex / this.keyChunkSize);
+                this.groupPageStack[this.groupPageStack.length - 1] = pageOfElement;
 
                 const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
                 const pagesToRemove =
@@ -739,6 +741,7 @@ class App {
                     this._removeLastEmptyKeyChunk();
                 }
 
+                this._reReadKeyEntries();
                 this._updateKeyChunkPage();
             },
         });

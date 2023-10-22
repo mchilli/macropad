@@ -8389,6 +8389,9 @@ body {
 .main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.macro .button.open {
   display: none;
 }
+.main-container .key-entries .key-container:nth-child(9n) {
+  margin-bottom: calc(var(--key-entries-gap) * 5);
+}
 
 .main-container .app-controls,
 .main-container .device-controls,
@@ -8427,10 +8430,10 @@ body {
   background-color: var(--color-blue);
   border: 1px solid var(--color-grey);
 }
-.main-container .app-controls .button i,
-.main-container .device-controls .button i,
-.main-container .key-entries-controls .button i,
-.dialog-container .dialog-reboot-buttons .button i {
+.main-container .app-controls .button *,
+.main-container .device-controls .button *,
+.main-container .key-entries-controls .button *,
+.dialog-container .dialog-reboot-buttons .button * {
   pointer-events: none;
 }
 

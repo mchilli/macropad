@@ -163,6 +163,10 @@ body {
             &.macro .button.open {
                 display: none;
             }
+
+            &:nth-child(9n) {
+                margin-bottom: calc(var(--key-entries-gap) * 5);
+            }
         }
     }
 }
@@ -197,7 +201,7 @@ body {
         background-color: var(--color-blue);
         border: 1px solid var(--color-grey);
 
-        i {
+        * {
             pointer-events: none;
         }
     }
