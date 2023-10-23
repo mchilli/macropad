@@ -9,6 +9,7 @@ import Sortable from './modules/classes/Sortable.js';
 
 import {
     EditDialog,
+    EncoderDialog,
     ConfirmationDialog,
     SettingsDialog,
     ResetDialog,
@@ -47,7 +48,14 @@ class App {
         const savedMacros = localStorage.getItem('macros');
         if (savedMacros !== null) {
             try {
-                this.macroStack.push(JSON.parse(savedMacros));
+                const importedMacros = JSON.parse(savedMacros);
+
+                // workaround for old save files
+                const macros = Array.isArray(importedMacros)
+                    ? { label: 'Macros', content: importedMacros }
+                    : importedMacros;
+
+                this.macroStack.push(macros);
             } catch (e) {
                 console.error('appConstructor - can`t parse json string');
             }
@@ -63,24 +71,17 @@ class App {
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
         this.keyChunkSize = 9;
-        this._initGroupStacks();
+        this.groupPageStack = [0];
 
         this.clipboard = {
-            copiedKey: null,
+            key: null,
+            encoderConfig: null,
         };
         this.keyEntriesContainer = keyEntriesContainer;
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
 
         this.macroStack.length === 0 ? this._newKeyEntries() : this._initializeKeys();
-    }
-
-    /**
-     * Initializes group-related stacks for navigation and organization.
-     */
-    _initGroupStacks() {
-        this.groupPageStack = [0];
-        this.groupNameStack = ['Macros'];
     }
 
     /**
@@ -142,11 +143,13 @@ class App {
                                 content: response.settings,
                             });
 
-                            this._notify(
-                                'info',
-                                'Changed settings only take effect after a soft reset',
-                                true
-                            );
+                            if (!this.USBStorageEnabled) {
+                                this._notify(
+                                    'info',
+                                    'Changed settings only take effect after a soft reset',
+                                    true
+                                );
+                            }
                         })
                         .catch((error) => {});
                     response = JSON.stringify(importedSettings);
@@ -306,7 +309,13 @@ class App {
             try {
                 const content = await utils.openFile('.json');
                 const importedMacros = JSON.parse(content);
-                this._newKeyEntries(importedMacros);
+
+                // workaround for old save files
+                const macros = Array.isArray(importedMacros)
+                    ? { label: 'Macros', content: importedMacros }
+                    : importedMacros;
+
+                this._newKeyEntries(macros);
 
                 this._notify('success', 'Macros loaded from file');
             } catch (error) {
@@ -628,8 +637,8 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._keyChunkControlsHandler('next'),
-                    dragenter: () => this._keyChunkControlsHandler('nextdrag'),
+                    click: (event) => this._keyChunkControlsHandler(event, 'next'),
+                    dragenter: (event) => this._keyChunkControlsHandler(event, 'nextdrag'),
                 },
             }),
             back: utils.create({
@@ -648,15 +657,18 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._keyChunkControlsHandler('back'),
-                    dragenter: () => this._keyChunkControlsHandler('backdrag'),
+                    click: (event) => this._keyChunkControlsHandler(event, 'back'),
+                    dragenter: (event) => this._keyChunkControlsHandler(event, 'backdrag'),
                 },
             }),
             page: utils.create({
                 attributes: {
-                    class: 'info',
+                    class: 'button',
                 },
                 children: [utils.create(), utils.create()],
+                events: {
+                    click: (event) => this._keyChunkControlsHandler(event, 'encoder'),
+                },
             }),
         };
 
@@ -673,7 +685,7 @@ class App {
      * Handles button actions for key chunk controls.
      * @param {string} command - The command associated with the button action.
      */
-    _keyChunkControlsHandler(command) {
+    _keyChunkControlsHandler(event, command) {
         switch (command) {
             case 'next':
             case 'nextdrag':
@@ -700,7 +712,6 @@ class App {
                 ) {
                     this.macroStack.pop();
                     this.groupPageStack.pop();
-                    this.groupNameStack.pop();
 
                     this._clearAllKeyEntries();
                     this._initializeKeys();
@@ -711,6 +722,21 @@ class App {
                     this.groupPageStack[this.groupPageStack.length - 1]--;
                     this._updateKeyChunkPage();
                 }
+                break;
+            case 'encoder':
+                new EncoderDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    groupObject: this.macroStack[this.macroStack.length - 1],
+                    clipboard: this.clipboard,
+                })
+                    .then((response) => {
+                        this.encoderDialogHandler(response);
+                    })
+                    .catch((error) => {});
                 break;
 
             default:
@@ -773,14 +799,13 @@ class App {
             case 'open':
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
                     if (key === keyInstance.DOM.container) {
-                        let macros = this.macroStack[this.macroStack.length - 1][i].content;
+                        let macros = this.macroStack[this.macroStack.length - 1].content[i];
                         this.macroStack.push(this._fillUpKeysEntries(macros));
                         break;
                     }
                 }
 
                 this.groupPageStack.push(0);
-                this.groupNameStack.push(keyInstance.label);
 
                 this._clearAllKeyEntries();
                 this._initializeKeys();
@@ -809,12 +834,12 @@ class App {
     }
 
     /**
-     * Handles editing a dialog's response and updates a key instance accordingly.
-     * @param {Object} options - An object containing response and keyInstance properties.
-     * @param {Object} options.response - The response object to be edited.
-     * @param {KeyInstance} options.keyInstance - The key instance to update.
+     * Handle editing a key instance based on a response object.
+     * @param {Object} params - An object with 'response' and 'keyInstance' properties.
+     * @param {Object} params.response - The response object containing key instance updates.
+     * @param {KeyInstance} params.keyInstance - The key instance to be edited.
      */
-    editDialogHandler({ response, keyInstance } = {}) {
+    editDialogHandler({ response, keyInstance }) {
         if (response.type === 'blank') {
             keyInstance.clearData();
         } else {
@@ -845,6 +870,18 @@ class App {
     }
 
     /**
+     * Updates the encoder in a group object and refreshes key entries.
+     * @param {Object} params - An object containing 'response' and 'groupObject' properties.
+     * @param {Object} params.response - The encoder information for the update.
+     * @param {Object} params.groupObject - The group object to be modified.
+     */
+    encoderDialogHandler({ response, groupObject }) {
+        groupObject.encoder = response.encoder;
+
+        this._reReadKeyEntries();
+    }
+
+    /**
      * Updates the content of the `macroStack` array based on data extracted from keyEntriesContainer
      */
     _reReadKeyEntries() {
@@ -854,7 +891,11 @@ class App {
         }
 
         const lastIndex = this.macroStack.length - 1;
-        this.macroStack[lastIndex].splice(0, this.macroStack[lastIndex].length, ...macros);
+        this.macroStack[lastIndex].content.splice(
+            0,
+            this.macroStack[lastIndex].content.length,
+            ...macros
+        );
 
         localStorage.setItem('macros', JSON.stringify(this.macroStack[0]));
     }
@@ -863,7 +904,9 @@ class App {
      * Initializes the keys and appends them to the key entries container.
      */
     _initializeKeys() {
-        const currentMacroStack = this.macroStack[this.macroStack.length - 1];
+        const currentMacroStack = this._fillUpKeysEntries(
+            this.macroStack[this.macroStack.length - 1].content
+        );
 
         for (const key of currentMacroStack) {
             this._appendKeysToContainer(key);
@@ -886,18 +929,21 @@ class App {
      * @returns {boolean} True if all entries are of type 'blank', otherwise false.
      */
     _allKeyEntriesEmpty() {
-        return this.macroStack[0].every((key) => key.type === 'blank');
+        return this.macroStack[0].content.every((key) => key.type === 'blank');
     }
 
     /**
      * Clear all macros and creates complete new key entries.
      */
-    _newKeyEntries(entries = []) {
+    _newKeyEntries(
+        entries = {
+            label: 'Macros',
+            content: [],
+        }
+    ) {
         this._clearAllKeyEntries();
-        this._initGroupStacks();
-        this.macroStack = [];
 
-        this.macroStack.push(this._fillUpKeysEntries(entries));
+        this.macroStack = [entries];
 
         this._initializeKeys();
     }
@@ -906,7 +952,7 @@ class App {
      * Appends empty key entries to the current macro stack.
      */
     _appendEmptyKeyEntries() {
-        const currentMacroStack = this.macroStack[this.macroStack.length - 1];
+        const currentMacroStack = this.macroStack[this.macroStack.length - 1].content;
         const emptyKeys = this._fillUpKeysEntries([]);
 
         currentMacroStack.push(...emptyKeys);
@@ -960,12 +1006,12 @@ class App {
 
         this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
 
-        this.keyEntriesControls.page.children[0].innerHTML = `${
-            this.groupNameStack[this.groupNameStack.length - 1]
+        this.keyEntriesControls.page.childNodes[0].innerHTML = `${
+            this.macroStack[this.macroStack.length - 1].label
         }`;
 
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-        this.keyEntriesControls.page.children[1].innerHTML = `${
+        this.keyEntriesControls.page.childNodes[1].innerHTML = `${
             this.groupPageStack[this.groupPageStack.length - 1] + 1
         } / ${pageCount}`;
 
@@ -995,7 +1041,7 @@ class App {
                 this.keyEntriesContainer.removeChild(key);
             }
 
-            this.macroStack[this.macroStack.length - 1].splice(
+            this.macroStack[this.macroStack.length - 1].content.splice(
                 -this.keyChunkSize,
                 this.keyChunkSize
             );

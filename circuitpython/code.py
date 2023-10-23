@@ -10,6 +10,8 @@ import terminalio
 import storage
 import supervisor
 import usb_cdc
+
+from adafruit_bitmap_font.bitmap_font import load_font
 from adafruit_display_text.label import Label
 from adafruit_macropad import MacroPad
 from adafruit_hid.consumer_control_code import ConsumerControlCode
@@ -23,15 +25,21 @@ supervisor.runtime.autoreload = False
 
 SETTINGSFILE = "settings.json" # The file in which the settings are saved
 MACROFILE = "macros.json" # The file in which the macros are saved
+SLEEPTIME = 2 # Time in seconds until the display turns off
+KEYBOARDLAYOUT = "us" # Supported keyboard layouts: br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
+USEUNICODEFONT = False # Use a unicode bitmap font, which will increas the initial load time!
 
 try:
     with open(SETTINGSFILE, "r") as f:
-        settings = json.loads(f.read())
-        SLEEPTIME = settings["sleeptime"]
-        KEYBOARDLAYOUT = settings["keyboardlayout"]
-except OSError:
-    SLEEPTIME = 2 # Time in seconds until the display turns off
-    KEYBOARDLAYOUT = "us" # Supported keyboard layouts: br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
+        settings = json.load(f)
+        if "sleeptime" in settings:
+            SLEEPTIME = settings["sleeptime"]
+        if "keyboardlayout" in settings:
+            KEYBOARDLAYOUT = settings["keyboardlayout"]
+        if "useunicodefont" in settings:
+            USEUNICODEFONT = settings["useunicodefont"]
+except (OSError, json.JSONDecodeError):
+    pass
 
 if KEYBOARDLAYOUT == "br":
     from adafruit_hid.keyboard_layout_win_br import KeyboardLayout
@@ -102,7 +110,7 @@ class MacroApp():
         """
         try:
             with open(SETTINGSFILE, "r") as f:
-                return json.loads(f.read())
+                return json.load(f)
         except OSError:
             return {
                 "keyboardlayout": "us",
@@ -119,13 +127,22 @@ class MacroApp():
         """ initiate the macro json file
 
         Returns:
-            list[dict]: the json file as list of dicts
+            dict: the json file as dict
         """
         try:
             with open(MACROFILE, "r") as f:
-                return json.loads(f.read())
+                macros = json.load(f)
+                if isinstance(macros, list):
+                    return {
+                        "label": "Macros", 
+                        "content": macros,
+                    }
+                return macros
         except OSError:
-            return []
+            return {
+                "label": "Macros", 
+                "content": [],
+            }
         
     def _save_macros(self) -> None:
         """ store the macros in the macrofile
@@ -144,10 +161,10 @@ class MacroApp():
 
         for i in range(self.macropad.keys.key_count):
             label = Label(
-                    font=terminalio.FONT,
+                    font=load_font("/fonts/6x12.pcf") if USEUNICODEFONT else terminalio.FONT,
                     text="",
-                    padding_top=2,
-                    padding_bottom=1,
+                    padding_top=1,
+                    padding_bottom=2,
                     padding_left=4,
                     padding_right=4,
                     color=0xFFFFFF,
@@ -189,10 +206,8 @@ class MacroApp():
         self.current_tab = 0
         self.tabs_content = []
         self.tab_index_stack = []
-        self.group_stack = [{
-            "label": "Macros", 
-            "content": self.macros
-        }]
+        self.group_stack = [self.macros]
+
         self._init_group()
 
     def _set_toolbar(self, position:str, label:str, func:dict) -> None:

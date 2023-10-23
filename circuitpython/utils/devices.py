@@ -1,6 +1,8 @@
 from adafruit_macropad import MacroPad
 from adafruit_display_text.label import Label
 
+from utils.utils import center
+
 class Encoder():
     """ Handles the rotary encoder """
     def __init__(self, macropad:MacroPad) -> None:
@@ -81,7 +83,7 @@ class Key():
     
     @label.setter
     def label(self, label:str) -> None:
-        self._label.text = f"{label:^6}" if len(label) <= 6 else label[:6]
+        self._label.text = center(label, 6, ' ') if len(label) <= 6 else label[:6]
 
     @property
     def type(self) -> str:

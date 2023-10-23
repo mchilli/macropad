@@ -329,13 +329,28 @@ export class EditDialog extends BaseDialog {
                                         class: 'dialog-color',
                                     },
                                 }),
-                                (DOM.color = utils.create({
-                                    type: 'input',
+                                utils.create({
                                     attributes: {
-                                        type: 'color',
-                                        class: 'dialog-color',
+                                        class: 'dialog-color dialog-input-shorten',
                                     },
-                                })),
+                                    children: [
+                                        (DOM.colorPicker = utils.create({
+                                            type: 'input',
+                                            attributes: {
+                                                type: 'color',
+                                            },
+                                            events: {
+                                                input: (event) => this._onChangeColor(event),
+                                            },
+                                        })),
+                                        (DOM.colorText = utils.create({
+                                            type: 'input',
+                                            events: {
+                                                input: (event) => this._onChangeColor(event),
+                                            },
+                                        })),
+                                    ],
+                                }),
                                 utils.create({
                                     text: 'Content: ',
                                     attributes: {
@@ -543,6 +558,20 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
+     * Updates the selected color in the DOM elements.
+     * @param {Event} event - The input event that triggered the color change.
+     */
+    _onChangeColor(event) {
+        const color = event.target.value;
+        const isColorHexRegex = /^#[0-9A-Fa-f]{6}$/;
+
+        if (isColorHexRegex.test(color)) {
+            this.DOM.colorPicker.value = color;
+            this.DOM.colorText.value = color.toUpperCase();
+        }
+    }
+
+    /**
      * Handle the close action for the dialog, rejecting the associated promise.
      * @param {MouseEvent} event - The mouse event that triggered.
      */
@@ -562,7 +591,7 @@ export class EditDialog extends BaseDialog {
         }
 
         const resolveAndRemove = () => {
-            this.resolve({ response: this.prepareResponse(), keyInstance: this.keyInstance });
+            this.resolve({ response: this._prepareResponse(), keyInstance: this.keyInstance });
             this._removeFromParent(this.DOM.container);
         };
         if (this.DOM.type.value !== this.initType && this.initType !== 'blank') {
@@ -590,7 +619,7 @@ export class EditDialog extends BaseDialog {
      */
     _onCopy(event) {
         if (this.DOM.type.value !== 'blank') {
-            this.clipboard.copiedKey = this.keyInstance.getAllData();
+            this.clipboard.key = this.keyInstance.getAllData();
 
             const button = this.DOM.header.copy;
             button.children[1].style.opacity = 1;
@@ -608,7 +637,7 @@ export class EditDialog extends BaseDialog {
      */
     _onPaste(event) {
         const pasteConfiguration = () => {
-            this._setValues(this.clipboard.copiedKey);
+            this._setValues(this.clipboard.key);
             this._onChangeType();
             this._onLabelInput();
 
@@ -623,7 +652,7 @@ export class EditDialog extends BaseDialog {
                 button.children[0].style.display = 'block';
             }, this.fadeOutTime);
         };
-        if (this.clipboard.copiedKey !== null) {
+        if (this.clipboard.key !== null) {
             if (this.DOM.type.value !== 'blank') {
                 new ConfirmationDialog({
                     position: {
@@ -688,7 +717,7 @@ export class EditDialog extends BaseDialog {
      * @param {HTMLElement} container - The container element containing macro entries.
      * @returns {Array} An array of extracted values.
      */
-    getMacroEntryValues(container) {
+    _getMacroEntryValues(container) {
         return Array.from(container.children)
             .map((entry) => entry.instance.getValue() || undefined)
             .filter((value) => value !== undefined);
@@ -698,27 +727,27 @@ export class EditDialog extends BaseDialog {
      * Prepares a response object based on the current state of the DOM elements.
      * @returns {Object} The response object containing relevant data.
      */
-    prepareResponse() {
+    _prepareResponse() {
         const DOM = this.DOM;
         const type = DOM.type.value;
         const values = { type };
 
         if (type !== 'blank') {
             values.label = DOM.label.value;
-            values.color = utils.hexToRGB(DOM.color.value);
+            values.color = utils.hexToRGB(DOM.colorPicker.value);
         }
 
         if (this.pasted && type === 'group' && this.initType === 'group') {
-            values.content = JSON.parse(JSON.stringify(this.clipboard.copiedKey.content));
+            values.content = JSON.parse(JSON.stringify(this.clipboard.key.content));
         } else if (type === 'macro') {
-            values.content = this.getMacroEntryValues(DOM.content);
+            values.content = this._getMacroEntryValues(DOM.content);
         }
 
         if (type === 'group') {
             values.encoder = {
-                switch: this.getMacroEntryValues(DOM.encoder.switch),
-                increased: this.getMacroEntryValues(DOM.encoder.increased),
-                decreased: this.getMacroEntryValues(DOM.encoder.decreased),
+                switch: this._getMacroEntryValues(DOM.encoder.switch),
+                increased: this._getMacroEntryValues(DOM.encoder.increased),
+                decreased: this._getMacroEntryValues(DOM.encoder.decreased),
             };
         }
 
@@ -738,7 +767,8 @@ export class EditDialog extends BaseDialog {
             }
         }
         DOM.label.value = key.label;
-        DOM.color.value = utils.rgbToHex(key.color);
+        DOM.colorPicker.value = utils.rgbToHex(key.color);
+        DOM.colorText.value = utils.rgbToHex(key.color).toUpperCase();
 
         this._initSortableMacroLists(DOM.content, 'content');
         this._initSortableMacroLists(DOM.encoder.switch, 'encoder');
@@ -757,6 +787,476 @@ export class EditDialog extends BaseDialog {
 
             default:
                 break;
+        }
+    }
+}
+
+/**
+ * Represents a dialog for editing the group encoder configuration.
+ * @class
+ */
+export class EncoderDialog extends BaseDialog {
+    /**
+     * Initializes a new instance of the EncoderDialog class.
+     * @constructor
+     * @param {Object} options - The options for configuring the dialog.
+     * @param {HTMLElement} [options.parent=document.body] - The parent element to which the dialog will be appended.
+     * @param {Object} [options.position={}] - Positioning options for the dialog.
+     * @param {Object} options.groupObject - The group object to be edited.
+     * @param {Object} [options.clipboard={}] - An object representing clipboard data.
+     * @returns {HTMLElement} - The container DOM element for the dialog.
+     */
+    constructor({
+        parent = document.body,
+        position = {},
+        groupObject = null,
+        clipboard = {},
+    } = {}) {
+        super({ position: position });
+
+        this.parent = parent;
+        this.groupObject = groupObject;
+
+        this.clipboard = clipboard;
+        this.pasted = false;
+
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+
+        this.DOM = this._initDOM();
+        this._appendToParent(this.parent, this.DOM.container);
+        this._setValues(this.groupObject);
+        this._setPosition(this.DOM.dialog, this.position);
+
+        return this.promise;
+    }
+
+    /**
+     * Initializes the DOM structure for the dialog.
+     * @returns {Object} - An object containing the DOM elements.
+     */
+    _initDOM() {
+        let DOM = {
+            header: {},
+            encoder: {},
+        };
+
+        DOM.container = utils.create({
+            attributes: {
+                class: 'dialog-container',
+                style: `transition: opacity ${this.fadeOutTime / 1000}s ease`,
+            },
+            children: [
+                (DOM.dialog = utils.create({
+                    attributes: {
+                        class: 'dialog',
+                    },
+                    children: [
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-header',
+                            },
+                            children: [
+                                (DOM.header.label = utils.create({
+                                    text: this.groupObject.label,
+                                    attributes: {
+                                        class: 'dialog-header-label',
+                                    },
+                                    events: {
+                                        mousedown: (event) =>
+                                            this._onDragDialog(this.DOM.dialog, event),
+                                    },
+                                })),
+                                (DOM.header.copy = utils.create({
+                                    attributes: {
+                                        title: 'Copy configuration',
+                                        class: 'dialog-button copy',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-copy',
+                                            },
+                                        }),
+                                        utils.create({
+                                            text: 'copied',
+                                            attributes: {
+                                                class: 'dialog-button-label',
+                                                style: `transition: opacity ${
+                                                    this.fadeOutTime / 1000
+                                                }s ease`,
+                                            },
+                                        }),
+                                    ],
+                                    events: {
+                                        click: (event) => this._onCopy(event),
+                                    },
+                                })),
+                                (DOM.header.paste = utils.create({
+                                    attributes: {
+                                        title: 'Paste configuration',
+                                        class: 'dialog-button paste',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-paste',
+                                            },
+                                        }),
+                                        utils.create({
+                                            text: 'pasted',
+                                            attributes: {
+                                                class: 'dialog-button-label',
+                                                style: `transition: opacity ${
+                                                    this.fadeOutTime / 1000
+                                                }s ease`,
+                                            },
+                                        }),
+                                    ],
+                                    events: {
+                                        click: (event) => this._onPaste(event),
+                                    },
+                                })),
+                            ],
+                        }),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-inputs',
+                            },
+                            children: [
+                                utils.create({
+                                    type: 'details',
+                                    attributes: {
+                                        class: 'dialog-encoder',
+                                        open: true,
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'summary',
+                                            text: 'Encoder switch: ',
+                                        }),
+                                        utils.create({
+                                            attributes: {
+                                                class: 'dialog-macros',
+                                            },
+                                            children: [
+                                                (DOM.encoder.switch = utils.create({
+                                                    type: 'div',
+                                                    attributes: {
+                                                        class: 'dialog-sortable',
+                                                    },
+                                                })),
+                                                utils.create({
+                                                    type: 'i',
+                                                    attributes: {
+                                                        class: 'dialog-button add fa-solid fa-plus',
+                                                    },
+                                                    events: {
+                                                        click: () =>
+                                                            this._appendMacroSelector(
+                                                                DOM.encoder.switch
+                                                            ),
+                                                    },
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                                utils.create({
+                                    type: 'details',
+                                    attributes: {
+                                        class: 'dialog-encoder',
+                                        open: true,
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'summary',
+                                            text: 'Encoder increase: ',
+                                        }),
+                                        utils.create({
+                                            attributes: {
+                                                class: 'dialog-macros',
+                                            },
+                                            children: [
+                                                (DOM.encoder.increased = utils.create({
+                                                    type: 'div',
+                                                    attributes: {
+                                                        class: 'dialog-sortable',
+                                                    },
+                                                })),
+                                                utils.create({
+                                                    type: 'i',
+                                                    attributes: {
+                                                        class: 'dialog-button add fa-solid fa-plus',
+                                                    },
+                                                    events: {
+                                                        click: () =>
+                                                            this._appendMacroSelector(
+                                                                DOM.encoder.increased
+                                                            ),
+                                                    },
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                                utils.create({
+                                    type: 'details',
+                                    attributes: {
+                                        class: 'dialog-encoder',
+                                        open: true,
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'summary',
+                                            text: 'Encoder decrease: ',
+                                        }),
+                                        utils.create({
+                                            attributes: {
+                                                class: 'dialog-macros',
+                                            },
+                                            children: [
+                                                (DOM.encoder.decreased = utils.create({
+                                                    type: 'div',
+                                                    attributes: {
+                                                        class: 'dialog-sortable',
+                                                    },
+                                                })),
+                                                utils.create({
+                                                    type: 'i',
+                                                    attributes: {
+                                                        class: 'dialog-button add fa-solid fa-plus',
+                                                    },
+                                                    events: {
+                                                        click: () =>
+                                                            this._appendMacroSelector(
+                                                                DOM.encoder.decreased
+                                                            ),
+                                                    },
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-button close',
+                            },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-xmark',
+                                    },
+                                }),
+                            ],
+                            events: {
+                                click: (event) => this._onClose(event),
+                            },
+                        }),
+                        utils.create({
+                            attributes: {
+                                class: 'dialog-button ok',
+                            },
+                            children: [
+                                utils.create({
+                                    type: 'i',
+                                    attributes: {
+                                        class: 'fa-solid fa-check',
+                                    },
+                                }),
+                            ],
+                            events: {
+                                click: (event) => this._onOK(event),
+                            },
+                        }),
+                    ],
+                })),
+            ],
+        });
+
+        DOM.container.instance = this;
+
+        return DOM;
+    }
+
+    /**
+     * Handle the close action for the dialog, rejecting the associated promise.
+     * @param {MouseEvent} event - The mouse event that triggered.
+     */
+    _onClose(event) {
+        this.reject(this);
+        this._removeFromParent(this.DOM.container);
+    }
+
+    /**
+     * Handle the OK action for the dialog. Resolves the associated promise with data.
+     * @param {MouseEvent} event - The mouse event that triggered.
+     */
+    _onOK(event) {
+        this.resolve({ response: this._prepareResponse(), groupObject: this.groupObject });
+        this._removeFromParent(this.DOM.container);
+    }
+
+    /**
+     * Checks if all encoder macros are empty.
+     * @returns {boolean} Returns true if all encoder macros are empty, false otherwise.
+     */
+    _allEncoderMacrosEmpty() {
+        const containers = [
+            this.DOM.encoder.switch,
+            this.DOM.encoder.increased,
+            this.DOM.encoder.decreased,
+        ];
+        return containers
+            .map((container) => this._getMacroEntryValues(container))
+            .every((v) => !v.length);
+    }
+
+    /**
+     * Handles copying key configuration.
+     * @param {Event} event - The event triggering the copy action.
+     */
+    _onCopy(event) {
+        if (!this._allEncoderMacrosEmpty()) {
+            this.clipboard.encoderConfig = this.groupObject;
+
+            const button = this.DOM.header.copy;
+            button.children[1].style.opacity = 1;
+            button.children[0].style.display = 'none';
+            setTimeout(() => {
+                button.children[1].style.opacity = 0;
+                button.children[0].style.display = 'block';
+            }, this.fadeOutTime);
+        }
+    }
+
+    /**
+     * Handles pasting key configuration.
+     * @param {Event} event - The event triggering the paste action.
+     */
+    _onPaste(event) {
+        const pasteConfiguration = () => {
+            this._setValues(this.clipboard.encoderConfig);
+
+            this.pasted = true;
+
+            const button = this.DOM.header.paste;
+            button.children[1].style.opacity = 1;
+            button.children[0].style.display = 'none';
+            setTimeout(() => {
+                button.children[1].style.opacity = 0;
+                button.children[0].style.display = 'block';
+            }, this.fadeOutTime);
+        };
+        if (this.clipboard.encoderConfig !== null) {
+            if (!this._allEncoderMacrosEmpty()) {
+                new ConfirmationDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    title: 'Warning',
+                    prompt: 'Do you really want to replace this configuration?',
+                })
+                    .then((response) => {
+                        pasteConfiguration();
+                    })
+                    .catch((error) => {});
+            } else {
+                pasteConfiguration();
+            }
+        }
+    }
+
+    /**
+     * Initializes a sortable macro list for a given container.
+     * @param {HTMLElement} container - The container element for the macro list.
+     * @param {string} group - The grouping identifier for the Sortable instance.
+     */
+    _initSortableMacroLists(container, group) {
+        new Sortable(container, {
+            group: group,
+            handle: '.macro-entry-handle',
+            animation: 150,
+        });
+    }
+
+    /**
+     * Appends a macro selector to the specified container.
+     * @param {HTMLElement} container - The container element to which the macro selector will be added.
+     */
+    _appendMacroSelector(container) {
+        const entry = getMacroByType('selector');
+        entry.instance.addAdditionalControls();
+
+        utils.appendElements(container, [entry]);
+    }
+
+    /**
+     * Appends multiple macros to the specified container based on their values.
+     * @param {HTMLElement} container - The container element to which macros will be added.
+     * @param {Array<string>} content - An array of macro values to append.
+     */
+    _appendMultipleMacros(container, content) {
+        container.innerHTML = '';
+        const entries = content.map((value) => {
+            const entry = getMacroByValue(value);
+            entry.instance.addAdditionalControls();
+            return entry;
+        });
+        utils.appendElements(container, entries);
+    }
+
+    /**
+     * Extracts and returns values from a container of macro entries.
+     * @param {HTMLElement} container - The container element containing macro entries.
+     * @returns {Array} An array of extracted values.
+     */
+    _getMacroEntryValues(container) {
+        return Array.from(container.children)
+            .map((entry) => entry.instance.getValue() || undefined)
+            .filter((value) => value !== undefined);
+    }
+
+    /**
+     * Prepares a response object based on the current state of the DOM elements.
+     * @returns {Object} The response object containing relevant data.
+     */
+    _prepareResponse() {
+        const DOM = this.DOM;
+        const values = {};
+
+        values.encoder = {
+            switch: this._getMacroEntryValues(DOM.encoder.switch),
+            increased: this._getMacroEntryValues(DOM.encoder.increased),
+            decreased: this._getMacroEntryValues(DOM.encoder.decreased),
+        };
+
+        return values;
+    }
+
+    /**
+     * Sets the initial values and configuration of the dialog.
+     */
+    _setValues(key) {
+        const DOM = this.DOM;
+
+        this._initSortableMacroLists(DOM.encoder.switch, 'encoder');
+        this._initSortableMacroLists(DOM.encoder.decreased, 'encoder');
+        this._initSortableMacroLists(DOM.encoder.increased, 'encoder');
+
+        if ('encoder' in key) {
+            this._appendMultipleMacros(DOM.encoder.switch, key.encoder.switch);
+            this._appendMultipleMacros(DOM.encoder.decreased, key.encoder.decreased);
+            this._appendMultipleMacros(DOM.encoder.increased, key.encoder.increased);
         }
     }
 }
@@ -1019,6 +1519,23 @@ export class SettingsDialog extends BaseDialog {
                                         min: 1,
                                     },
                                 })),
+                                utils.create({
+                                    attributes: {
+                                        class: 'dialog-input-shorten',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            text: 'Unicode Font: ',
+                                        }),
+                                        (DOM.useunicodefont = utils.create({
+                                            type: 'input',
+                                            attributes: {
+                                                type: 'checkbox',
+                                                title: 'This slightly increases the initial loading time!',
+                                            },
+                                        })),
+                                    ],
+                                }),
                             ],
                         }),
                         utils.create({
@@ -1078,6 +1595,7 @@ export class SettingsDialog extends BaseDialog {
     _onOK() {
         this.settings.keyboardlayout = this.DOM.keyboardlayout.value;
         this.settings.sleeptime = parseInt(this.DOM.sleeptime.value);
+        this.settings.useunicodefont = this.DOM.useunicodefont.checked;
 
         this.resolve({ dialogInstance: this, settings: this.settings });
         this._removeFromParent(this.DOM.container);
@@ -1087,16 +1605,15 @@ export class SettingsDialog extends BaseDialog {
      * Sets the initial values and configuration of the dialog.
      */
     _setValues() {
-        const DOM = this.DOM;
-
-        for (const option of DOM.keyboardlayout.children) {
+        for (const option of this.DOM.keyboardlayout.children) {
             if (this.settings.keyboardlayout === option.value) {
                 option.selected = true;
                 break;
             }
         }
 
-        DOM.sleeptime.value = this.settings.sleeptime;
+        this.DOM.sleeptime.value = this.settings.sleeptime;
+        this.DOM.useunicodefont.checked = this.settings.useunicodefont;
     }
 }
 
