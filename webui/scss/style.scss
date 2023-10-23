@@ -182,8 +182,7 @@ body {
     gap: var(--key-entries-gap);
     margin-bottom: var(--key-entries-gap);
 
-    .button,
-    .info {
+    .button {
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;
@@ -194,9 +193,6 @@ body {
         align-self: flex-end;
         user-select: none;
         word-break: break-word;
-    }
-
-    .button {
         position: relative;
         background-color: var(--color-blue);
         border: 1px solid var(--color-grey);

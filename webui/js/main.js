@@ -9,6 +9,7 @@ import Sortable from './modules/classes/Sortable.js';
 
 import {
     EditDialog,
+    EncoderDialog,
     ConfirmationDialog,
     SettingsDialog,
     ResetDialog,
@@ -73,7 +74,8 @@ class App {
         this.groupPageStack = [0];
 
         this.clipboard = {
-            copiedKey: null,
+            key: null,
+            encoderConfig: null,
         };
         this.keyEntriesContainer = keyEntriesContainer;
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
@@ -635,8 +637,8 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._keyChunkControlsHandler('next'),
-                    dragenter: () => this._keyChunkControlsHandler('nextdrag'),
+                    click: (event) => this._keyChunkControlsHandler(event, 'next'),
+                    dragenter: (event) => this._keyChunkControlsHandler(event, 'nextdrag'),
                 },
             }),
             back: utils.create({
@@ -655,15 +657,18 @@ class App {
                     }),
                 ],
                 events: {
-                    click: () => this._keyChunkControlsHandler('back'),
-                    dragenter: () => this._keyChunkControlsHandler('backdrag'),
+                    click: (event) => this._keyChunkControlsHandler(event, 'back'),
+                    dragenter: (event) => this._keyChunkControlsHandler(event, 'backdrag'),
                 },
             }),
             page: utils.create({
                 attributes: {
-                    class: 'info',
+                    class: 'button',
                 },
                 children: [utils.create(), utils.create()],
+                events: {
+                    click: (event) => this._keyChunkControlsHandler(event, 'encoder'),
+                },
             }),
         };
 
@@ -680,7 +685,7 @@ class App {
      * Handles button actions for key chunk controls.
      * @param {string} command - The command associated with the button action.
      */
-    _keyChunkControlsHandler(command) {
+    _keyChunkControlsHandler(event, command) {
         switch (command) {
             case 'next':
             case 'nextdrag':
@@ -717,6 +722,21 @@ class App {
                     this.groupPageStack[this.groupPageStack.length - 1]--;
                     this._updateKeyChunkPage();
                 }
+                break;
+            case 'encoder':
+                new EncoderDialog({
+                    position: {
+                        anchor: 'center',
+                        top: event.y,
+                        left: event.x,
+                    },
+                    groupObject: this.macroStack[this.macroStack.length - 1],
+                    clipboard: this.clipboard,
+                })
+                    .then((response) => {
+                        this.encoderDialogHandler(response);
+                    })
+                    .catch((error) => {});
                 break;
 
             default:
@@ -814,12 +834,12 @@ class App {
     }
 
     /**
-     * Handles editing a dialog's response and updates a key instance accordingly.
-     * @param {Object} options - An object containing response and keyInstance properties.
-     * @param {Object} options.response - The response object to be edited.
-     * @param {KeyInstance} options.keyInstance - The key instance to update.
+     * Handle editing a key instance based on a response object.
+     * @param {Object} params - An object with 'response' and 'keyInstance' properties.
+     * @param {Object} params.response - The response object containing key instance updates.
+     * @param {KeyInstance} params.keyInstance - The key instance to be edited.
      */
-    editDialogHandler({ response, keyInstance } = {}) {
+    editDialogHandler({ response, keyInstance }) {
         if (response.type === 'blank') {
             keyInstance.clearData();
         } else {
@@ -846,6 +866,18 @@ class App {
                 }
             }
         }
+        this._reReadKeyEntries();
+    }
+
+    /**
+     * Updates the encoder in a group object and refreshes key entries.
+     * @param {Object} params - An object containing 'response' and 'groupObject' properties.
+     * @param {Object} params.response - The encoder information for the update.
+     * @param {Object} params.groupObject - The group object to be modified.
+     */
+    encoderDialogHandler({ response, groupObject }) {
+        groupObject.encoder = response.encoder;
+
         this._reReadKeyEntries();
     }
 
@@ -974,12 +1006,12 @@ class App {
 
         this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
 
-        this.keyEntriesControls.page.children[0].innerHTML = `${
+        this.keyEntriesControls.page.childNodes[0].innerHTML = `${
             this.macroStack[this.macroStack.length - 1].label
         }`;
 
         const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-        this.keyEntriesControls.page.children[1].innerHTML = `${
+        this.keyEntriesControls.page.childNodes[1].innerHTML = `${
             this.groupPageStack[this.groupPageStack.length - 1] + 1
         } / ${pageCount}`;
 

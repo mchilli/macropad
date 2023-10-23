@@ -8404,13 +8404,9 @@ body {
   margin-bottom: var(--key-entries-gap);
 }
 .main-container .app-controls .button,
-.main-container .app-controls .info,
 .main-container .device-controls .button,
-.main-container .device-controls .info,
 .main-container .key-entries-controls .button,
-.main-container .key-entries-controls .info,
-.dialog-container .dialog-reboot-buttons .button,
-.dialog-container .dialog-reboot-buttons .info {
+.dialog-container .dialog-reboot-buttons .button {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -8421,11 +8417,6 @@ body {
   align-self: flex-end;
   user-select: none;
   word-break: break-word;
-}
-.main-container .app-controls .button,
-.main-container .device-controls .button,
-.main-container .key-entries-controls .button,
-.dialog-container .dialog-reboot-buttons .button {
   position: relative;
   background-color: var(--color-blue);
   border: 1px solid var(--color-grey);
