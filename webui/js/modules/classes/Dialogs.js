@@ -1577,6 +1577,7 @@ export class SettingsDialog extends BaseDialog {
 
         DOM.keyboardlayout.disabled = this.readonly;
         DOM.sleeptime.disabled = this.readonly;
+        DOM.useunicodefont.disabled = this.readonly;
 
         return DOM;
     }
