@@ -38,7 +38,7 @@ try:
             KEYBOARDLAYOUT = settings["keyboardlayout"]
         if "useunicodefont" in settings:
             USEUNICODEFONT = settings["useunicodefont"]
-except (OSError, json.JSONDecodeError):
+except Exception:
     pass
 
 if KEYBOARDLAYOUT == "br":
@@ -113,8 +113,9 @@ class MacroApp():
                 return json.load(f)
         except OSError:
             return {
-                "keyboardlayout": "us",
-                "sleeptime": 10
+                "keyboardlayout": KEYBOARDLAYOUT,
+                "sleeptime": SLEEPTIME,
+                "useunicodefont": USEUNICODEFONT
             }
 
     def _save_settings(self) -> None:
