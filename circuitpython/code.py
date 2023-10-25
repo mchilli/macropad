@@ -86,7 +86,7 @@ else:
 
 class MacroApp():
     """ Main Class """
-    def __init__(self, settings) -> None:
+    def __init__(self) -> None:
         self.macropad = MacroPad(layout_class=KeyboardLayout, rotation=180 if SETTINGS["fliprotation"] else 0)
         self.macropad.display.auto_refresh = False
         self.macropad.display.brightness = SETTINGS["brightness"]
@@ -97,7 +97,6 @@ class MacroApp():
         self.serial_data = usb_cdc.data
         self.serial_last_state = False
         
-        self.settings = settings
         self.macros = self._init_macros()
         self.keys = self._init_keys()
         self.toolbar = self._init_toolbar()
@@ -105,13 +104,13 @@ class MacroApp():
 
         self.show_homescreen()
 
-    def _save_settings(self) -> None:
-        """ store the settings in the settingsfile
+    def _save_settings(self, new_settings) -> None:
+        """ store the new settings in the settingsfile
         """
         if self.readonly:
             return False
         with open(SETTINGSFILE, "w") as f:
-            f.write(json.dumps(self.settings, separators=(",", ":")))
+            f.write(json.dumps(new_settings, separators=(",", ":")))
         return True
 
     def _init_macros(self) -> list[dict]:
@@ -389,7 +388,7 @@ class MacroApp():
 
             if command == 'get_settings':
                 response['ACK'] = 'settings'
-                response['CONTENT'] = self.settings
+                response['CONTENT'] = SETTINGS
                 return response
             
             elif command == 'set_settings':
@@ -398,9 +397,8 @@ class MacroApp():
                     return response
                 
                 content = payload['content']
-                self.settings = content
 
-                if self._save_settings():
+                if self._save_settings(content):
                     response['ACK'] = 'Settings are set'
                 else:
                     response['ERR'] = 'Cannot set settings because USB storage is enabled'
@@ -518,5 +516,5 @@ class MacroApp():
                     "content": self.encoder.on_decreased
                 })
 
-app = MacroApp(SETTINGS)
+app = MacroApp()
 app.start()
