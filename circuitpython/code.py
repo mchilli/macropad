@@ -30,6 +30,7 @@ SETTINGS = {
     "sleeptime": 2, # Time in seconds until the display turns off
     "keyboardlayout": "us", # Supported keyboard layouts: br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
     "useunicodefont": False, # Use a unicode bitmap font, which will increas the initial load time!
+    "fliprotation": False, # Flips the rotation of the device by 180 degrees
 }
 
 try:
@@ -85,7 +86,7 @@ else:
 class MacroApp():
     """ Main Class """
     def __init__(self, settings) -> None:
-        self.macropad = MacroPad(layout_class=KeyboardLayout)
+        self.macropad = MacroPad(layout_class=KeyboardLayout, rotation=180 if SETTINGS["fliprotation"] else 0)
         self.macropad.display.auto_refresh = False
         self.macropad.display.brightness = 0.1
         self.macropad.pixels.auto_write = False
