@@ -31,6 +31,7 @@ SETTINGS = {
     "keyboardlayout": "us", # Supported keyboard layouts: br, cz, da, de, es, fr, hu, it, po, sw, tr, uk, us
     "useunicodefont": False, # Use a unicode bitmap font, which will increas the initial load time!
     "fliprotation": False, # Flips the rotation of the device by 180 degrees
+    "brightness": 0.1 # Set the LCD and LED Brightness
 }
 
 try:
@@ -88,9 +89,9 @@ class MacroApp():
     def __init__(self, settings) -> None:
         self.macropad = MacroPad(layout_class=KeyboardLayout, rotation=180 if SETTINGS["fliprotation"] else 0)
         self.macropad.display.auto_refresh = False
-        self.macropad.display.brightness = 0.1
+        self.macropad.display.brightness = SETTINGS["brightness"]
         self.macropad.pixels.auto_write = False
-        self.macropad.pixels.brightness = 0.1
+        self.macropad.pixels.brightness = SETTINGS["brightness"]
 
         self.readonly = storage.getmount('/').readonly
         self.serial_data = usb_cdc.data
@@ -285,7 +286,7 @@ class MacroApp():
                 if 'sys' in key:
                     method = getattr(System, key['sys'], None)
                     if method:
-                        method(self.macropad)
+                        method(self)
         
         self.macropad.keyboard.release_all()
         self.macropad.mouse.release_all()
