@@ -1536,6 +1536,46 @@ export class SettingsDialog extends BaseDialog {
                                         })),
                                     ],
                                 }),
+                                utils.create({
+                                    attributes: {
+                                        class: 'dialog-input-shorten',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            text: 'Flip Rotation: ',
+                                        }),
+                                        (DOM.fliprotation = utils.create({
+                                            type: 'input',
+                                            attributes: {
+                                                type: 'checkbox',
+                                            },
+                                        })),
+                                    ],
+                                }),
+                                utils.create({
+                                    attributes: {
+                                        class: 'dialog-input-shorten',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            text: 'LCD/LED Brightness: ',
+                                        }),
+                                        (DOM.brightness = utils.create({
+                                            type: 'input',
+                                            attributes: {
+                                                type: 'range',
+                                                min: 0,
+                                                max: 1,
+                                                step: 0.1,
+                                            },
+                                            events: {
+                                                input: (event) => {
+                                                    event.target.title = event.target.value;
+                                                },
+                                            },
+                                        })),
+                                    ],
+                                }),
                             ],
                         }),
                         utils.create({
@@ -1578,6 +1618,8 @@ export class SettingsDialog extends BaseDialog {
         DOM.keyboardlayout.disabled = this.readonly;
         DOM.sleeptime.disabled = this.readonly;
         DOM.useunicodefont.disabled = this.readonly;
+        DOM.fliprotation.disabled = this.readonly;
+        DOM.brightness.disabled = this.readonly;
 
         return DOM;
     }
@@ -1597,6 +1639,8 @@ export class SettingsDialog extends BaseDialog {
         this.settings.keyboardlayout = this.DOM.keyboardlayout.value;
         this.settings.sleeptime = parseInt(this.DOM.sleeptime.value);
         this.settings.useunicodefont = this.DOM.useunicodefont.checked;
+        this.settings.fliprotation = this.DOM.fliprotation.checked;
+        this.settings.brightness = parseFloat(this.DOM.brightness.value);
 
         this.resolve({ dialogInstance: this, settings: this.settings });
         this._removeFromParent(this.DOM.container);
@@ -1615,6 +1659,9 @@ export class SettingsDialog extends BaseDialog {
 
         this.DOM.sleeptime.value = this.settings.sleeptime;
         this.DOM.useunicodefont.checked = this.settings.useunicodefont;
+        this.DOM.fliprotation.checked = this.settings.fliprotation;
+        this.DOM.brightness.value = this.settings.brightness;
+        this.DOM.brightness.title = this.settings.brightness;
     }
 }
 

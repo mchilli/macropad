@@ -11,12 +11,16 @@ This is an [Adafruit MacroPad](https://www.adafruit.com/product/5128) script tha
 -   Make groups to organize your macros
 -   Groups can store more macros or groups
 -   Define encoder macros for different groups
--   Set a display timeout to prevent burn-in
--   Select a keyboard layout suitable for your language
--   You can use a Unicode Font (but this increases the font loading time)
 -   Choose colors for every single macro or group
 -   You can have an almost infinite number of pages
 -   Save your configurations locally by downloading it as a JSON file
+
+-   Device settings:
+    -   Choose a keyboard layout suitable for your language
+    -   Set a display timeout to prevent burn-in
+    -   Use a Unicode Font **(increases the font loading time)**
+    -   Flip the rotation of the device by 180 degrees
+    -   Adjust the LCD and LED brightness
 
 #### Installation:
 
