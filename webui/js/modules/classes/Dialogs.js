@@ -289,6 +289,13 @@ export class EditDialog extends BaseDialog {
                                         }),
                                         utils.create({
                                             type: 'option',
+                                            attributes: {
+                                                value: 'close',
+                                                hidden: true,
+                                            },
+                                        }),
+                                        utils.create({
+                                            type: 'option',
                                             text: 'Macro',
                                             attributes: {
                                                 value: 'macro',

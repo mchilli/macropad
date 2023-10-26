@@ -70,8 +70,8 @@ class App {
         this.deviceControlsContainer = deviceControlsContainer;
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
-        this.keyChunkSize = 9;
-        this.groupPageStack = [0];
+        this.keyChunkSize = 12;
+        // this.groupPageStack = [0];
 
         this.clipboard = {
             key: null,
@@ -621,46 +621,46 @@ class App {
      */
     _initKeyChunkControls(container) {
         let keyChunkControls = {
-            next: utils.create({
-                attributes: {
-                    class: 'button',
-                },
-                children: [
-                    utils.create({
-                        type: 'i',
-                        attributes: {
-                            class: 'fa-solid fa-arrow-right',
-                        },
-                    }),
-                    utils.create({
-                        text: 'Next',
-                    }),
-                ],
-                events: {
-                    click: (event) => this._keyChunkControlsHandler(event, 'next'),
-                    dragenter: (event) => this._keyChunkControlsHandler(event, 'nextdrag'),
-                },
-            }),
-            back: utils.create({
-                attributes: {
-                    class: 'button',
-                },
-                children: [
-                    utils.create({
-                        type: 'i',
-                        attributes: {
-                            class: 'fa-solid fa-arrow-left',
-                        },
-                    }),
-                    utils.create({
-                        text: 'Previous',
-                    }),
-                ],
-                events: {
-                    click: (event) => this._keyChunkControlsHandler(event, 'back'),
-                    dragenter: (event) => this._keyChunkControlsHandler(event, 'backdrag'),
-                },
-            }),
+            // next: utils.create({
+            //     attributes: {
+            //         class: 'button',
+            //     },
+            //     children: [
+            //         utils.create({
+            //             type: 'i',
+            //             attributes: {
+            //                 class: 'fa-solid fa-arrow-right',
+            //             },
+            //         }),
+            //         utils.create({
+            //             text: 'Next',
+            //         }),
+            //     ],
+            //     events: {
+            //         click: (event) => this._keyChunkControlsHandler(event, 'next'),
+            //         dragenter: (event) => this._keyChunkControlsHandler(event, 'nextdrag'),
+            //     },
+            // }),
+            // back: utils.create({
+            //     attributes: {
+            //         class: 'button',
+            //     },
+            //     children: [
+            //         utils.create({
+            //             type: 'i',
+            //             attributes: {
+            //                 class: 'fa-solid fa-arrow-left',
+            //             },
+            //         }),
+            //         utils.create({
+            //             text: 'Previous',
+            //         }),
+            //     ],
+            //     events: {
+            //         click: (event) => this._keyChunkControlsHandler(event, 'back'),
+            //         dragenter: (event) => this._keyChunkControlsHandler(event, 'backdrag'),
+            //     },
+            // }),
             page: utils.create({
                 attributes: {
                     class: 'button',
@@ -673,9 +673,9 @@ class App {
         };
 
         utils.appendElements(container, [
-            keyChunkControls.back,
+            // keyChunkControls.back,
             keyChunkControls.page,
-            keyChunkControls.next,
+            // keyChunkControls.next,
         ]);
 
         return keyChunkControls;
@@ -687,42 +687,42 @@ class App {
      */
     _keyChunkControlsHandler(event, command) {
         switch (command) {
-            case 'next':
-            case 'nextdrag':
-                this.groupPageStack[this.groupPageStack.length - 1]++;
-                if (
-                    this.groupPageStack[this.groupPageStack.length - 1] >
-                    this.keyEntriesContainer.childNodes.length / this.keyChunkSize - 1
-                ) {
-                    this._appendEmptyKeyEntries();
-                } else {
-                    this._updateKeyChunkPage();
-                }
-                break;
-            case 'back':
-                if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
-                    this.groupPageStack[this.groupPageStack.length - 1]--;
+            // case 'next':
+            // case 'nextdrag':
+            //     this.groupPageStack[this.groupPageStack.length - 1]++;
+            //     if (
+            //         this.groupPageStack[this.groupPageStack.length - 1] >
+            //         this.keyEntriesContainer.childNodes.length / this.keyChunkSize - 1
+            //     ) {
+            //         this._appendEmptyKeyEntries();
+            //     } else {
+            //         this._updateKeyChunkPage();
+            //     }
+            //     break;
+            // case 'back':
+            //     if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
+            //         this.groupPageStack[this.groupPageStack.length - 1]--;
 
-                    this._removeLastEmptyKeyChunk();
-                    this._reReadKeyEntries();
-                    this._updateKeyChunkPage();
-                } else if (
-                    this.groupPageStack[this.groupPageStack.length - 1] === 0 &&
-                    this.macroStack.length > 1
-                ) {
-                    this.macroStack.pop();
-                    this.groupPageStack.pop();
+            //         this._removeLastEmptyKeyChunk();
+            //         this._reReadKeyEntries();
+            //         this._updateKeyChunkPage();
+            //     } else if (
+            //         this.groupPageStack[this.groupPageStack.length - 1] === 0 &&
+            //         this.macroStack.length > 1
+            //     ) {
+            //         this.macroStack.pop();
+            //         this.groupPageStack.pop();
 
-                    this._clearAllKeyEntries();
-                    this._initializeKeys();
-                }
-                break;
-            case 'backdrag':
-                if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
-                    this.groupPageStack[this.groupPageStack.length - 1]--;
-                    this._updateKeyChunkPage();
-                }
-                break;
+            //         this._clearAllKeyEntries();
+            //         this._initializeKeys();
+            //     }
+            //     break;
+            // case 'backdrag':
+            //     if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
+            //         this.groupPageStack[this.groupPageStack.length - 1]--;
+            //         this._updateKeyChunkPage();
+            //     }
+            //     break;
             case 'encoder':
                 new EncoderDialog({
                     position: {
@@ -754,21 +754,21 @@ class App {
         return new Sortable(container, {
             handle: '.key-handle',
             animation: 150,
-            onStart: (event) => {},
+            // onStart: (event) => {},
             onEnd: (event) => {
-                const pageOfElement = Math.floor(event.newIndex / this.keyChunkSize);
-                this.groupPageStack[this.groupPageStack.length - 1] = pageOfElement;
+                // const pageOfElement = Math.floor(event.newIndex / this.keyChunkSize);
+                // this.groupPageStack[this.groupPageStack.length - 1] = pageOfElement;
 
-                const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-                const pagesToRemove =
-                    pageCount - this.groupPageStack[this.groupPageStack.length - 1] - 1;
+                // const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
+                // const pagesToRemove =
+                //     pageCount - this.groupPageStack[this.groupPageStack.length - 1] - 1;
 
-                for (let i = 0; i < pagesToRemove; i++) {
-                    this._removeLastEmptyKeyChunk();
-                }
+                // for (let i = 0; i < pagesToRemove; i++) {
+                //     this._removeLastEmptyKeyChunk();
+                // }
 
                 this._reReadKeyEntries();
-                this._updateKeyChunkPage();
+                // this._updateKeyChunkPage();
             },
         });
     }
@@ -780,6 +780,7 @@ class App {
      * @param {string} command - The command associated with the button action.
      */
     keyControlsHandler(event, keyInstance, command) {
+        event.stopPropagation();
         switch (command) {
             case 'edit':
                 new EditDialog({
@@ -805,7 +806,7 @@ class App {
                     }
                 }
 
-                this.groupPageStack.push(0);
+                // this.groupPageStack.push(0);
 
                 this._clearAllKeyEntries();
                 this._initializeKeys();
@@ -825,6 +826,13 @@ class App {
                         this._reReadKeyEntries();
                     })
                     .catch((error) => {});
+                break;
+
+            case 'close':
+                this.macroStack.pop();
+
+                this._clearAllKeyEntries();
+                this._initializeKeys();
                 break;
 
             default:
@@ -908,7 +916,13 @@ class App {
             this.macroStack[this.macroStack.length - 1].content
         );
 
-        for (const key of currentMacroStack) {
+        let sliceEnd = this.keyChunkSize;
+        if (this.macroStack.length > 1 && !this._hasCloseGroupEntry(currentMacroStack)) {
+            this._appendKeysToContainer(this._closeGroupKeyEntry());
+            sliceEnd--;
+        }
+
+        for (const key of currentMacroStack.slice(0, sliceEnd)) {
             this._appendKeysToContainer(key);
         }
 
@@ -920,8 +934,25 @@ class App {
      * Generates an empty key entry.
      * @returns {Object} - The empty key entry.
      */
+    _closeGroupKeyEntry() {
+        return {
+            type: 'close',
+            label: 'CLOSE',
+            color: [0, 0, 0],
+            content: [{ sys: 'close_group' }],
+        };
+    }
+
+    /**
+     * Generates an empty key entry.
+     * @returns {Object} - The empty key entry.
+     */
     _emptyKeyEntry() {
         return { type: 'blank' };
+    }
+
+    _hasCloseGroupEntry(macroArray) {
+        return macroArray.find((key) => key.type === 'close');
     }
 
     /**
@@ -948,21 +979,21 @@ class App {
         this._initializeKeys();
     }
 
-    /**
-     * Appends empty key entries to the current macro stack.
-     */
-    _appendEmptyKeyEntries() {
-        const currentMacroStack = this.macroStack[this.macroStack.length - 1].content;
-        const emptyKeys = this._fillUpKeysEntries([]);
+    // /**
+    //  * Appends empty key entries to the current macro stack.
+    //  */
+    // _appendEmptyKeyEntries() {
+    //     const currentMacroStack = this.macroStack[this.macroStack.length - 1].content;
+    //     const emptyKeys = this._fillUpKeysEntries([]);
 
-        currentMacroStack.push(...emptyKeys);
+    //     currentMacroStack.push(...emptyKeys);
 
-        for (const key of emptyKeys) {
-            this._appendKeysToContainer(key);
-        }
+    //     for (const key of emptyKeys) {
+    //         this._appendKeysToContainer(key);
+    //     }
 
-        this._updateKeyChunkPage();
-    }
+    //     this._updateKeyChunkPage();
+    // }
 
     /**
      * Fills up the macro stack with blank macros if needed.
@@ -998,55 +1029,55 @@ class App {
      * Updates the current key chunk page and visibility.
      */
     _updateKeyChunkPage() {
-        const keyContainerOffset = this.keyEntriesContainer.offsetTop;
-        const firstChunkItemIndex =
-            this.groupPageStack[this.groupPageStack.length - 1] * this.keyChunkSize + 1;
-        const firstChunkItemOffset =
-            this.keyEntriesContainer.childNodes[firstChunkItemIndex].offsetTop;
+        // const keyContainerOffset = this.keyEntriesContainer.offsetTop;
+        // const firstChunkItemIndex =
+        //     this.groupPageStack[this.groupPageStack.length - 1] * this.keyChunkSize + 1;
+        // const firstChunkItemOffset =
+        //     this.keyEntriesContainer.childNodes[firstChunkItemIndex].offsetTop;
 
-        this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
+        // this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
 
-        this.keyEntriesControls.page.childNodes[0].innerHTML = `${
+        this.keyEntriesControls.page.innerHTML = `${
             this.macroStack[this.macroStack.length - 1].label
         }`;
 
-        const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-        this.keyEntriesControls.page.childNodes[1].innerHTML = `${
-            this.groupPageStack[this.groupPageStack.length - 1] + 1
-        } / ${pageCount}`;
+        // const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
+        // this.keyEntriesControls.page.childNodes[1].innerHTML = `${
+        //     this.groupPageStack[this.groupPageStack.length - 1] + 1
+        // } / ${pageCount}`;
 
-        const firstPageOfGroup =
-            this.macroStack.length > 1 && this.groupPageStack[this.groupPageStack.length - 1] === 0;
-        this.keyEntriesControls.back.childNodes[0].className = firstPageOfGroup
-            ? 'fa-solid fa-arrow-turn-up fa-flip-horizontal'
-            : 'fa-solid fa-arrow-left';
-        this.keyEntriesControls.back.childNodes[1].innerText = firstPageOfGroup
-            ? 'Close'
-            : 'Previous';
+        // const firstPageOfGroup =
+        //     this.macroStack.length > 1 && this.groupPageStack[this.groupPageStack.length - 1] === 0;
+        // this.keyEntriesControls.back.childNodes[0].className = firstPageOfGroup
+        //     ? 'fa-solid fa-arrow-turn-up fa-flip-horizontal'
+        //     : 'fa-solid fa-arrow-left';
+        // this.keyEntriesControls.back.childNodes[1].innerText = firstPageOfGroup
+        //     ? 'Close'
+        //     : 'Previous';
     }
 
-    /**
-     * Removes the last empty key chunk if possible.
-     */
-    _removeLastEmptyKeyChunk() {
-        const keyChunks = Array.from(this.keyEntriesContainer.childNodes);
+    // /**
+    //  * Removes the last empty key chunk if possible.
+    //  */
+    // _removeLastEmptyKeyChunk() {
+    //     const keyChunks = Array.from(this.keyEntriesContainer.childNodes);
 
-        if (keyChunks.length <= this.keyChunkSize) {
-            return;
-        }
+    //     if (keyChunks.length <= this.keyChunkSize) {
+    //         return;
+    //     }
 
-        const lastKeyChunk = keyChunks.slice(-this.keyChunkSize);
-        if (lastKeyChunk.every((key) => key.instance.type === 'blank')) {
-            for (const key of lastKeyChunk) {
-                this.keyEntriesContainer.removeChild(key);
-            }
+    //     const lastKeyChunk = keyChunks.slice(-this.keyChunkSize);
+    //     if (lastKeyChunk.every((key) => key.instance.type === 'blank')) {
+    //         for (const key of lastKeyChunk) {
+    //             this.keyEntriesContainer.removeChild(key);
+    //         }
 
-            this.macroStack[this.macroStack.length - 1].content.splice(
-                -this.keyChunkSize,
-                this.keyChunkSize
-            );
-        }
-    }
+    //         this.macroStack[this.macroStack.length - 1].content.splice(
+    //             -this.keyChunkSize,
+    //             this.keyChunkSize
+    //         );
+    //     }
+    // }
 
     /**
      * Clears all key entries from the key entries container.

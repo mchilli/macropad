@@ -95,6 +95,12 @@ export default class KeyContainer {
                     attributes: {
                         class: 'key-label',
                     },
+                    events: {
+                        click:
+                            this.type === 'close'
+                                ? (event) => this.onButtonPressed(event, this, 'close')
+                                : undefined,
+                    },
                 })),
                 utils.create({
                     attributes: {
@@ -183,6 +189,7 @@ export default class KeyContainer {
                 return {
                     type: this.type,
                 };
+            case 'close':
             case 'macro':
                 return {
                     type: this.type,
@@ -237,6 +244,7 @@ export default class KeyContainer {
         switch (this.type) {
             case 'blank':
                 return '';
+            case 'close':
             case 'macro':
                 return 'fa-solid fa-gear';
             case 'group':
