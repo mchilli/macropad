@@ -746,6 +746,15 @@ export class EditDialog extends BaseDialog {
 
         if (this.pasted && type === 'group' && this.initType === 'group') {
             values.content = JSON.parse(JSON.stringify(this.clipboard.key.content));
+        } else if (!this.pasted && type === 'group') {
+            values.content = [
+                {
+                    type: 'close',
+                    label: 'CLOSE',
+                    color: [0, 0, 0],
+                    content: [{ sys: 'close_group' }],
+                },
+            ];
         } else if (type === 'macro') {
             values.content = this._getMacroEntryValues(DOM.content);
         }

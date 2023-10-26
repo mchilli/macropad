@@ -917,7 +917,7 @@ class App {
         );
 
         let sliceEnd = this.keyChunkSize;
-        if (this.macroStack.length > 1 && !this._hasCloseGroupEntry(currentMacroStack)) {
+        if (this.macroStack.length > 1 && this._hasNotCloseGroupEntry(currentMacroStack)) {
             this._appendKeysToContainer(this._closeGroupKeyEntry());
             sliceEnd--;
         }
@@ -931,8 +931,8 @@ class App {
     }
 
     /**
-     * Generates an empty key entry.
-     * @returns {Object} - The empty key entry.
+     * Generates an close key entry.
+     * @returns {Object} - The close key entry.
      */
     _closeGroupKeyEntry() {
         return {
@@ -951,8 +951,8 @@ class App {
         return { type: 'blank' };
     }
 
-    _hasCloseGroupEntry(macroArray) {
-        return macroArray.find((key) => key.type === 'close');
+    _hasNotCloseGroupEntry(content) {
+        return !content.find((key) => key.type === 'close');
     }
 
     /**
