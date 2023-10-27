@@ -737,6 +737,13 @@ class App {
                 this._initializeKeys();
                 break;
 
+            case 'root':
+                this.macroStack.splice(1);
+
+                this._clearAllKeyEntries();
+                this._initializeKeys();
+                break;
+
             default:
                 console.error(`keyControlsHandler - unkown button: ${command}`);
                 break;
@@ -881,12 +888,12 @@ class App {
     }
 
     /**
-     * Checks if a group of keys does not contain a 'close' entry.
+     * Checks if a group of keys does not contain a 'close' or 'root' entry.
      * @param {Array} content - The array of keys in the group.
-     * @returns {boolean} True if there is no 'close' entry, otherwise false.
+     * @returns {boolean} True if there is no 'close' or 'root' entry, otherwise false.
      */
     _hasNotCloseGroupEntry(content) {
-        return !content.find((key) => key.type === 'close');
+        return !content.find((key) => key.type === 'close' || key.type === 'root');
     }
 
     /**

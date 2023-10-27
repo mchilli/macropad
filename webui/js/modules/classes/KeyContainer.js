@@ -167,6 +167,9 @@ export default class KeyContainer {
                         case 'close':
                             this.onButtonPressed(event, this, 'close');
                             break;
+                        case 'root':
+                            this.onButtonPressed(event, this, 'root');
+                            break;
                         case 'group':
                             this.onButtonPressed(event, this, 'open');
                             break;
@@ -202,6 +205,7 @@ export default class KeyContainer {
                     type: this.type,
                 };
             case 'close':
+            case 'root':
             case 'macro':
                 return {
                     type: this.type,
@@ -257,6 +261,7 @@ export default class KeyContainer {
             case 'blank':
                 return '';
             case 'close':
+            case 'root':
                 return 'fa-solid fa-gears';
             case 'macro':
                 return 'fa-solid fa-cubes';

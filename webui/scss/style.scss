@@ -88,11 +88,13 @@ body {
             }
 
             &.close,
+            &.root,
             &.group {
                 cursor: pointer;
             }
 
             &.close:hover,
+            &.root:hover,
             &.group:hover {
                 box-shadow: var(--shadow-outset);
             }
@@ -169,12 +171,14 @@ body {
             }
 
             &.blank .button.delete,
-            &.close .button.delete {
+            &.close .button.delete,
+            &.root .button.delete {
                 display: none;
             }
 
             &.blank .button.open,
             &.close .button.open,
+            &.root .button.open,
             &.group .button.open,
             &.macro .button.open {
                 display: none;
@@ -359,6 +363,7 @@ body {
             margin: var(--key-entries-gap);
         }
 
+        &.blank .dialog-inputs .dialog-behaviour,
         &.blank .dialog-inputs .dialog-label,
         &.blank .dialog-inputs .dialog-color,
         &.blank .dialog-inputs .dialog-content,
@@ -367,7 +372,13 @@ body {
         &.close .dialog-inputs .dialog-content,
         &.close .dialog-inputs .dialog-encoder,
         &.close .dialog-header .dialog-button,
+        &.root .dialog-inputs .dialog-type,
+        &.root .dialog-inputs .dialog-content,
+        &.root .dialog-inputs .dialog-encoder,
+        &.root .dialog-header .dialog-button,
+        &.group .dialog-inputs .dialog-behaviour,
         &.group .dialog-inputs .dialog-content,
+        &.macro .dialog-inputs .dialog-behaviour,
         &.macro .dialog-inputs .dialog-encoder {
             display: none;
         }

@@ -8323,10 +8323,10 @@ body {
 .main-container .key-entries .key-container.blank {
   background-color: transparent !important;
 }
-.main-container .key-entries .key-container.close, .main-container .key-entries .key-container.group {
+.main-container .key-entries .key-container.close, .main-container .key-entries .key-container.root, .main-container .key-entries .key-container.group {
   cursor: pointer;
 }
-.main-container .key-entries .key-container.close:hover, .main-container .key-entries .key-container.group:hover {
+.main-container .key-entries .key-container.close:hover, .main-container .key-entries .key-container.root:hover, .main-container .key-entries .key-container.group:hover {
   box-shadow: var(--shadow-outset);
 }
 .main-container .key-entries .key-container .key-type-icon {
@@ -8391,10 +8391,10 @@ body {
   justify-content: center;
   align-items: center;
 }
-.main-container .key-entries .key-container.blank .button.delete, .main-container .key-entries .key-container.close .button.delete {
+.main-container .key-entries .key-container.blank .button.delete, .main-container .key-entries .key-container.close .button.delete, .main-container .key-entries .key-container.root .button.delete {
   display: none;
 }
-.main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.close .button.open, .main-container .key-entries .key-container.group .button.open, .main-container .key-entries .key-container.macro .button.open {
+.main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.close .button.open, .main-container .key-entries .key-container.root .button.open, .main-container .key-entries .key-container.group .button.open, .main-container .key-entries .key-container.macro .button.open {
   display: none;
 }
 
@@ -8559,7 +8559,7 @@ body {
   grid-column: 1/3;
   margin: var(--key-entries-gap);
 }
-.dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-inputs .dialog-type, .dialog-container .dialog.close .dialog-inputs .dialog-content, .dialog-container .dialog.close .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-header .dialog-button, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
+.dialog-container .dialog.blank .dialog-inputs .dialog-behaviour, .dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-inputs .dialog-type, .dialog-container .dialog.close .dialog-inputs .dialog-content, .dialog-container .dialog.close .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-header .dialog-button, .dialog-container .dialog.root .dialog-inputs .dialog-type, .dialog-container .dialog.root .dialog-inputs .dialog-content, .dialog-container .dialog.root .dialog-inputs .dialog-encoder, .dialog-container .dialog.root .dialog-header .dialog-button, .dialog-container .dialog.group .dialog-inputs .dialog-behaviour, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-behaviour, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
   display: none;
 }
 .dialog-container .dialog .dialog-button {

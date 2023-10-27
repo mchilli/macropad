@@ -288,8 +288,17 @@ export class EditDialog extends BaseDialog {
                                         }),
                                         utils.create({
                                             type: 'option',
+                                            text: 'Close',
                                             attributes: {
                                                 value: 'close',
+                                                hidden: true,
+                                            },
+                                        }),
+                                        utils.create({
+                                            type: 'option',
+                                            text: 'Root',
+                                            attributes: {
+                                                value: 'root',
                                                 hidden: true,
                                             },
                                         }),
@@ -310,6 +319,37 @@ export class EditDialog extends BaseDialog {
                                     ],
                                     events: {
                                         change: () => this._onChangeType(),
+                                    },
+                                })),
+                                utils.create({
+                                    text: 'Behaviour: ',
+                                    attributes: {
+                                        class: 'dialog-behaviour',
+                                    },
+                                }),
+                                (DOM.behaviour = utils.create({
+                                    type: 'select',
+                                    attributes: {
+                                        class: 'dialog-behaviour dialog-input-shorten',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'option',
+                                            text: 'Close Group',
+                                            attributes: {
+                                                value: 'close',
+                                            },
+                                        }),
+                                        utils.create({
+                                            type: 'option',
+                                            text: 'Go to root',
+                                            attributes: {
+                                                value: 'root',
+                                            },
+                                        }),
+                                    ],
+                                    events: {
+                                        change: () => this._onChangeBehaviour(),
                                     },
                                 })),
                                 utils.create({
@@ -563,6 +603,10 @@ export class EditDialog extends BaseDialog {
         this.DOM.dialog.classList.add(type);
     }
 
+    _onChangeBehaviour() {
+        this.DOM.type.value = this.DOM.behaviour.value;
+    }
+
     /**
      * Updates the selected color in the DOM elements.
      * @param {Event} event - The input event that triggered the color change.
@@ -591,7 +635,9 @@ export class EditDialog extends BaseDialog {
      * @param {MouseEvent} event - The mouse event that triggered.
      */
     _onOK(event) {
-        if (this.DOM.type.value !== 'blank' && this.DOM.label.value === '') {
+        const type = this.DOM.type.value;
+
+        if (type !== 'blank' && this.DOM.label.value === '') {
             this.DOM.label.placeholder = 'You have to enter a label!';
             return;
         }
@@ -600,7 +646,13 @@ export class EditDialog extends BaseDialog {
             this.resolve({ response: this._prepareResponse(), keyInstance: this.keyInstance });
             this._removeFromParent(this.DOM.container);
         };
-        if (this.DOM.type.value !== this.initType && this.initType !== 'blank') {
+
+        if (
+            type !== 'close' &&
+            type !== 'root' &&
+            type !== this.initType &&
+            this.initType !== 'blank'
+        ) {
             new ConfirmationDialog({
                 position: {
                     anchor: 'center',
@@ -749,6 +801,10 @@ export class EditDialog extends BaseDialog {
             values.content = undefined;
         } else if (type === 'macro') {
             values.content = this._getMacroEntryValues(DOM.content);
+        } else if (type === 'close') {
+            values.content = [{ sys: 'close_group' }];
+        } else if (type === 'root') {
+            values.content = [{ sys: 'go_to_root' }];
         }
 
         if (type === 'group') {
@@ -776,6 +832,13 @@ export class EditDialog extends BaseDialog {
             }
         }
 
+        for (const option of DOM.behaviour.children) {
+            if (type === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
+
         DOM.dialog.classList.add(type);
 
         DOM.label.value = key.label;
@@ -791,6 +854,8 @@ export class EditDialog extends BaseDialog {
 
         switch (type) {
             case 'macro':
+            case 'close':
+            case 'root':
                 this._appendMultipleMacros(DOM.content, key.content);
                 break;
             case 'group':
