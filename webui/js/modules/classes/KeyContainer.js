@@ -75,6 +75,9 @@ export default class KeyContainer {
                             },
                         }),
                     ],
+                    events: {
+                        click: (event) => event.stopPropagation(),
+                    },
                 })),
                 utils.create({
                     attributes: {
@@ -89,17 +92,14 @@ export default class KeyContainer {
                             },
                         }),
                     ],
+                    events: {
+                        click: (event) => event.stopPropagation(),
+                    },
                 }),
                 (DOM.label = utils.create({
                     text: this.label,
                     attributes: {
                         class: 'key-label',
-                    },
-                    events: {
-                        click:
-                            this.type === 'close'
-                                ? (event) => this.onButtonPressed(event, this, 'close')
-                                : undefined,
                     },
                 })),
                 utils.create({
@@ -161,6 +161,18 @@ export default class KeyContainer {
                     ],
                 }),
             ],
+            events: {
+                click: (event) => {
+                    switch (this.type) {
+                        case 'close':
+                            this.onButtonPressed(event, this, 'close');
+                            break;
+                        case 'group':
+                            this.onButtonPressed(event, this, 'open');
+                            break;
+                    }
+                },
+            },
         });
 
         DOM.container.instance = this;
@@ -245,10 +257,11 @@ export default class KeyContainer {
             case 'blank':
                 return '';
             case 'close':
+                return 'fa-solid fa-gears';
             case 'macro':
-                return 'fa-solid fa-gear';
+                return 'fa-solid fa-cubes';
             case 'group':
-                return 'fa-solid fa-folder';
+                return 'fa-solid fa-folder-open';
 
             default:
                 break;

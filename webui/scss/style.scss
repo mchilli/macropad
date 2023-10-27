@@ -77,23 +77,37 @@ body {
             grid-template-rows: max-content 1fr max-content;
             width: var(--key-entry-size);
             height: var(--key-entry-size);
-            border-top: 1px solid var(--shadow-color);
-            border-left: 1px solid var(--shadow-color);
+            border: 1px solid var(--shadow-color);
+            // border-top: 1px solid var(--shadow-color);
+            // border-left: 1px solid var(--shadow-color);
             border-radius: var(--key-control-border-radius);
             box-sizing: border-box;
-            box-shadow: 3px 3px 2px 1px var(--shadow-color);
+            // box-shadow: 3px 3px 2px 1px var(--shadow-color);
+            overflow: hidden;
 
             &.blank {
                 background-color: transparent !important;
+            }
+
+            &.close,
+            &.group {
+                cursor: pointer;
+            }
+
+            &.close:hover,
+            &.group:hover {
+                box-shadow: 3px 3px 2px 1px var(--shadow-color);
             }
 
             .key-type-icon {
                 grid-row: 1;
                 cursor: help;
                 background-color: var(--color-white);
-                border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+                border-right: 1px solid var(--shadow-color);
+                border-bottom: 1px solid var(--shadow-color);
+                border-bottom-right-radius: var(--key-control-border-radius);
                 padding: 0 var(--key-control-padding) 0 0;
-                box-shadow: var(--key-control-shadow-inset);
+                // box-shadow: var(--key-control-shadow-inset);
             }
 
             .key-handle {
@@ -101,13 +115,11 @@ body {
                 grid-row: 1;
                 cursor: grab;
                 background-color: var(--color-white);
-                border-radius: 0 var(--key-control-border-radius) 0 var(--key-control-border-radius);
+                border-left: 1px solid var(--shadow-color);
+                border-bottom: 1px solid var(--shadow-color);
+                border-bottom-left-radius: var(--key-control-border-radius);
                 padding: 0 0 0 var(--key-control-padding);
-                box-shadow: var(--key-control-shadow-inset);
-            }
-
-            &.close .key-label {
-                cursor: pointer;
+                // box-shadow: var(--key-control-shadow-inset);
             }
 
             &.blank .key-label {
@@ -122,9 +134,10 @@ body {
                 font-weight: bold;
                 word-break: break-all;
                 background-color: var(--color-white);
+                border: 1px solid var(--shadow-color);
                 border-radius: var(--key-control-border-radius);
                 padding: var(--key-control-padding) calc(var(--key-control-padding) * 3);
-                box-shadow: var(--key-control-shadow-inset);
+                // box-shadow: var(--key-control-shadow-inset);
             }
 
             .key-controls {
@@ -133,9 +146,11 @@ body {
                 grid-column: 1/3;
                 justify-self: end;
                 background-color: var(--color-white);
-                border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+                border-left: 1px solid var(--shadow-color);
+                border-top: 1px solid var(--shadow-color);
+                border-top-left-radius: var(--key-control-border-radius);
                 padding: var(--key-control-padding) 0 0 var(--key-control-padding);
-                box-shadow: var(--key-control-shadow-inset);
+                // box-shadow: var(--key-control-shadow-inset);
 
                 .button {
                     &.edit:hover {
@@ -166,6 +181,7 @@ body {
 
             &.blank .button.open,
             &.close .button.open,
+            &.group .button.open,
             &.macro .button.open {
                 display: none;
             }
