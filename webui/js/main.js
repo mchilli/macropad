@@ -614,6 +614,15 @@ class App {
                 attributes: {
                     class: 'button',
                 },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-pen',
+                        },
+                    }),
+                    utils.create(),
+                ],
                 events: {
                     click: (event) => this._keyChunkControlsHandler(event, 'group'),
                 },
@@ -745,25 +754,25 @@ class App {
             keyInstance.clearData();
         } else {
             for (const property in response) {
-                if (Object.hasOwnProperty.call(response, property)) {
-                    const value = response[property];
-                    switch (property) {
-                        case 'type':
-                            keyInstance.setType(value);
-                            break;
-                        case 'label':
-                            keyInstance.setLabel(value);
-                            break;
-                        case 'color':
-                            keyInstance.setColor(value);
-                            break;
-                        case 'content':
-                            keyInstance.setContent(value);
-                            break;
-                        case 'encoder':
-                            keyInstance.setEncoder(value);
-                            break;
-                    }
+                const value = response[property];
+                switch (property) {
+                    case 'type':
+                        keyInstance.setType(value);
+                        break;
+                    case 'label':
+                        keyInstance.setLabel(value);
+                        break;
+                    case 'color':
+                        keyInstance.setColor(value);
+                        break;
+                    case 'content':
+                        keyInstance.setContent(
+                            value ? value : this._fillUpKeysEntries([this._closeGroupKeyEntry()])
+                        );
+                        break;
+                    case 'encoder':
+                        keyInstance.setEncoder(value);
+                        break;
                 }
             }
         }
@@ -845,7 +854,7 @@ class App {
 
         this._reReadKeyEntries();
 
-        this.keyEntriesControls.group.innerHTML = `${
+        this.keyEntriesControls.group.childNodes[1].innerHTML = `${
             this.macroStack[this.macroStack.length - 1].label
         }`;
     }

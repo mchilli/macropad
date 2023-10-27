@@ -191,7 +191,7 @@ export class EditDialog extends BaseDialog {
             children: [
                 (DOM.dialog = utils.create({
                     attributes: {
-                        class: `dialog ${this.keyInstance.type}`,
+                        class: 'dialog',
                     },
                     children: [
                         utils.create({
@@ -200,7 +200,6 @@ export class EditDialog extends BaseDialog {
                             },
                             children: [
                                 (DOM.header.label = utils.create({
-                                    text: this.keyInstance.label || 'New',
                                     attributes: {
                                         class: 'dialog-header-label',
                                     },
@@ -746,15 +745,8 @@ export class EditDialog extends BaseDialog {
 
         if (this.pasted && type === 'group' && this.initType === 'group') {
             values.content = JSON.parse(JSON.stringify(this.clipboard.key.content));
-        } else if (!this.pasted && type === 'group') {
-            values.content = [
-                {
-                    type: 'close',
-                    label: 'CLOSE',
-                    color: [0, 0, 0],
-                    content: [{ sys: 'close_group' }],
-                },
-            ];
+        } else if (!this.pasted && type === 'group' && this.initType === 'blank') {
+            values.content = undefined;
         } else if (type === 'macro') {
             values.content = this._getMacroEntryValues(DOM.content);
         }
@@ -776,13 +768,19 @@ export class EditDialog extends BaseDialog {
     _setValues(key) {
         const DOM = this.DOM;
 
+        const type = key.type;
         for (const option of DOM.type.children) {
-            if (key.type === option.value) {
+            if (type === option.value) {
                 option.selected = true;
                 break;
             }
         }
+
+        DOM.dialog.classList.add(type);
+
         DOM.label.value = key.label;
+        DOM.header.label.innerText = key.label || 'New';
+
         DOM.colorPicker.value = utils.rgbToHex(key.color);
         DOM.colorText.value = utils.rgbToHex(key.color).toUpperCase();
 
@@ -791,7 +789,7 @@ export class EditDialog extends BaseDialog {
         this._initSortableMacroLists(DOM.encoder.decreased, 'encoder');
         this._initSortableMacroLists(DOM.encoder.increased, 'encoder');
 
-        switch (key.type) {
+        switch (type) {
             case 'macro':
                 this._appendMultipleMacros(DOM.content, key.content);
                 break;
