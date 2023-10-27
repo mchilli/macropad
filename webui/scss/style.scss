@@ -372,6 +372,7 @@ body {
         &.close .dialog-inputs .dialog-type,
         &.close .dialog-inputs .dialog-content,
         &.close .dialog-inputs .dialog-encoder,
+        &.close .dialog-header .dialog-button,
         &.group .dialog-inputs .dialog-content,
         &.macro .dialog-inputs .dialog-encoder {
             display: none;

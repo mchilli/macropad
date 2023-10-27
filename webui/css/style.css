@@ -8554,7 +8554,7 @@ body {
   grid-column: 1/3;
   margin: var(--key-entries-gap);
 }
-.dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-inputs .dialog-type, .dialog-container .dialog.close .dialog-inputs .dialog-content, .dialog-container .dialog.close .dialog-inputs .dialog-encoder, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
+.dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-inputs .dialog-type, .dialog-container .dialog.close .dialog-inputs .dialog-content, .dialog-container .dialog.close .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-header .dialog-button, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
   display: none;
 }
 .dialog-container .dialog .dialog-button {
