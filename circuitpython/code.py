@@ -199,11 +199,6 @@ class MacroApp():
 
         self._update_tab()
 
-    def _update_group_label(self) -> None:
-        """ update the group label
-        """
-        self.group_label.text = self.macroStack[-1]["label"]
-
     def run_macro(self, item:dict, *args) -> None:
         """ run the macro, can be:
                 Float (e.g. 0.25): delay in seconds
@@ -291,7 +286,7 @@ class MacroApp():
             self.keys[i].color = (0, 0, 0) if item["type"] == "blank" else item["color"]
             self.keys[i].set_func(self._get_key_func(item["type"]), item)
 
-        self._update_group_label()
+        self.group_label.text = self.macroStack[-1]["label"]
 
         for key in self.keys:
             key.update_colors()
