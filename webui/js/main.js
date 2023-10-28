@@ -829,7 +829,8 @@ class App {
                 this._convertMacroStack(key);
             }
         });
-        return macros;
+
+        return structuredMacros;
     }
 
     /**
