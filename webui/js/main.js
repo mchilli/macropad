@@ -856,7 +856,10 @@ class App {
      * Initializes the keys and appends them to the key entries container.
      */
     _initializeKeys() {
-        for (const key of this.macroStack[this.macroStack.length - 1].content) {
+        for (const key of this.macroStack[this.macroStack.length - 1].content.slice(
+            0,
+            this.keyChunkSize
+        )) {
             this._appendKeysToContainer(key);
         }
 
@@ -874,8 +877,8 @@ class App {
     _closeGroupKeyEntry() {
         return {
             type: 'close',
-            label: 'CLOSE',
-            color: [0, 0, 0],
+            label: '<-',
+            color: [18, 18, 18],
             content: [{ sys: 'close_group' }],
         };
     }
