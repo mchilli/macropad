@@ -23,7 +23,6 @@ class System():
             app.macropad.display.brightness = brightness
             app.macropad.pixels.brightness = brightness
             app.macropad.pixels.show()
-            app.settings["brightness"] = brightness
 
     def increase_brightness(app=None) -> None:
         if app.macropad.display.brightness < 1:
@@ -31,4 +30,3 @@ class System():
             app.macropad.display.brightness = brightness
             app.macropad.pixels.brightness = brightness
             app.macropad.pixels.show()
-            app.settings["brightness"] = brightness
