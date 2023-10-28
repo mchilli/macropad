@@ -265,8 +265,9 @@ class MacroApp():
     def close_group(self, *args) -> None:
         """ close a group and go a level up
         """
-        self.macroStack.pop()
-        self._init_group()
+        if len(self.macroStack) > 1:
+            self.macroStack.pop()
+            self._init_group()
 
     def go_to_root(self, *args) -> None:
         """ close a group and go to root
