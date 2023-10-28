@@ -17,6 +17,12 @@ class System():
     def hard_reset(app=None) -> None:
         microcontroller.reset()
 
+    def close_group(app=None) -> None:
+        app.close_group()
+
+    def go_to_root(app=None) -> None:
+        app.go_to_root()
+
     def decrease_brightness(app=None) -> None:
         if app.macropad.display.brightness > 0:
             brightness = (round(app.macropad.display.brightness * 10) - 1) / 10
