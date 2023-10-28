@@ -708,6 +708,8 @@ class MacroSystemFunctions extends MacroBase {
             'soft_reset',
             'hard_reset',
             'enable_usb',
+            'close_group',
+            'go_to_root',
             'increase_brightness',
             'decrease_brightness',
         ];
