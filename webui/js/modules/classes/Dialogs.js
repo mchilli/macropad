@@ -160,17 +160,15 @@ export class EditDialog extends BaseDialog {
         this.clipboard = clipboard;
         this.pasted = false;
 
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
         this._setValues(this.keyInstance.getAllData());
         this._setPosition(this.DOM.dialog, this.position);
 
-        return this.promise;
+        return new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
     }
 
     /**
@@ -899,17 +897,15 @@ export class EncoderDialog extends BaseDialog {
         this.clipboard = clipboard;
         this.pasted = false;
 
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
         this._setValues(this.groupObject);
         this._setPosition(this.DOM.dialog, this.position);
 
-        return this.promise;
+        return new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
     }
 
     /**
@@ -1359,16 +1355,14 @@ export class ConfirmationDialog extends BaseDialog {
         this.title = title;
         this.prompt = prompt;
 
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
         this._setPosition(this.DOM.dialog, this.position);
 
-        return this.promise;
+        return new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
     }
 
     /**
@@ -1508,17 +1502,15 @@ export class SettingsDialog extends BaseDialog {
             ['English US', 'us'],
         ];
 
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
         this._setValues();
         this._setPosition(this.DOM.dialog, this.position);
 
-        return this.promise;
+        return new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
     }
 
     /**
@@ -1761,16 +1753,14 @@ export class ResetDialog extends BaseDialog {
 
         this.parent = parent;
 
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-
         this.DOM = this._initDOM();
         this._appendToParent(this.parent, this.DOM.container);
         this._setPosition(this.DOM.dialog, this.position);
 
-        return this.promise;
+        return new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
     }
 
     /**
