@@ -601,6 +601,9 @@ export class EditDialog extends BaseDialog {
         this.DOM.dialog.classList.add(type);
     }
 
+    /**
+     * Handles the change event of the dialog behaviour select input.
+     */
     _onChangeBehaviour() {
         this.DOM.type.value = this.DOM.behaviour.value;
     }
