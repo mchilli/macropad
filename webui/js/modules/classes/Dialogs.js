@@ -1931,7 +1931,7 @@ export class ResetDialog extends BaseDialog {
  * Represents a notification.
  * @class
  */
-export class NotificationDialog extends BaseDialog {
+export class NotificationDialog {
     /**
      * Initializes a new instance of the NotificationDialog class.
      * @constructor
@@ -1949,16 +1949,17 @@ export class NotificationDialog extends BaseDialog {
         timeout = 2000,
         permanent = false,
     } = {}) {
-        super();
         this.parent = parent;
         this.type = type;
         this.message = message;
         this.timeout = timeout;
         this.permanent = permanent;
 
+        this.fadeOutTime = 250;
+
         this.DOM = this._initDOM();
 
-        this._appendToParent(this.parent, this.DOM.container);
+        this.parent.appendChild(this.DOM.container);
 
         if (!this.permanent) {
             setTimeout(() => {
@@ -2011,5 +2012,17 @@ export class NotificationDialog extends BaseDialog {
         }
 
         return DOM;
+    }
+
+    /**
+     * Removes the element by fading it out and then removing it from its parent.
+     * @param {HTMLElement} element - The element to remove.
+     */
+    _removeFromParent(element) {
+        element.style.opacity = 0;
+
+        setTimeout(() => {
+            element.parentNode.removeChild(element);
+        }, this.fadeOutTime);
     }
 }
