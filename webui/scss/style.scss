@@ -16,7 +16,9 @@
 
     --shadow-color: #808080bf;
     --shadow-outset: 3px 3px 2px 1px var(--shadow-color);
-    --shadow-inset: inset 3px 3px 2px 1px var(--shadow-color);
+    --shadow-outset-active: 1px 1px 2px 1px var(--shadow-color);
+    --shadow-inset: inset 2px 2px 2px 1px var(--shadow-color);
+    --shadow-inset-active: inset 4px 4px 2px 1px var(--shadow-color);
 
     --key-entry-size: 100px;
     --key-entries-gap: calc(var(--key-entry-size) / 10);
@@ -97,6 +99,12 @@ body {
             &.root:hover,
             &.group:hover {
                 box-shadow: var(--shadow-outset);
+            }
+
+            &.close:active,
+            &.root:active,
+            &.group:active {
+                box-shadow: var(--shadow-outset-active);
             }
 
             .key-type-icon {
@@ -486,8 +494,19 @@ body {
 .main-container .key-entries-controls .button:hover {
     box-shadow: var(--shadow-outset);
 }
+.main-container .app-controls .button:active,
+.main-container .device-controls .button:active,
+.main-container .key-entries-controls .button:active {
+    box-shadow: var(--shadow-outset-active);
+    transform: translate(1px, 1px);
+}
 .dialog-container .dialog-button:hover,
 .dialog-container .dialog-reboot-buttons .button:hover,
 .notification-container .dialog-button:hover {
     box-shadow: var(--shadow-inset);
+}
+.dialog-container .dialog-button:active,
+.dialog-container .dialog-reboot-buttons .button:active,
+.notification-container .dialog-button:active {
+    box-shadow: var(--shadow-inset-active);
 }

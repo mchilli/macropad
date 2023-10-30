@@ -8261,7 +8261,9 @@ readers do not read off random characters that represent icons */
   --color-white: #ffffff;
   --shadow-color: #808080bf;
   --shadow-outset: 3px 3px 2px 1px var(--shadow-color);
-  --shadow-inset: inset 3px 3px 2px 1px var(--shadow-color);
+  --shadow-outset-active: 1px 1px 2px 1px var(--shadow-color);
+  --shadow-inset: inset 2px 2px 2px 1px var(--shadow-color);
+  --shadow-inset-active: inset 4px 4px 2px 1px var(--shadow-color);
   --key-entry-size: 100px;
   --key-entries-gap: calc(var(--key-entry-size) / 10);
   --key-control-button-size: 20px;
@@ -8328,6 +8330,9 @@ body {
 }
 .main-container .key-entries .key-container.close:hover, .main-container .key-entries .key-container.root:hover, .main-container .key-entries .key-container.group:hover {
   box-shadow: var(--shadow-outset);
+}
+.main-container .key-entries .key-container.close:active, .main-container .key-entries .key-container.root:active, .main-container .key-entries .key-container.group:active {
+  box-shadow: var(--shadow-outset-active);
 }
 .main-container .key-entries .key-container .key-type-icon {
   grid-row: 1;
@@ -8655,8 +8660,21 @@ body {
   box-shadow: var(--shadow-outset);
 }
 
+.main-container .app-controls .button:active,
+.main-container .device-controls .button:active,
+.main-container .key-entries-controls .button:active {
+  box-shadow: var(--shadow-outset-active);
+  transform: translate(1px, 1px);
+}
+
 .dialog-container .dialog-button:hover,
 .dialog-container .dialog-reboot-buttons .button:hover,
 .notification-container .dialog-button:hover {
   box-shadow: var(--shadow-inset);
+}
+
+.dialog-container .dialog-button:active,
+.dialog-container .dialog-reboot-buttons .button:active,
+.notification-container .dialog-button:active {
+  box-shadow: var(--shadow-inset-active);
 }
