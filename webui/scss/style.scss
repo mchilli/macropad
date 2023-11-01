@@ -238,15 +238,7 @@ body {
     left: 0;
     height: 100%;
     width: 100%;
-
-    &::before {
-        display: block;
-        height: 100%;
-        width: 100%;
-        content: '';
-        background-color: var(--color-white);
-        opacity: 0.5;
-    }
+    background-color: rgba(255, 255, 255, 0.5);
 
     .dialog {
         display: grid;
@@ -295,122 +287,118 @@ body {
             }
         }
 
-        .dialog-prompt {
-            grid-row: 2;
-            grid-column: 1;
-            max-width: 265px;
-            margin: 4px;
-        }
-
-        .dialog-inputs {
+        .dialog-content {
             grid-row: 2;
             grid-column: 1 / 3;
-            display: grid;
-            align-items: start;
-            row-gap: var(--dialog-gap);
             margin-left: var(--dialog-gap);
             margin-top: var(--dialog-gap);
 
-            .dialog-input-shorten {
+            .dialog-prompt {
                 margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
+                max-width: 300px;
             }
 
-            .dialog-color {
-                display: flex;
-
-                input {
-                    width: 100%;
-                }
-            }
-
-            .dialog-details summary {
-                cursor: pointer;
-            }
-
-            .dialog-macros {
+            .dialog-inputs {
+                grid-row: 2;
+                grid-column: 1 / 3;
                 display: grid;
-                grid-template-columns: 1fr var(--dialog-button-size);
-                gap: var(--dialog-gap);
+                align-items: start;
+                row-gap: var(--dialog-gap);
 
-                .dialog-sortable {
+                .dialog-input {
                     display: grid;
                     gap: var(--dialog-gap);
-                    background-color: var(--color-white);
-                    border: 1px solid var(--color-grey);
-                    box-sizing: border-box;
-                    padding: var(--dialog-gap);
-                    max-height: calc(var(--macro-entry-height) * 5 + var(--dialog-gap) * 6);
-                    overflow: auto;
+                }
 
-                    .macro-entry-container {
-                        display: flex;
+                .dialog-input-shorten {
+                    margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
+                }
+
+                .input-color div {
+                    display: flex;
+
+                    input {
+                        width: 100%;
+                    }
+                }
+
+                summary {
+                    cursor: pointer;
+                }
+
+                .input-macros {
+                    display: grid;
+                    grid-template-columns: 1fr var(--dialog-button-size);
+                    gap: var(--dialog-gap);
+
+                    .input-sortable {
+                        display: grid;
                         gap: var(--dialog-gap);
-                        align-items: center;
-                        height: var(--macro-entry-height);
-                        padding: var(--dialog-gap);
-                        background-color: var(--color-green);
                         border: 1px solid var(--color-grey);
-                        border-radius: calc(var(--key-control-border-radius) / 2);
                         box-sizing: border-box;
+                        padding: var(--dialog-gap);
+                        max-height: calc(var(--macro-entry-height) * 5 + var(--dialog-gap) * 6);
+                        overflow: auto;
 
-                        .macro-entry-handle {
-                            cursor: grab;
-                        }
+                        .macro-entry-container {
+                            display: flex;
+                            gap: var(--dialog-gap);
+                            align-items: center;
+                            height: var(--macro-entry-height);
+                            padding: var(--dialog-gap);
+                            background-color: var(--color-green);
+                            border: 1px solid var(--color-grey);
+                            border-radius: calc(var(--key-control-border-radius) / 2);
+                            box-sizing: border-box;
 
-                        .macro-entry-additionals {
-                            margin: 0 0 0 auto;
-                            cursor: pointer;
+                            .macro-entry-handle {
+                                cursor: grab;
+                            }
+
+                            .macro-entry-additionals {
+                                margin: 0 0 0 auto;
+                                cursor: pointer;
+                            }
                         }
                     }
                 }
+
+                &.blank .input-label,
+                &.blank .input-color,
+                &.blank .input-content,
+                &.blank .input-encoder,
+                &.group .input-content,
+                &.macro .input-encoder {
+                    display: none;
+                }
             }
-        }
 
-        .dialog-reboot-buttons {
-            grid-column: 1 / 3;
-            margin: var(--key-entries-gap);
-        }
-
-        &.blank .dialog-inputs .dialog-behaviour,
-        &.blank .dialog-inputs .dialog-label,
-        &.blank .dialog-inputs .dialog-color,
-        &.blank .dialog-inputs .dialog-content,
-        &.blank .dialog-inputs .dialog-encoder,
-        &.close .dialog-inputs .dialog-type,
-        &.close .dialog-inputs .dialog-content,
-        &.close .dialog-inputs .dialog-encoder,
-        &.close .dialog-header .dialog-button,
-        &.root .dialog-inputs .dialog-type,
-        &.root .dialog-inputs .dialog-content,
-        &.root .dialog-inputs .dialog-encoder,
-        &.root .dialog-header .dialog-button,
-        &.group .dialog-inputs .dialog-behaviour,
-        &.group .dialog-inputs .dialog-content,
-        &.macro .dialog-inputs .dialog-behaviour,
-        &.macro .dialog-inputs .dialog-encoder {
-            display: none;
+            .dialog-reboot-buttons {
+                margin-right: var(--dialog-gap);
+                margin-bottom: var(--dialog-gap);
+            }
         }
 
         .dialog-button {
             border: 1px solid var(--color-grey);
             border-right: none;
-        }
 
-        .dialog-button.close {
-            grid-row: 1;
-            grid-column: 2;
-            border: none;
-            border-bottom: 1px solid var(--color-grey);
-            border-left: 1px solid var(--color-grey);
-        }
+            &.close {
+                grid-row: 1;
+                grid-column: 2;
+                border: none;
+                border-bottom: 1px solid var(--color-grey);
+                border-left: 1px solid var(--color-grey);
+            }
 
-        .dialog-button.ok {
-            grid-row: 3;
-            grid-column: 2;
-            margin-top: 4px;
-            border: none;
-            border-top: 1px solid var(--color-grey);
-            border-left: 1px solid var(--color-grey);
+            &.ok {
+                grid-row: 3;
+                grid-column: 2;
+                margin-top: 4px;
+                border: none;
+                border-top: 1px solid var(--color-grey);
+                border-left: 1px solid var(--color-grey);
+            }
         }
     }
 }

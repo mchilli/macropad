@@ -8448,14 +8448,7 @@ body {
   left: 0;
   height: 100%;
   width: 100%;
-}
-.dialog-container::before {
-  display: block;
-  height: 100%;
-  width: 100%;
-  content: "";
-  background-color: var(--color-white);
-  opacity: 0.5;
+  background-color: rgba(255, 255, 255, 0.5);
 }
 .dialog-container .dialog {
   display: grid;
@@ -8500,49 +8493,54 @@ body {
   transform: rotate(-45deg);
   opacity: 0;
 }
-.dialog-container .dialog .dialog-prompt {
+.dialog-container .dialog .dialog-content {
   grid-row: 2;
-  grid-column: 1;
-  max-width: 265px;
-  margin: 4px;
+  grid-column: 1/3;
+  margin-left: var(--dialog-gap);
+  margin-top: var(--dialog-gap);
 }
-.dialog-container .dialog .dialog-inputs {
+.dialog-container .dialog .dialog-content .dialog-prompt {
+  margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
+  max-width: 300px;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs {
   grid-row: 2;
   grid-column: 1/3;
   display: grid;
   align-items: start;
   row-gap: var(--dialog-gap);
-  margin-left: var(--dialog-gap);
-  margin-top: var(--dialog-gap);
 }
-.dialog-container .dialog .dialog-inputs .dialog-input-shorten {
+.dialog-container .dialog .dialog-content .dialog-inputs .dialog-input {
+  display: grid;
+  gap: var(--dialog-gap);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .dialog-input-shorten {
   margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
 }
-.dialog-container .dialog .dialog-inputs .dialog-color {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color div {
   display: flex;
 }
-.dialog-container .dialog .dialog-inputs .dialog-color input {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color div input {
   width: 100%;
 }
-.dialog-container .dialog .dialog-inputs .dialog-details summary {
+.dialog-container .dialog .dialog-content .dialog-inputs summary {
   cursor: pointer;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros {
   display: grid;
   grid-template-columns: 1fr var(--dialog-button-size);
   gap: var(--dialog-gap);
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable {
   display: grid;
   gap: var(--dialog-gap);
-  background-color: var(--color-white);
   border: 1px solid var(--color-grey);
   box-sizing: border-box;
   padding: var(--dialog-gap);
   max-height: calc(var(--macro-entry-height) * 5 + var(--dialog-gap) * 6);
   overflow: auto;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container {
   display: flex;
   gap: var(--dialog-gap);
   align-items: center;
@@ -8553,19 +8551,19 @@ body {
   border-radius: calc(var(--key-control-border-radius) / 2);
   box-sizing: border-box;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container .macro-entry-handle {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-handle {
   cursor: grab;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container .macro-entry-additionals {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-additionals {
   margin: 0 0 0 auto;
   cursor: pointer;
 }
-.dialog-container .dialog .dialog-reboot-buttons {
-  grid-column: 1/3;
-  margin: var(--key-entries-gap);
-}
-.dialog-container .dialog.blank .dialog-inputs .dialog-behaviour, .dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-inputs .dialog-type, .dialog-container .dialog.close .dialog-inputs .dialog-content, .dialog-container .dialog.close .dialog-inputs .dialog-encoder, .dialog-container .dialog.close .dialog-header .dialog-button, .dialog-container .dialog.root .dialog-inputs .dialog-type, .dialog-container .dialog.root .dialog-inputs .dialog-content, .dialog-container .dialog.root .dialog-inputs .dialog-encoder, .dialog-container .dialog.root .dialog-header .dialog-button, .dialog-container .dialog.group .dialog-inputs .dialog-behaviour, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-behaviour, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
+.dialog-container .dialog .dialog-content .dialog-inputs.blank .input-label, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-color, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-encoder, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.macro .input-encoder {
   display: none;
+}
+.dialog-container .dialog .dialog-content .dialog-reboot-buttons {
+  margin-right: var(--dialog-gap);
+  margin-bottom: var(--dialog-gap);
 }
 .dialog-container .dialog .dialog-button {
   border: 1px solid var(--color-grey);
