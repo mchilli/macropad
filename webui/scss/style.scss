@@ -355,9 +355,12 @@ body {
                                 cursor: grab;
                             }
 
-                            .macro-entry-additionals {
+                            .macro-entry-controls {
                                 margin: 0 0 0 auto;
-                                cursor: pointer;
+
+                                i {
+                                    cursor: pointer;
+                                }
                             }
                         }
                     }

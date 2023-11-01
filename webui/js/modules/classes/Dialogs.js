@@ -770,7 +770,6 @@ export class EditDialog extends BaseDialog {
      */
     _appendMacroSelector(container) {
         const entry = getMacroByType('selector');
-        entry.instance.addAdditionalControls();
 
         utils.appendElements(container, [entry]);
     }
@@ -784,7 +783,6 @@ export class EditDialog extends BaseDialog {
         container.innerHTML = '';
         const entries = content.map((value) => {
             const entry = getMacroByValue(value);
-            entry.instance.addAdditionalControls();
             return entry;
         });
         utils.appendElements(container, entries);
@@ -1113,7 +1111,6 @@ export class EncoderDialog extends BaseDialog {
      */
     _appendMacroSelector(container) {
         const entry = getMacroByType('selector');
-        entry.instance.addAdditionalControls();
 
         utils.appendElements(container, [entry]);
     }
@@ -1127,7 +1124,6 @@ export class EncoderDialog extends BaseDialog {
         container.innerHTML = '';
         const entries = content.map((value) => {
             const entry = getMacroByValue(value);
-            entry.instance.addAdditionalControls();
             return entry;
         });
         utils.appendElements(container, entries);

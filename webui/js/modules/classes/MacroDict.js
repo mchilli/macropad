@@ -30,6 +30,28 @@ class MacroBase {
                         class: 'macro-entry-handle fa-solid fa-bars',
                     },
                 }),
+                (DOM.content = utils.create({
+                    attributes: {
+                        class: 'macro-entry-content',
+                    },
+                })),
+                (DOM.controls = utils.create({
+                    attributes: {
+                        class: 'macro-entry-controls',
+                    },
+                    children: [
+                        utils.create({
+                            type: 'i',
+                            attributes: {
+                                title: 'Delete',
+                                class: 'macro-entry-additionals fa-solid fa-trash',
+                            },
+                            events: {
+                                click: () => this._removeDOM(),
+                            },
+                        }),
+                    ],
+                })),
             ],
         });
 
@@ -48,19 +70,8 @@ class MacroBase {
     /**
      * Adds additional controls to the macro entry.
      */
-    addAdditionalControls() {
-        utils.appendElements(this.DOM.container, [
-            utils.create({
-                type: 'i',
-                attributes: {
-                    title: 'Delete',
-                    class: 'macro-entry-additionals fa-solid fa-trash',
-                },
-                events: {
-                    click: () => this._removeDOM(),
-                },
-            }),
-        ]);
+    _toggleControls(visible) {
+        this.DOM.controls.style.display = visible ? 'block' : 'none';
     }
 
     /**
@@ -83,16 +94,16 @@ class MacroSelector extends MacroBase {
 
         this.inputWidth = 180;
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the selector macro.
+     * Set the content for the selector macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             (this.input = utils.create({
                 type: 'select',
                 attributes: {
@@ -164,7 +175,6 @@ class MacroSelector extends MacroBase {
      */
     _macroSelected(type) {
         const entry = getMacroByType(type);
-        entry.instance.addAdditionalControls();
         this.DOM.container.parentNode.insertBefore(entry, this.DOM.container);
 
         this._removeDOM();
@@ -183,16 +193,16 @@ class MacroWait extends MacroBase {
         this.value = value;
         this.inputWidth = 40;
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the wait macro.
+     * Set the content for the wait macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'Wait:',
@@ -236,16 +246,16 @@ class MacroString extends MacroBase {
         this.value = value;
         this.inputWidth = 270;
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the string macro.
+     * Set the content for the string macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'String Input:',
@@ -414,16 +424,16 @@ class MacroKeycodes extends MacroBase {
             'RIGHT_GUI',
         ];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the keycodes macro.
+     * Set the content for the keycodes macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             (this.press = utils.create({
                 type: 'input',
                 attributes: {
@@ -525,16 +535,16 @@ class MacroConsumerControlCodes extends MacroBase {
             'BRIGHTNESS_INCREMENT',
         ];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the consumer control codes macro.
+     * Set the content for the consumer control codes macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'Consumer Control Code:',
@@ -592,16 +602,16 @@ class MacroMouseEvents extends MacroBase {
 
         this.autocompleteList = ['LEFT', 'MIDDLE', 'RIGHT'];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the mouse events macro.
+     * Set the content for the mouse events macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'X:',
@@ -714,16 +724,16 @@ class MacroSystemFunctions extends MacroBase {
             'decrease_brightness',
         ];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the system functions macro.
+     * Set the content for the system functions macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'Device Function:',

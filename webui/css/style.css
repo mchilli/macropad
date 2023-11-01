@@ -8554,8 +8554,10 @@ body {
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-handle {
   cursor: grab;
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-additionals {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls {
   margin: 0 0 0 auto;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i {
   cursor: pointer;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-label, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-color, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-encoder, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.macro .input-encoder {
