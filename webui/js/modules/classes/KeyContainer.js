@@ -162,25 +162,41 @@ export default class KeyContainer {
                 }),
             ],
             events: {
-                click: (event) => {
-                    switch (this.type) {
-                        case 'close':
-                            this.onButtonPressed(event, this, 'close');
-                            break;
-                        case 'root':
-                            this.onButtonPressed(event, this, 'root');
-                            break;
-                        case 'group':
-                            this.onButtonPressed(event, this, 'open');
-                            break;
-                    }
-                },
+                click: (event) => this.onButtonPressed(event, this, this.clickEventCommand),
             },
         });
 
         DOM.container.instance = this;
 
         return DOM;
+    }
+
+    /**
+     * Set the click event command based on the element's type and content.
+     * If a matching action is found, it sets the corresponding command; otherwise, it sets to false.
+     * If the element's type is neither 'group' nor 'macro', it sets the command to false.
+     */
+    _setClickEventCommand() {
+        const actions = {
+            close_group: 'close',
+            go_to_root: 'root',
+        };
+
+        switch (this.type) {
+            case 'group':
+                this.clickEventCommand = 'open';
+                break;
+            case 'macro':
+                const action = this.content.find((macro) => actions[macro.sys]);
+
+                this.clickEventCommand = action ? actions[action.sys] : false;
+                break;
+            default:
+                this.clickEventCommand = false;
+                break;
+        }
+
+        this.DOM.container.classList.toggle('clickable', this.clickEventCommand);
     }
 
     /**
@@ -204,8 +220,6 @@ export default class KeyContainer {
                 return {
                     type: this.type,
                 };
-            case 'close':
-            case 'root':
             case 'macro':
                 return {
                     type: this.type,
@@ -244,8 +258,11 @@ export default class KeyContainer {
      */
     setType(type = 'blank') {
         this.type = type;
+
         this.DOM.container.classList.remove('blank', 'macro', 'group');
         this.DOM.container.classList.add(this.type);
+
+        this._setClickEventCommand();
 
         this.DOM.type.classList.toggle('invisible', this.type === 'blank');
         this.DOM.type.title = utils.capitalize(this.type);
@@ -260,9 +277,6 @@ export default class KeyContainer {
         switch (this.type) {
             case 'blank':
                 return '';
-            case 'close':
-            case 'root':
-                return 'fa-solid fa-gears';
             case 'macro':
                 return 'fa-solid fa-cubes';
             case 'group':
@@ -300,6 +314,7 @@ export default class KeyContainer {
      */
     setContent(content = []) {
         this.content = content;
+        this._setClickEventCommand();
     }
 
     /**

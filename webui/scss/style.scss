@@ -89,21 +89,15 @@ body {
                 background-color: transparent !important;
             }
 
-            &.close,
-            &.root,
-            &.group {
+            &.clickable {
                 cursor: pointer;
             }
 
-            &.close:hover,
-            &.root:hover,
-            &.group:hover {
+            &.clickable:hover {
                 box-shadow: var(--shadow-outset);
             }
 
-            &.close:active,
-            &.root:active,
-            &.group:active {
+            &.clickable:active {
                 box-shadow: var(--shadow-outset-active);
             }
 
@@ -178,15 +172,11 @@ body {
                 align-items: center;
             }
 
-            &.blank .button.delete,
-            &.close .button.delete,
-            &.root .button.delete {
+            &.blank .button.delete {
                 display: none;
             }
 
             &.blank .button.open,
-            &.close .button.open,
-            &.root .button.open,
             &.group .button.open,
             &.macro .button.open {
                 display: none;

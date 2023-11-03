@@ -685,6 +685,9 @@ class App {
      */
     keyControlsHandler(event, keyInstance, command) {
         event.stopPropagation();
+
+        if (!command) return;
+
         switch (command) {
             case 'edit':
                 new EditDialog({
@@ -731,17 +734,21 @@ class App {
                 break;
 
             case 'close':
-                this.macroStack.pop();
+                if (this.macroStack.length > 1) {
+                    this.macroStack.pop();
 
-                this._clearAllKeyEntries();
-                this._initializeKeys();
+                    this._clearAllKeyEntries();
+                    this._initializeKeys();
+                }
                 break;
 
             case 'root':
-                this.macroStack.splice(1);
+                if (this.macroStack.length > 1) {
+                    this.macroStack.splice(1);
 
-                this._clearAllKeyEntries();
-                this._initializeKeys();
+                    this._clearAllKeyEntries();
+                    this._initializeKeys();
+                }
                 break;
 
             default:

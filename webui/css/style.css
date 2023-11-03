@@ -8325,13 +8325,13 @@ body {
 .main-container .key-entries .key-container.blank {
   background-color: transparent !important;
 }
-.main-container .key-entries .key-container.close, .main-container .key-entries .key-container.root, .main-container .key-entries .key-container.group {
+.main-container .key-entries .key-container.clickable {
   cursor: pointer;
 }
-.main-container .key-entries .key-container.close:hover, .main-container .key-entries .key-container.root:hover, .main-container .key-entries .key-container.group:hover {
+.main-container .key-entries .key-container.clickable:hover {
   box-shadow: var(--shadow-outset);
 }
-.main-container .key-entries .key-container.close:active, .main-container .key-entries .key-container.root:active, .main-container .key-entries .key-container.group:active {
+.main-container .key-entries .key-container.clickable:active {
   box-shadow: var(--shadow-outset-active);
 }
 .main-container .key-entries .key-container .key-type-icon {
@@ -8396,10 +8396,10 @@ body {
   justify-content: center;
   align-items: center;
 }
-.main-container .key-entries .key-container.blank .button.delete, .main-container .key-entries .key-container.close .button.delete, .main-container .key-entries .key-container.root .button.delete {
+.main-container .key-entries .key-container.blank .button.delete {
   display: none;
 }
-.main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.close .button.open, .main-container .key-entries .key-container.root .button.open, .main-container .key-entries .key-container.group .button.open, .main-container .key-entries .key-container.macro .button.open {
+.main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.group .button.open, .main-container .key-entries .key-container.macro .button.open {
   display: none;
 }
 
