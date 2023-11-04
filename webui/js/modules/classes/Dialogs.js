@@ -809,12 +809,11 @@ export class EditDialog extends BaseDialog {
         if (values.type !== 'blank') {
             values.label = this.inputs.label.value;
             values.color = utils.hexToRGB(this.inputs.colorPicker.value);
+            values.content = undefined;
         }
 
         if (this.pasted && values.type === 'group' && this.initType === 'group') {
             values.content = JSON.parse(JSON.stringify(this.clipboard.key.content));
-        } else if (!this.pasted && values.type === 'group' && this.initType === 'blank') {
-            values.content = undefined;
         } else if (values.type === 'macro') {
             values.content = this._getMacroEntryValues(this.inputs.content);
         }
