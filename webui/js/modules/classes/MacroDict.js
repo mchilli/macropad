@@ -550,28 +550,30 @@ class MacroConsumerControlCodes extends MacroBase {
                 text: 'Consumer Control Code:',
             }),
             (this.input = utils.create({
-                type: 'input',
+                type: 'select',
                 attributes: {
                     list: 'consumer-control-codes',
                     style: `width:${this.inputWidth}px;`,
                     value: this.value.ccc,
                 },
-            })),
-            utils.create({
-                type: 'datalist',
-                attributes: {
-                    id: 'consumer-control-codes',
-                },
-                children: this.autocompleteList.map((value) => {
+                children: this.autocompleteList.sort().map((value) => {
                     return utils.create({
                         type: 'option',
+                        text: value,
                         attributes: {
                             value: value,
                         },
                     });
                 }),
-            }),
+            })),
         ]);
+
+        for (const option of this.input.children) {
+            if (this.value.ccc === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
     }
 
     /**
@@ -600,7 +602,7 @@ class MacroMouseEvents extends MacroBase {
         this.numberInputWidth = 46;
         this.buttonInputWidth = 80;
 
-        this.autocompleteList = ['LEFT', 'MIDDLE', 'RIGHT'];
+        this.autocompleteList = ['', 'LEFT', 'MIDDLE', 'RIGHT'];
 
         this._setContent();
 
@@ -656,29 +658,31 @@ class MacroMouseEvents extends MacroBase {
                 text: 'Btn:',
             }),
             (this.b = utils.create({
-                type: 'input',
+                type: 'select',
                 attributes: {
                     title: 'Mouse Button',
                     list: 'mouse-button-events',
                     style: `width:${this.buttonInputWidth}px;`,
                     value: this.value.mse.b,
                 },
-            })),
-            utils.create({
-                type: 'datalist',
-                attributes: {
-                    id: 'mouse-button-events',
-                },
                 children: this.autocompleteList.map((value) => {
                     return utils.create({
                         type: 'option',
+                        text: value,
                         attributes: {
                             value: value,
                         },
                     });
                 }),
-            }),
+            })),
         ]);
+
+        for (const option of this.b.children) {
+            if (this.value.mse.b === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
     }
 
     /**
@@ -739,28 +743,30 @@ class MacroSystemFunctions extends MacroBase {
                 text: 'Device Function:',
             }),
             (this.input = utils.create({
-                type: 'input',
+                type: 'select',
                 attributes: {
                     list: 'system-functions',
                     style: `width:${this.inputWidth}px;`,
                     value: this.value.sys,
                 },
-            })),
-            utils.create({
-                type: 'datalist',
-                attributes: {
-                    id: 'system-functions',
-                },
                 children: this.autocompleteList.map((value) => {
                     return utils.create({
                         type: 'option',
+                        text: value,
                         attributes: {
                             value: value,
                         },
                     });
                 }),
-            }),
+            })),
         ]);
+
+        for (const option of this.input.children) {
+            if (this.value.sys === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
     }
 
     /**

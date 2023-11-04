@@ -8554,6 +8554,9 @@ body {
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-handle {
   cursor: grab;
 }
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content {
+  text-wrap: nowrap;
+}
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls {
   margin: 0 0 0 auto;
 }
