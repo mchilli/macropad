@@ -708,6 +708,12 @@ class App {
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
                     if (key === keyInstance.DOM.container) {
                         let macros = this.macroStack[this.macroStack.length - 1].content[i];
+                        if (this._hasNoNavigationKeys(macros.content)) {
+                            this._notify(
+                                'warning',
+                                `"${macros.label}" has no configured navigation key!`
+                            );
+                        }
                         this.macroStack.push(this._fillUpKeysEntries(macros));
                         break;
                     }
@@ -820,10 +826,14 @@ class App {
         // Process each key in the macro stack
         this._fillUpKeysEntries(structuredMacros.content).forEach((key) => {
             if (key.type === 'group') {
-                // Ensure each group has a closing entry
-                if (this._hasNotCloseGroupEntry(key.content)) {
-                    key.content.unshift(this._closeGroupKeyEntry());
-                }
+                // Add a navigation key to group if none exist
+                // if (this._hasNoCloseGroupEntry(key.content)) {
+                //     if (key.content[0].type === 'blank') {
+                //         key.content[0] = utils.defaultKeys.close;
+                //     } else {
+                //         key.content.unshift(utils.defaultKeys.close);
+                //     }
+                // }
 
                 // Fill up or truncate the group content based on the desired size
                 if (key.content.length < this.keyChunkSize) {
@@ -903,8 +913,18 @@ class App {
      * @param {Array} content - The array of keys in the group.
      * @returns {boolean} True if there is no 'close' or 'root' entry, otherwise false.
      */
-    _hasNotCloseGroupEntry(content) {
-        return !content.find((key) => key.type === 'close' || key.type === 'root');
+    _hasNoNavigationKeys(content) {
+        return !content.some((key) => {
+            return (
+                key.content &&
+                key.content.some((macro) => {
+                    return (
+                        Object.hasOwnProperty.call(macro, 'sys') &&
+                        ['close_group', 'go_to_root'].includes(macro.sys)
+                    );
+                })
+            );
+        });
     }
 
     /**
