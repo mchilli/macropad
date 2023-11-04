@@ -787,7 +787,7 @@ class App {
                         break;
                     case 'content':
                         keyInstance.setContent(
-                            value ? value : this._fillUpKeysEntries([this._closeGroupKeyEntry()])
+                            value ? value : this._fillUpKeysEntries([utils.defaultKeys.close])
                         );
                         break;
                     case 'encoder':
@@ -888,27 +888,6 @@ class App {
     }
 
     /**
-     * Generates an close key entry.
-     * @returns {Object} - The close key entry.
-     */
-    _closeGroupKeyEntry() {
-        return {
-            type: 'close',
-            label: '<-',
-            color: [18, 18, 18],
-            content: [{ sys: 'close_group' }],
-        };
-    }
-
-    /**
-     * Generates an empty key entry.
-     * @returns {Object} - The empty key entry.
-     */
-    _emptyKeyEntry() {
-        return { type: 'blank' };
-    }
-
-    /**
      * Checks if a group of keys does not contain a 'close' or 'root' entry.
      * @param {Array} content - The array of keys in the group.
      * @returns {boolean} True if there is no 'close' or 'root' entry, otherwise false.
@@ -961,7 +940,7 @@ class App {
         if (modDiff !== 0 || macros.length === 0) {
             let difference = this.keyChunkSize - modDiff;
             for (let i = 0; i < difference; i++) {
-                macros.push(this._emptyKeyEntry());
+                macros.push(utils.defaultKeys.empty);
             }
         }
 

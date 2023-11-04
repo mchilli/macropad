@@ -170,3 +170,18 @@ export function openFile(accept = '*') {
         input.click();
     });
 }
+
+/**
+ * Default key definitions for a component.
+ * @property {Object} empty - Represents an empty key.
+ * @property {Object} close - Represents a close macro key.
+ */
+export const defaultKeys = {
+    empty: { type: 'blank' },
+    close: {
+        type: 'macro',
+        label: 'CLOSE',
+        color: [18, 18, 18],
+        content: [{ sys: 'close_group' }],
+    },
+};
