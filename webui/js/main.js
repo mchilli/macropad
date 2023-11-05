@@ -882,7 +882,7 @@ class App {
 
         this._reReadKeyEntries();
 
-        this.keyEntriesControls.group.childNodes[1].innerHTML = `${
+        this.keyEntriesControls.group.childNodes[1].innerText = `${
             this.macroStack[this.macroStack.length - 1].label
         }`;
     }
