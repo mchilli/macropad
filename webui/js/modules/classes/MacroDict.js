@@ -43,6 +43,16 @@ class MacroBase {
                         utils.create({
                             type: 'i',
                             attributes: {
+                                title: 'Duplicate',
+                                class: 'macro-entry-additionals fa-solid fa-clone',
+                            },
+                            events: {
+                                click: () => this._duplicateMacro(),
+                            },
+                        }),
+                        utils.create({
+                            type: 'i',
+                            attributes: {
                                 title: 'Delete',
                                 class: 'macro-entry-additionals fa-solid fa-trash',
                             },
@@ -58,6 +68,14 @@ class MacroBase {
         DOM.container.instance = this;
 
         return DOM;
+    }
+
+    /**
+     * Duplicates the current macro element and inserts it after the original.
+     */
+    _duplicateMacro() {
+        const entry = getMacroByValue(this.getValue());
+        this.DOM.container.parentNode.insertBefore(entry, this.DOM.container.nextSibling);
     }
 
     /**

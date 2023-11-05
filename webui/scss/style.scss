@@ -350,10 +350,19 @@ body {
                             }
 
                             .macro-entry-controls {
+                                display: flex;
+                                gap: var(--dialog-gap);
                                 margin: 0 0 0 auto;
 
                                 i {
                                     cursor: pointer;
+
+                                    &.fa-clone:hover {
+                                        color: var(--color-yellow);
+                                    }
+                                    &.fa-trash:hover {
+                                        color: var(--color-red);
+                                    }
                                 }
                             }
                         }

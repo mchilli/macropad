@@ -8558,10 +8558,18 @@ body {
   text-wrap: nowrap;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls {
+  display: flex;
+  gap: var(--dialog-gap);
   margin: 0 0 0 auto;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i {
   cursor: pointer;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i.fa-clone:hover {
+  color: var(--color-yellow);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i.fa-trash:hover {
+  color: var(--color-red);
 }
 .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-label, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-color, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-encoder, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.macro .input-encoder {
   display: none;
