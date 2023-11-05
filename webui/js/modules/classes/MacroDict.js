@@ -159,6 +159,13 @@ class MacroSelector extends MacroBase {
                     }),
                     utils.create({
                         type: 'option',
+                        text: 'Tone',
+                        attributes: {
+                            value: 'tone',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
                         text: 'Device Function',
                         attributes: {
                             value: 'sys',
@@ -586,6 +593,81 @@ class MacroConsumerControlCodes extends MacroBase {
 }
 
 /**
+ * Represents a tone macro.
+ * @class
+ * @extends MacroBase
+ */
+class MacroTone extends MacroBase {
+    constructor(value = { tone: {} }) {
+        super();
+
+        const defaultTone = { frequency: 0, duration: 0 };
+        this.value = {
+            tone: { ...defaultTone, ...value.tone },
+        };
+
+        this.frequencyInputWidth = 56;
+        this.durationInputWidth = 46;
+
+        this._setContent();
+
+        return this.DOM.container;
+    }
+
+    /**
+     * Set the content for the mouse events macro.
+     */
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
+            utils.create({
+                type: 'span',
+                text: 'Frequency:',
+            }),
+            (this.frequency = utils.create({
+                type: 'input',
+                attributes: {
+                    type: 'number',
+                    title: 'Frequency of the tone in Hz',
+                    style: `width:${this.frequencyInputWidth}px;`,
+                    value: this.value.tone.frequency,
+                    min: 0,
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: 'Duration:',
+            }),
+            (this.duration = utils.create({
+                type: 'input',
+                attributes: {
+                    type: 'number',
+                    title: 'Duration of the tone in seconds',
+                    style: `width:${this.durationInputWidth}px;`,
+                    value: this.value.tone.duration,
+                    min: 0,
+                    step: 0.1,
+                },
+            })),
+        ]);
+    }
+
+    /**
+     * Get the value of the mouse events macro.
+     * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
+     */
+    getValue() {
+        return ['0', ''].includes(this.frequency.value) && ['0', ''].includes(this.duration.value)
+            ? false
+            : {
+                  tone: {
+                      frequency: parseInt(this.frequency.value),
+                      duration: parseFloat(this.duration.value),
+                  },
+              };
+    }
+}
+
+/**
  * Represents a mouse events macro.
  * @class
  * @extends MacroBase
@@ -795,6 +877,8 @@ export function getMacroByType(type) {
             return new MacroKeycodes();
         case 'ccc':
             return new MacroConsumerControlCodes();
+        case 'tone':
+            return new MacroTone();
         case 'mse':
             return new MacroMouseEvents();
         case 'sys':
@@ -821,6 +905,8 @@ export function getMacroByValue(value) {
                     return new MacroKeycodes(value);
                 case value.hasOwnProperty('ccc'):
                     return new MacroConsumerControlCodes(value);
+                case value.hasOwnProperty('tone'):
+                    return new MacroTone(value);
                 case value.hasOwnProperty('mse'):
                     return new MacroMouseEvents(value);
                 case value.hasOwnProperty('sys'):

@@ -17,7 +17,6 @@ from adafruit_macropad import MacroPad
 from adafruit_hid.consumer_control_code import ConsumerControlCode
 from adafruit_hid.mouse import Mouse
 
-from utils.utils import to_chunks
 from utils.devices import Encoder, Key
 from utils.system import System
 
@@ -235,6 +234,8 @@ class MacroApp():
                     if control_code:
                         self.macropad.consumer_control.press(control_code)
                         self.macropad.consumer_control.release()
+                if 'tone' in key:
+                    self.macropad.play_tone(key['tone']['frequency'], key['tone']['duration'])
                 if 'mse' in key:
                     if "b" in key["mse"]:
                         btn = getattr(Mouse, f"{key['mse']['b'].upper()}_BUTTON", None)
