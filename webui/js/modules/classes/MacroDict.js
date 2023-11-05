@@ -607,8 +607,10 @@ class MacroTone extends MacroBase {
         };
 
         this.inputWidth = 46;
+        this.frequencyinputWidth = 58;
 
         this.autocompleteList = {
+            '': 0,
             C: 261,
             D: 293,
             E: 329,
@@ -637,7 +639,7 @@ class MacroTone extends MacroBase {
                 type: 'span',
                 text: 'Chord:',
             }),
-            (this.frequency = utils.create({
+            (this.chord = utils.create({
                 type: 'select',
                 attributes: {
                     type: 'select',
@@ -654,6 +656,36 @@ class MacroTone extends MacroBase {
                         },
                     });
                 }),
+                events: {
+                    change: (event) => {
+                        this.frequency.value = this.chord.value;
+                    },
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: 'Frequency:',
+            }),
+            (this.frequency = utils.create({
+                type: 'input',
+                attributes: {
+                    type: 'number',
+                    title: 'Duration of the tone in seconds',
+                    style: `width:${this.frequencyinputWidth}px;`,
+                    value: this.value.tone.frequency,
+                    min: 0,
+                },
+                events: {
+                    input: (event) => {
+                        for (const option of this.chord.children) {
+                            this.chord.children[0].selected = true;
+                            if (parseInt(this.frequency.value) === parseInt(option.value)) {
+                                option.selected = true;
+                                break;
+                            }
+                        }
+                    },
+                },
             })),
             utils.create({
                 type: 'span',
@@ -672,7 +704,7 @@ class MacroTone extends MacroBase {
             })),
         ]);
 
-        for (const option of this.frequency.children) {
+        for (const option of this.chord.children) {
             if (this.value.tone.frequency === parseInt(option.value)) {
                 option.selected = true;
                 break;
