@@ -606,8 +606,22 @@ class MacroTone extends MacroBase {
             tone: { ...defaultTone, ...value.tone },
         };
 
-        this.frequencyInputWidth = 56;
-        this.durationInputWidth = 46;
+        this.inputWidth = 46;
+
+        this.autocompleteList = {
+            C: 261,
+            D: 293,
+            E: 329,
+            G: 392,
+            A: 440,
+            B: 494,
+            Cm: 277,
+            Dm: 311,
+            Em: 349,
+            Fm: 370,
+            Gm: 415,
+            Am: 466,
+        };
 
         this._setContent();
 
@@ -621,17 +635,25 @@ class MacroTone extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'Frequency:',
+                text: 'Chord:',
             }),
             (this.frequency = utils.create({
-                type: 'input',
+                type: 'select',
                 attributes: {
-                    type: 'number',
-                    title: 'Frequency of the tone in Hz',
-                    style: `width:${this.frequencyInputWidth}px;`,
+                    type: 'select',
+                    title: 'Chord of the tone',
+                    style: `width:${this.inputWidth}px;`,
                     value: this.value.tone.frequency,
-                    min: 0,
                 },
+                children: Object.keys(this.autocompleteList).map((value) => {
+                    return utils.create({
+                        type: 'option',
+                        text: value,
+                        attributes: {
+                            value: this.autocompleteList[value],
+                        },
+                    });
+                }),
             })),
             utils.create({
                 type: 'span',
@@ -642,13 +664,20 @@ class MacroTone extends MacroBase {
                 attributes: {
                     type: 'number',
                     title: 'Duration of the tone in seconds',
-                    style: `width:${this.durationInputWidth}px;`,
+                    style: `width:${this.inputWidth}px;`,
                     value: this.value.tone.duration,
                     min: 0,
                     step: 0.1,
                 },
             })),
         ]);
+
+        for (const option of this.frequency.children) {
+            if (this.value.tone.frequency === parseInt(option.value)) {
+                option.selected = true;
+                break;
+            }
+        }
     }
 
     /**
@@ -656,7 +685,7 @@ class MacroTone extends MacroBase {
      * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
      */
     getValue() {
-        return ['0', ''].includes(this.frequency.value) && ['0', ''].includes(this.duration.value)
+        return this.duration.value === '0'
             ? false
             : {
                   tone: {
