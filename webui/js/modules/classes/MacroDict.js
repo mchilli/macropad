@@ -655,7 +655,7 @@ class MacroTone extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'Chord:',
+                text: 'Play:',
             }),
             (this.chord = utils.create({
                 type: 'select',
@@ -682,13 +682,13 @@ class MacroTone extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'Frequency:',
+                text: '/',
             }),
             (this.frequency = utils.create({
                 type: 'input',
                 attributes: {
                     type: 'number',
-                    title: 'Duration of the tone in seconds',
+                    title: 'Frequency of the tone in Hz',
                     style: `width:${this.frequencyinputWidth}px;`,
                     value: this.value.tone.frequency,
                     min: 0,
@@ -707,7 +707,7 @@ class MacroTone extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'Duration:',
+                text: 'Hz for ',
             }),
             (this.duration = utils.create({
                 type: 'input',
@@ -720,6 +720,10 @@ class MacroTone extends MacroBase {
                     step: 0.1,
                 },
             })),
+            utils.create({
+                type: 'span',
+                text: 'seconds',
+            }),
         ]);
 
         for (const option of this.chord.children) {

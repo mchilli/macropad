@@ -126,23 +126,6 @@ export default class KeyContainer {
                         }),
                         utils.create({
                             attributes: {
-                                title: 'Open group',
-                                class: 'button open',
-                            },
-                            children: [
-                                utils.create({
-                                    type: 'i',
-                                    attributes: {
-                                        class: 'fa-solid fa-folder-open',
-                                    },
-                                }),
-                            ],
-                            events: {
-                                click: (event) => this.onButtonPressed(event, this, 'open'),
-                            },
-                        }),
-                        utils.create({
-                            attributes: {
                                 title: 'Edit',
                                 class: 'button edit',
                             },

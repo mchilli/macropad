@@ -8382,9 +8382,6 @@ body {
 .main-container .key-entries .key-container .key-controls .button.edit:hover {
   color: var(--color-blue);
 }
-.main-container .key-entries .key-container .key-controls .button.open:hover {
-  color: var(--color-green);
-}
 .main-container .key-entries .key-container .key-controls .button.delete:hover {
   color: var(--color-red);
 }
@@ -8397,9 +8394,6 @@ body {
   align-items: center;
 }
 .main-container .key-entries .key-container.blank .button.delete {
-  display: none;
-}
-.main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.group .button.open, .main-container .key-entries .key-container.macro .button.open {
   display: none;
 }
 

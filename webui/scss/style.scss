@@ -154,9 +154,6 @@ body {
                     &.edit:hover {
                         color: var(--color-blue);
                     }
-                    &.open:hover {
-                        color: var(--color-green);
-                    }
                     &.delete:hover {
                         color: var(--color-red);
                     }
@@ -173,12 +170,6 @@ body {
             }
 
             &.blank .button.delete {
-                display: none;
-            }
-
-            &.blank .button.open,
-            &.group .button.open,
-            &.macro .button.open {
                 display: none;
             }
         }
