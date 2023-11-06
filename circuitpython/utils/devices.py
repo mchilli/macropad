@@ -108,12 +108,12 @@ class Key():
     def update_colors(self) -> None:
         """ update the backgroundcolor and color based on type
         """
-        if self.type == "macro":
-            self._label.background_color = 0xffffff
-            self._label.color = 0x000000
-        else:
+        if self.type in ["blank", "group"]:
             self._label.background_color = 0x000000
             self._label.color = 0xffffff
+        else:
+            self._label.background_color = 0xffffff
+            self._label.color = 0x000000
 
         self._set_led(self.color)
 

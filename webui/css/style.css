@@ -8260,14 +8260,17 @@ readers do not read off random characters that represent icons */
   --color-black: #404040;
   --color-white: #ffffff;
   --shadow-color: #808080bf;
+  --shadow-outset: 3px 3px 2px 1px var(--shadow-color);
+  --shadow-outset-active: 1px 1px 2px 1px var(--shadow-color);
+  --shadow-inset: inset 2px 2px 2px 1px var(--shadow-color);
+  --shadow-inset-active: inset 4px 4px 2px 1px var(--shadow-color);
   --key-entry-size: 100px;
-  --key-entries-gap: 10px;
-  --key-control-button-size: 22px;
-  --key-control-shadow-inset: inset 1px 1px 2px 0px var(--shadow-color);
-  --key-control-border-radius: 10px;
+  --key-entries-gap: calc(var(--key-entry-size) / 10);
+  --key-control-button-size: 20px;
   --key-control-padding: 2px;
+  --key-control-border-radius: 10px;
   --dialog-button-size: 40px;
-  --dialog-gap: 4px;
+  --dialog-gap: calc(var(--dialog-button-size) / 10);
   --macro-entry-height: 30px;
 }
 
@@ -8307,7 +8310,6 @@ body {
   gap: var(--key-entries-gap);
   margin-bottom: calc(var(--key-entries-gap) / 2);
   padding: calc(var(--key-entries-gap) / 2);
-  max-height: calc(var(--key-entry-size) * 3 + var(--key-entries-gap) * 2);
   overflow: hidden;
 }
 .main-container .key-entries .key-container {
@@ -8315,31 +8317,41 @@ body {
   grid-template-rows: max-content 1fr max-content;
   width: var(--key-entry-size);
   height: var(--key-entry-size);
-  border-top: 1px solid var(--shadow-color);
-  border-left: 1px solid var(--shadow-color);
+  border: 1px solid var(--shadow-color);
   border-radius: var(--key-control-border-radius);
   box-sizing: border-box;
-  box-shadow: 3px 3px 2px 1px var(--shadow-color);
+  overflow: hidden;
 }
 .main-container .key-entries .key-container.blank {
   background-color: transparent !important;
+}
+.main-container .key-entries .key-container.clickable {
+  cursor: pointer;
+}
+.main-container .key-entries .key-container.clickable:hover {
+  box-shadow: var(--shadow-outset);
+}
+.main-container .key-entries .key-container.clickable:active {
+  box-shadow: var(--shadow-outset-active);
 }
 .main-container .key-entries .key-container .key-type-icon {
   grid-row: 1;
   cursor: help;
   background-color: var(--color-white);
-  border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+  border-right: 1px solid var(--shadow-color);
+  border-bottom: 1px solid var(--shadow-color);
+  border-bottom-right-radius: var(--key-control-border-radius);
   padding: 0 var(--key-control-padding) 0 0;
-  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container .key-handle {
   justify-self: end;
   grid-row: 1;
   cursor: grab;
   background-color: var(--color-white);
-  border-radius: 0 var(--key-control-border-radius) 0 var(--key-control-border-radius);
+  border-left: 1px solid var(--shadow-color);
+  border-bottom: 1px solid var(--shadow-color);
+  border-bottom-left-radius: var(--key-control-border-radius);
   padding: 0 0 0 var(--key-control-padding);
-  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container.blank .key-label {
   display: none;
@@ -8352,9 +8364,9 @@ body {
   font-weight: bold;
   word-break: break-all;
   background-color: var(--color-white);
+  border: 1px solid var(--shadow-color);
   border-radius: var(--key-control-border-radius);
   padding: var(--key-control-padding) calc(var(--key-control-padding) * 3);
-  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container .key-controls {
   display: flex;
@@ -8362,15 +8374,13 @@ body {
   grid-column: 1/3;
   justify-self: end;
   background-color: var(--color-white);
-  border-radius: var(--key-control-border-radius) 0 var(--key-control-border-radius) 0;
+  border-left: 1px solid var(--shadow-color);
+  border-top: 1px solid var(--shadow-color);
+  border-top-left-radius: var(--key-control-border-radius);
   padding: var(--key-control-padding) 0 0 var(--key-control-padding);
-  box-shadow: var(--key-control-shadow-inset);
 }
 .main-container .key-entries .key-container .key-controls .button.edit:hover {
   color: var(--color-blue);
-}
-.main-container .key-entries .key-container .key-controls .button.open:hover {
-  color: var(--color-green);
 }
 .main-container .key-entries .key-container .key-controls .button.delete:hover {
   color: var(--color-red);
@@ -8385,12 +8395,6 @@ body {
 }
 .main-container .key-entries .key-container.blank .button.delete {
   display: none;
-}
-.main-container .key-entries .key-container.blank .button.open, .main-container .key-entries .key-container.macro .button.open {
-  display: none;
-}
-.main-container .key-entries .key-container:nth-child(9n) {
-  margin-bottom: calc(var(--key-entries-gap) * 5);
 }
 
 .main-container .app-controls,
@@ -8428,20 +8432,17 @@ body {
   pointer-events: none;
 }
 
+.main-container .key-entries-controls .button {
+  width: calc(var(--key-entry-size) * 3 + var(--key-entries-gap) * 2);
+}
+
 .dialog-container {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   width: 100%;
-}
-.dialog-container::before {
-  display: block;
-  height: 100%;
-  width: 100%;
-  content: "";
-  background-color: var(--color-white);
-  opacity: 0.5;
+  background-color: rgba(255, 255, 255, 0.5);
 }
 .dialog-container .dialog {
   display: grid;
@@ -8454,7 +8455,7 @@ body {
   border: 1px solid var(--shadow-color);
   border-radius: var(--dialog-gap);
   box-sizing: border-box;
-  box-shadow: 5px 5px 4px 2px var(--shadow-color);
+  box-shadow: var(--shadow-outset);
   overflow: auto;
 }
 .dialog-container .dialog .dialog-header {
@@ -8486,49 +8487,54 @@ body {
   transform: rotate(-45deg);
   opacity: 0;
 }
-.dialog-container .dialog .dialog-prompt {
+.dialog-container .dialog .dialog-content {
   grid-row: 2;
-  grid-column: 1;
-  max-width: 265px;
-  margin: 4px;
+  grid-column: 1/3;
+  margin-left: var(--dialog-gap);
+  margin-top: var(--dialog-gap);
 }
-.dialog-container .dialog .dialog-inputs {
+.dialog-container .dialog .dialog-content .dialog-prompt {
+  margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
+  max-width: 300px;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs {
   grid-row: 2;
   grid-column: 1/3;
   display: grid;
   align-items: start;
   row-gap: var(--dialog-gap);
-  margin-left: var(--dialog-gap);
-  margin-top: var(--dialog-gap);
 }
-.dialog-container .dialog .dialog-inputs .dialog-input-shorten {
+.dialog-container .dialog .dialog-content .dialog-inputs .dialog-input {
+  display: grid;
+  gap: var(--dialog-gap);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .dialog-input-shorten {
   margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
 }
-.dialog-container .dialog .dialog-inputs .dialog-color {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color div {
   display: flex;
 }
-.dialog-container .dialog .dialog-inputs .dialog-color input {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color div input {
   width: 100%;
 }
-.dialog-container .dialog .dialog-inputs .dialog-details summary {
+.dialog-container .dialog .dialog-content .dialog-inputs summary {
   cursor: pointer;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros {
   display: grid;
   grid-template-columns: 1fr var(--dialog-button-size);
   gap: var(--dialog-gap);
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable {
   display: grid;
   gap: var(--dialog-gap);
-  background-color: var(--color-white);
   border: 1px solid var(--color-grey);
   box-sizing: border-box;
   padding: var(--dialog-gap);
   max-height: calc(var(--macro-entry-height) * 5 + var(--dialog-gap) * 6);
   overflow: auto;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container {
   display: flex;
   gap: var(--dialog-gap);
   align-items: center;
@@ -8539,19 +8545,32 @@ body {
   border-radius: calc(var(--key-control-border-radius) / 2);
   box-sizing: border-box;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container .macro-entry-handle {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-handle {
   cursor: grab;
 }
-.dialog-container .dialog .dialog-inputs .dialog-macros .dialog-sortable .macro-entry-container .macro-entry-additionals {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content {
+  text-wrap: nowrap;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls {
+  display: flex;
+  gap: var(--dialog-gap);
   margin: 0 0 0 auto;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i {
   cursor: pointer;
 }
-.dialog-container .dialog .dialog-reboot-buttons {
-  grid-column: 1/3;
-  margin: var(--key-entries-gap);
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i.fa-clone:hover {
+  color: var(--color-yellow);
 }
-.dialog-container .dialog.blank .dialog-inputs .dialog-label, .dialog-container .dialog.blank .dialog-inputs .dialog-color, .dialog-container .dialog.blank .dialog-inputs .dialog-content, .dialog-container .dialog.blank .dialog-inputs .dialog-encoder, .dialog-container .dialog.group .dialog-inputs .dialog-content, .dialog-container .dialog.macro .dialog-inputs .dialog-encoder {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i.fa-trash:hover {
+  color: var(--color-red);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs.blank .input-label, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-color, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-encoder, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.macro .input-encoder {
   display: none;
+}
+.dialog-container .dialog .dialog-content .dialog-reboot-buttons {
+  margin-right: var(--dialog-gap);
+  margin-bottom: var(--dialog-gap);
 }
 .dialog-container .dialog .dialog-button {
   border: 1px solid var(--color-grey);
@@ -8640,16 +8659,27 @@ body {
   margin-top: 4px;
 }
 
-.main-container .app-controls .button:hover:after,
-.main-container .device-controls .button:hover:after,
-.main-container .key-entries-controls .button:hover:after,
-.dialog-container .dialog-button:hover:after,
-.dialog-container .dialog-reboot-buttons .button:hover:after,
-.notification-container .dialog-button:hover:after {
-  display: block;
-  content: "";
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  box-shadow: inset 0px 0px 5px 2px var(--shadow-color);
+.main-container .app-controls .button:hover,
+.main-container .device-controls .button:hover,
+.main-container .key-entries-controls .button:hover {
+  box-shadow: var(--shadow-outset);
+}
+
+.main-container .app-controls .button:active,
+.main-container .device-controls .button:active,
+.main-container .key-entries-controls .button:active {
+  box-shadow: var(--shadow-outset-active);
+  transform: translate(1px, 1px);
+}
+
+.dialog-container .dialog-button:hover,
+.dialog-container .dialog-reboot-buttons .button:hover,
+.notification-container .dialog-button:hover {
+  box-shadow: var(--shadow-inset);
+}
+
+.dialog-container .dialog-button:active,
+.dialog-container .dialog-reboot-buttons .button:active,
+.notification-container .dialog-button:active {
+  box-shadow: var(--shadow-inset-active);
 }

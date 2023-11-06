@@ -17,7 +17,6 @@ from adafruit_macropad import MacroPad
 from adafruit_hid.consumer_control_code import ConsumerControlCode
 from adafruit_hid.mouse import Mouse
 
-from utils.utils import to_chunks
 from utils.devices import Encoder, Key
 from utils.system import System
 
@@ -88,21 +87,24 @@ class MacroApp():
     """ Main Class """
     def __init__(self) -> None:
         self.macropad = MacroPad(layout_class=KeyboardLayout, rotation=180 if SETTINGS["fliprotation"] else 0)
+        
         self.macropad.display.auto_refresh = False
         self.macropad.display.brightness = SETTINGS["brightness"]
+        self.macropad.display.root_group = displayio.Group()
+
         self.macropad.pixels.auto_write = False
         self.macropad.pixels.brightness = SETTINGS["brightness"]
 
         self.readonly = storage.getmount('/').readonly
         self.serial_data = usb_cdc.data
         self.serial_last_state = False
-        
-        self.macros = self._init_macros()
+
+        self.macroStack = [self._init_macros()]
         self.keys = self._init_keys()
-        self.toolbar = self._init_toolbar()
+        self.group_label = self._init_group_label()
         self.encoder = Encoder(self.macropad)
 
-        self.show_homescreen()
+        self._init_group()
 
     def _save_settings(self, new_settings) -> None:
         """ store the new settings in the settingsfile
@@ -119,18 +121,19 @@ class MacroApp():
         Returns:
             dict: the json file as dict
         """
+        rootLabel = "Macros"
         try:
             with open(MACROFILE, "r") as f:
                 macros = json.load(f)
                 if isinstance(macros, list):
                     return {
-                        "label": "Macros", 
+                        "label": rootLabel, 
                         "content": macros,
                     }
                 return macros
         except OSError:
             return {
-                "label": "Macros", 
+                "label": rootLabel, 
                 "content": [],
             }
         
@@ -140,8 +143,25 @@ class MacroApp():
         if self.readonly:
             return False
         with open(MACROFILE, "w") as f:
-            f.write(json.dumps(self.macros, separators=(",", ":")))
+            f.write(json.dumps(self.macroStack[0], separators=(",", ":")))
         return True
+
+    def _init_group_label(self) -> dict[str, Key]:
+        group_label = Label(
+                    font=load_font("/fonts/6x12.pcf") if SETTINGS["useunicodefont"] else terminalio.FONT,
+                    text="",
+                    padding_top=0,
+                    padding_bottom=0,
+                    padding_left=0,
+                    padding_right=0,
+                    color=0xFFFFFF,
+                    anchored_position=(self.macropad.display.width // 2, self.macropad.display.height - 10),
+                    anchor_point=(0.5, 0.0)
+                )
+        
+        self.macropad.display.root_group.append(group_label)
+
+        return group_label
 
     def _init_keys(self) -> list[Key]:
         """ Initiate the keys and a display group for each key
@@ -150,92 +170,33 @@ class MacroApp():
             list[Key]: a list of Keys
         """
         keys = []
-        group = displayio.Group()
 
         for i in range(self.macropad.keys.key_count):
             label = Label(
                     font=load_font("/fonts/6x12.pcf") if SETTINGS["useunicodefont"] else terminalio.FONT,
                     text="",
-                    padding_top=1,
-                    padding_bottom=2,
+                    padding_top=0,
+                    padding_bottom=1,
                     padding_left=4,
                     padding_right=4,
                     color=0xFFFFFF,
                     anchored_position=(
                         (self.macropad.display.width - 2) / 2 * (i % 3) + 1,
-                        self.macropad.display.height / 4 * (i // 3) + 2),
+                        self.macropad.display.height / 5 * (i // 3) + 2),
                     anchor_point=((i % 3) / 2, 0.0)
                 )
             
             keys.append(Key(self.macropad, i, label))
-            group.append(label)
+            self.macropad.display.root_group.append(label)
 
-        self.macropad.display.root_group = group
         return keys
-
-    def _init_toolbar(self) -> dict[str, Key]:
-        """ Return a dict for the toolbar keys
-
-        Returns:
-            dict[str, Key]: position of key, Key
-        """
-        return {
-            "left": self.keys[0],
-            "center": self.keys[1],
-            "right": self.keys[2],
-        }
 
     def _init_group(self) -> None:
         """ initiate the group content
         """
         self._update_encoder_macros()
 
-        self.tabs_content = list(to_chunks(self.group_stack[-1]["content"], 9))
         self._update_tab()
-    
-    def show_homescreen(self, *args) -> None:
-        """ Show or return to Homescreen
-        """
-        self.current_tab = 0
-        self.tabs_content = []
-        self.tab_index_stack = []
-        self.group_stack = [self.macros]
-
-        self._init_group()
-
-    def _set_toolbar(self, position:str, label:str, func:dict) -> None:
-        """ set the label and function for the given toolbar key
-
-        Args:
-            position (str): ("left"|"center"|"right")
-            label (str): the displayed label
-            func (dict): the function that will be called on key press
-        """
-        self.toolbar[position].label = label
-        self.toolbar[position].type = "macro"
-        self.toolbar[position].color = (100, 100, 100)
-        self.toolbar[position].set_func(func)
-
-    def _update_toolbar(self) -> None:
-        """ update the toolbar keys based on tab or folder hierarchy
-        """
-        if self.current_tab > 0:
-            self._set_toolbar("left", "<-", self.prev_tab)
-        elif len(self.group_stack) > 1:
-            self._set_toolbar("left", "<-", self.close_group)
-        else:
-            self.toolbar["left"].clear_props()
-
-        if len(self.group_stack) > 1 and self.current_tab > 0:
-            self._set_toolbar("center", self.group_stack[-1]["label"], self.show_homescreen)
-        else:
-            self.toolbar["center"].clear_props()
-            self.toolbar["center"].label = self.group_stack[-1]["label"]
-
-        if len(self.tabs_content) > 1 and self.current_tab < len(self.tabs_content) - 1:
-            self._set_toolbar("right", "->", self.next_tab)
-        else:
-            self.toolbar["right"].clear_props()
 
     def run_macro(self, item:dict, *args) -> None:
         """ run the macro, can be:
@@ -273,6 +234,8 @@ class MacroApp():
                     if control_code:
                         self.macropad.consumer_control.press(control_code)
                         self.macropad.consumer_control.release()
+                if 'tone' in key:
+                    self.macropad.play_tone(key['tone']['frequency'], key['tone']['duration'])
                 if 'mse' in key:
                     if "b" in key["mse"]:
                         btn = getattr(Mouse, f"{key['mse']['b'].upper()}_BUTTON", None)
@@ -296,75 +259,63 @@ class MacroApp():
         Args:
             item (dict): the group item containing data
         """
-        self.tab_index_stack.append(self.current_tab)
-        self.current_tab = 0
 
-        self.group_stack.append(item)
+        self.macroStack.append(item)
         self._init_group()
 
     def close_group(self, *args) -> None:
         """ close a group and go a level up
         """
-        self.current_tab = self.tab_index_stack.pop()
+        if len(self.macroStack) > 1:
+            self.macroStack.pop()
+            self._init_group()
 
-        self.group_stack.pop()
+    def go_to_root(self, *args) -> None:
+        """ close a group and go to root
+        """
+        del self.macroStack[1:]
         self._init_group()
 
     def _update_tab(self) -> None:
         """ update the current displayed group tab 
         """
-        for key in self.keys[3:]:
+        for key in self.keys:
             key.clear_props()
 
-        if len(self.tabs_content) > 0:
-            for i, item in enumerate(self.tabs_content[self.current_tab], start=3):
-                self.keys[i].type = item["type"]
-                self.keys[i].label = item["label"] if item["type"] in ["group", "macro"] else ""
-                self.keys[i].color = item["color"] if item["type"] in ["group", "macro"] else (0, 0, 0)
-                self.keys[i].set_func(self._get_key_func(item["type"]), item)
+        for i, item in enumerate(self.macroStack[-1]["content"][:self.macropad.keys.key_count]):
+            self.keys[i].type = item["type"]
+            self.keys[i].label = "" if item["type"] == "blank" else item["label"] 
+            self.keys[i].color = (0, 0, 0) if item["type"] == "blank" else item["color"]
+            self.keys[i].set_func(self._get_key_func(item["type"]), item)
 
-        self._update_toolbar()
+        self.group_label.text = self.macroStack[-1]["label"]
 
         for key in self.keys:
             key.update_colors()
-
-    def next_tab(self, *args) -> None:
-        """ increase the tab index and update the tab
-        """
-        if self.current_tab < len(self.tabs_content) - 1:
-            self.current_tab += 1
-            self._update_tab()
-
-    def prev_tab(self, *args) -> None:
-        """ decrease the tab index and update the tab
-        """
-        if self.current_tab > 0:
-            self.current_tab -= 1 
-            self._update_tab()
 
     def _get_key_func(self, type:str) -> function:
         """ get the specific function for the type
 
         Args:
-            type (str): the item type (group|macro)
+            type (str): the item type
 
         Returns:
             function: return the function for type
         """
         key_funcs = {
-            "group": self.open_group,
-            "macro": self.run_macro
+            "blank": None,
+            "group": self.open_group
         }
 
-        return key_funcs.get(type)
+        return key_funcs.get(type, self.run_macro)
 
     def _update_encoder_macros(self) -> None:
         """ update the rotary encoder macros defined for opened group
         """
         self.encoder.update_encoder_macros(
-            on_switch = self.group_stack[-1].get("encoder", {}).get("switch"),
-            on_increased = self.group_stack[-1].get("encoder", {}).get("increased"),
-            on_decreased = self.group_stack[-1].get("encoder", {}).get("decreased")
+            on_switch = self.macroStack[-1].get("encoder", {}).get("switch"),
+            on_increased = self.macroStack[-1].get("encoder", {}).get("increased"),
+            on_decreased = self.macroStack[-1].get("encoder", {}).get("decreased")
         )
 
     def _handle_serial_data(self, payload:str) -> dict:
@@ -407,7 +358,7 @@ class MacroApp():
 
             elif command == 'get_macros':
                 response['ACK'] = 'macros'
-                response['CONTENT'] = self.macros
+                response['CONTENT'] = self.macroStack[0]
                 return response
             
             elif command == 'set_macros':
@@ -416,9 +367,9 @@ class MacroApp():
                     return response
                 
                 content = payload['content']
-                self.macros = content
+                self.macroStack = [content]
                 self._display_on()
-                self.show_homescreen()
+                self._init_group()
 
                 response['ACK'] = 'Macros received'
                 return response
@@ -466,6 +417,8 @@ class MacroApp():
         self.serial_data.write(bytearray(payloads.encode()))
 
     def _display_on(self) -> None:
+        """ Turn on the display if it's in sleep mode and reset the sleep timer.
+        """
         if self.macropad.display_sleep:
             self.macropad.display_sleep = False
         self.sleep_timer = time.monotonic()

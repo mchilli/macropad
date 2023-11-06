@@ -30,12 +30,52 @@ class MacroBase {
                         class: 'macro-entry-handle fa-solid fa-bars',
                     },
                 }),
+                (DOM.content = utils.create({
+                    attributes: {
+                        class: 'macro-entry-content',
+                    },
+                })),
+                (DOM.controls = utils.create({
+                    attributes: {
+                        class: 'macro-entry-controls',
+                    },
+                    children: [
+                        utils.create({
+                            type: 'i',
+                            attributes: {
+                                title: 'Duplicate',
+                                class: 'macro-entry-additionals fa-solid fa-clone',
+                            },
+                            events: {
+                                click: () => this._duplicateMacro(),
+                            },
+                        }),
+                        utils.create({
+                            type: 'i',
+                            attributes: {
+                                title: 'Delete',
+                                class: 'macro-entry-additionals fa-solid fa-trash',
+                            },
+                            events: {
+                                click: () => this._removeDOM(),
+                            },
+                        }),
+                    ],
+                })),
             ],
         });
 
         DOM.container.instance = this;
 
         return DOM;
+    }
+
+    /**
+     * Duplicates the current macro element and inserts it after the original.
+     */
+    _duplicateMacro() {
+        const entry = getMacroByValue(this.getValue());
+        this.DOM.container.parentNode.insertBefore(entry, this.DOM.container.nextSibling);
     }
 
     /**
@@ -48,19 +88,8 @@ class MacroBase {
     /**
      * Adds additional controls to the macro entry.
      */
-    addAdditionalControls() {
-        utils.appendElements(this.DOM.container, [
-            utils.create({
-                type: 'i',
-                attributes: {
-                    title: 'Delete',
-                    class: 'macro-entry-additionals fa-solid fa-trash',
-                },
-                events: {
-                    click: () => this._removeDOM(),
-                },
-            }),
-        ]);
+    _toggleControls(visible) {
+        this.DOM.controls.style.display = visible ? 'block' : 'none';
     }
 
     /**
@@ -83,16 +112,16 @@ class MacroSelector extends MacroBase {
 
         this.inputWidth = 180;
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the selector macro.
+     * Set the content for the selector macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             (this.input = utils.create({
                 type: 'select',
                 attributes: {
@@ -148,6 +177,13 @@ class MacroSelector extends MacroBase {
                     }),
                     utils.create({
                         type: 'option',
+                        text: 'Tone',
+                        attributes: {
+                            value: 'tone',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
                         text: 'Device Function',
                         attributes: {
                             value: 'sys',
@@ -164,7 +200,6 @@ class MacroSelector extends MacroBase {
      */
     _macroSelected(type) {
         const entry = getMacroByType(type);
-        entry.instance.addAdditionalControls();
         this.DOM.container.parentNode.insertBefore(entry, this.DOM.container);
 
         this._removeDOM();
@@ -183,16 +218,16 @@ class MacroWait extends MacroBase {
         this.value = value;
         this.inputWidth = 40;
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the wait macro.
+     * Set the content for the wait macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'Wait:',
@@ -236,16 +271,16 @@ class MacroString extends MacroBase {
         this.value = value;
         this.inputWidth = 270;
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the string macro.
+     * Set the content for the string macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'String Input:',
@@ -414,16 +449,16 @@ class MacroKeycodes extends MacroBase {
             'RIGHT_GUI',
         ];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the keycodes macro.
+     * Set the content for the keycodes macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             (this.press = utils.create({
                 type: 'input',
                 attributes: {
@@ -525,43 +560,45 @@ class MacroConsumerControlCodes extends MacroBase {
             'BRIGHTNESS_INCREMENT',
         ];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the consumer control codes macro.
+     * Set the content for the consumer control codes macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'Consumer Control Code:',
             }),
             (this.input = utils.create({
-                type: 'input',
+                type: 'select',
                 attributes: {
                     list: 'consumer-control-codes',
                     style: `width:${this.inputWidth}px;`,
                     value: this.value.ccc,
                 },
-            })),
-            utils.create({
-                type: 'datalist',
-                attributes: {
-                    id: 'consumer-control-codes',
-                },
-                children: this.autocompleteList.map((value) => {
+                children: this.autocompleteList.sort().map((value) => {
                     return utils.create({
                         type: 'option',
+                        text: value,
                         attributes: {
                             value: value,
                         },
                     });
                 }),
-            }),
+            })),
         ]);
+
+        for (const option of this.input.children) {
+            if (this.value.ccc === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
     }
 
     /**
@@ -570,6 +607,146 @@ class MacroConsumerControlCodes extends MacroBase {
      */
     getValue() {
         return this.input.value === '' ? false : { ccc: this.input.value };
+    }
+}
+
+/**
+ * Represents a tone macro.
+ * @class
+ * @extends MacroBase
+ */
+class MacroTone extends MacroBase {
+    constructor(value = { tone: {} }) {
+        super();
+
+        const defaultTone = { frequency: 0, duration: 0 };
+        this.value = {
+            tone: { ...defaultTone, ...value.tone },
+        };
+
+        this.inputWidth = 46;
+        this.frequencyinputWidth = 58;
+
+        this.autocompleteList = {
+            '': 0,
+            C: 261,
+            D: 293,
+            E: 329,
+            G: 392,
+            A: 440,
+            B: 494,
+            Cm: 277,
+            Dm: 311,
+            Em: 349,
+            Fm: 370,
+            Gm: 415,
+            Am: 466,
+        };
+
+        this._setContent();
+
+        return this.DOM.container;
+    }
+
+    /**
+     * Set the content for the mouse events macro.
+     */
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
+            utils.create({
+                type: 'span',
+                text: 'Play:',
+            }),
+            (this.chord = utils.create({
+                type: 'select',
+                attributes: {
+                    type: 'select',
+                    title: 'Chord of the tone',
+                    style: `width:${this.inputWidth}px;`,
+                    value: this.value.tone.frequency,
+                },
+                children: Object.keys(this.autocompleteList).map((value) => {
+                    return utils.create({
+                        type: 'option',
+                        text: value,
+                        attributes: {
+                            value: this.autocompleteList[value],
+                        },
+                    });
+                }),
+                events: {
+                    change: (event) => {
+                        this.frequency.value = this.chord.value;
+                    },
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: '/',
+            }),
+            (this.frequency = utils.create({
+                type: 'input',
+                attributes: {
+                    type: 'number',
+                    title: 'Frequency of the tone in Hz',
+                    style: `width:${this.frequencyinputWidth}px;`,
+                    value: this.value.tone.frequency,
+                    min: 0,
+                },
+                events: {
+                    input: (event) => {
+                        for (const option of this.chord.children) {
+                            this.chord.children[0].selected = true;
+                            if (parseInt(this.frequency.value) === parseInt(option.value)) {
+                                option.selected = true;
+                                break;
+                            }
+                        }
+                    },
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: 'Hz for ',
+            }),
+            (this.duration = utils.create({
+                type: 'input',
+                attributes: {
+                    type: 'number',
+                    title: 'Duration of the tone in seconds',
+                    style: `width:${this.inputWidth}px;`,
+                    value: this.value.tone.duration,
+                    min: 0,
+                    step: 0.1,
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: 'seconds',
+            }),
+        ]);
+
+        for (const option of this.chord.children) {
+            if (this.value.tone.frequency === parseInt(option.value)) {
+                option.selected = true;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Get the value of the mouse events macro.
+     * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
+     */
+    getValue() {
+        return this.duration.value === '0'
+            ? false
+            : {
+                  tone: {
+                      frequency: parseInt(this.frequency.value),
+                      duration: parseFloat(this.duration.value),
+                  },
+              };
     }
 }
 
@@ -590,18 +767,18 @@ class MacroMouseEvents extends MacroBase {
         this.numberInputWidth = 46;
         this.buttonInputWidth = 80;
 
-        this.autocompleteList = ['LEFT', 'MIDDLE', 'RIGHT'];
+        this.autocompleteList = ['', 'LEFT', 'MIDDLE', 'RIGHT'];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the mouse events macro.
+     * Set the content for the mouse events macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'X:',
@@ -646,29 +823,31 @@ class MacroMouseEvents extends MacroBase {
                 text: 'Btn:',
             }),
             (this.b = utils.create({
-                type: 'input',
+                type: 'select',
                 attributes: {
                     title: 'Mouse Button',
                     list: 'mouse-button-events',
                     style: `width:${this.buttonInputWidth}px;`,
                     value: this.value.mse.b,
                 },
-            })),
-            utils.create({
-                type: 'datalist',
-                attributes: {
-                    id: 'mouse-button-events',
-                },
                 children: this.autocompleteList.map((value) => {
                     return utils.create({
                         type: 'option',
+                        text: value,
                         attributes: {
                             value: value,
                         },
                     });
                 }),
-            }),
+            })),
         ]);
+
+        for (const option of this.b.children) {
+            if (this.value.mse.b === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
     }
 
     /**
@@ -708,47 +887,51 @@ class MacroSystemFunctions extends MacroBase {
             'soft_reset',
             'hard_reset',
             'enable_usb',
+            'close_group',
+            'go_to_root',
             'increase_brightness',
             'decrease_brightness',
         ];
 
-        this._extendDOM();
+        this._setContent();
 
         return this.DOM.container;
     }
 
     /**
-     * Extends the DOM elements for the system functions macro.
+     * Set the content for the system functions macro.
      */
-    _extendDOM() {
-        utils.appendElements(this.DOM.container, [
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
                 text: 'Device Function:',
             }),
             (this.input = utils.create({
-                type: 'input',
+                type: 'select',
                 attributes: {
                     list: 'system-functions',
                     style: `width:${this.inputWidth}px;`,
                     value: this.value.sys,
                 },
-            })),
-            utils.create({
-                type: 'datalist',
-                attributes: {
-                    id: 'system-functions',
-                },
                 children: this.autocompleteList.map((value) => {
                     return utils.create({
                         type: 'option',
+                        text: value,
                         attributes: {
                             value: value,
                         },
                     });
                 }),
-            }),
+            })),
         ]);
+
+        for (const option of this.input.children) {
+            if (this.value.sys === option.value) {
+                option.selected = true;
+                break;
+            }
+        }
     }
 
     /**
@@ -777,6 +960,8 @@ export function getMacroByType(type) {
             return new MacroKeycodes();
         case 'ccc':
             return new MacroConsumerControlCodes();
+        case 'tone':
+            return new MacroTone();
         case 'mse':
             return new MacroMouseEvents();
         case 'sys':
@@ -803,6 +988,8 @@ export function getMacroByValue(value) {
                     return new MacroKeycodes(value);
                 case value.hasOwnProperty('ccc'):
                     return new MacroConsumerControlCodes(value);
+                case value.hasOwnProperty('tone'):
+                    return new MacroTone(value);
                 case value.hasOwnProperty('mse'):
                     return new MacroMouseEvents(value);
                 case value.hasOwnProperty('sys'):

@@ -44,23 +44,6 @@ class App {
         this.mainContainer = mainContainer;
         this.notificationContainer = notificationContainer;
 
-        this.macroStack = [];
-        const savedMacros = localStorage.getItem('macros');
-        if (savedMacros !== null) {
-            try {
-                const importedMacros = JSON.parse(savedMacros);
-
-                // workaround for old save files
-                const macros = Array.isArray(importedMacros)
-                    ? { label: 'Macros', content: importedMacros }
-                    : importedMacros;
-
-                this.macroStack.push(macros);
-            } catch (e) {
-                console.error('appConstructor - can`t parse json string');
-            }
-        }
-
         this.appControlsContainer = appControlsContainer;
         this.appControls = this._initAppControls(this.appControlsContainer);
 
@@ -70,8 +53,7 @@ class App {
         this.deviceControlsContainer = deviceControlsContainer;
         this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
-        this.keyChunkSize = 9;
-        this.groupPageStack = [0];
+        this.keyChunkSize = 12;
 
         this.clipboard = {
             key: null,
@@ -81,7 +63,19 @@ class App {
         this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
         this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
 
-        this.macroStack.length === 0 ? this._newKeyEntries() : this._initializeKeys();
+        this.macroStack = [];
+        try {
+            const savedMacros = localStorage.getItem('macros');
+            if (savedMacros) {
+                const importedMacros = JSON.parse(savedMacros);
+
+                this._newKeyEntries(this._convertMacroStack(importedMacros));
+            } else {
+                throw new Error();
+            }
+        } catch (e) {
+            this._newKeyEntries();
+        }
     }
 
     /**
@@ -121,7 +115,7 @@ class App {
             switch (payload.ACK) {
                 case 'macros':
                     const importedMacros = payload.CONTENT;
-                    this._newKeyEntries(importedMacros);
+                    this._newKeyEntries(this._convertMacroStack(importedMacros));
 
                     this._notify('info', 'Received from macropad');
                     response = JSON.stringify(importedMacros);
@@ -310,12 +304,7 @@ class App {
                 const content = await utils.openFile('.json');
                 const importedMacros = JSON.parse(content);
 
-                // workaround for old save files
-                const macros = Array.isArray(importedMacros)
-                    ? { label: 'Macros', content: importedMacros }
-                    : importedMacros;
-
-                this._newKeyEntries(macros);
+                this._newKeyEntries(this._convertMacroStack(importedMacros));
 
                 this._notify('success', 'Macros loaded from file');
             } catch (error) {
@@ -621,7 +610,7 @@ class App {
      */
     _initKeyChunkControls(container) {
         let keyChunkControls = {
-            next: utils.create({
+            group: utils.create({
                 attributes: {
                     class: 'button',
                 },
@@ -629,54 +618,18 @@ class App {
                     utils.create({
                         type: 'i',
                         attributes: {
-                            class: 'fa-solid fa-arrow-right',
+                            class: 'fa-solid fa-pen',
                         },
                     }),
-                    utils.create({
-                        text: 'Next',
-                    }),
+                    utils.create(),
                 ],
                 events: {
-                    click: (event) => this._keyChunkControlsHandler(event, 'next'),
-                    dragenter: (event) => this._keyChunkControlsHandler(event, 'nextdrag'),
-                },
-            }),
-            back: utils.create({
-                attributes: {
-                    class: 'button',
-                },
-                children: [
-                    utils.create({
-                        type: 'i',
-                        attributes: {
-                            class: 'fa-solid fa-arrow-left',
-                        },
-                    }),
-                    utils.create({
-                        text: 'Previous',
-                    }),
-                ],
-                events: {
-                    click: (event) => this._keyChunkControlsHandler(event, 'back'),
-                    dragenter: (event) => this._keyChunkControlsHandler(event, 'backdrag'),
-                },
-            }),
-            page: utils.create({
-                attributes: {
-                    class: 'button',
-                },
-                children: [utils.create(), utils.create()],
-                events: {
-                    click: (event) => this._keyChunkControlsHandler(event, 'encoder'),
+                    click: (event) => this._keyChunkControlsHandler(event, 'group'),
                 },
             }),
         };
 
-        utils.appendElements(container, [
-            keyChunkControls.back,
-            keyChunkControls.page,
-            keyChunkControls.next,
-        ]);
+        utils.appendElements(container, [keyChunkControls.group]);
 
         return keyChunkControls;
     }
@@ -687,43 +640,7 @@ class App {
      */
     _keyChunkControlsHandler(event, command) {
         switch (command) {
-            case 'next':
-            case 'nextdrag':
-                this.groupPageStack[this.groupPageStack.length - 1]++;
-                if (
-                    this.groupPageStack[this.groupPageStack.length - 1] >
-                    this.keyEntriesContainer.childNodes.length / this.keyChunkSize - 1
-                ) {
-                    this._appendEmptyKeyEntries();
-                } else {
-                    this._updateKeyChunkPage();
-                }
-                break;
-            case 'back':
-                if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
-                    this.groupPageStack[this.groupPageStack.length - 1]--;
-
-                    this._removeLastEmptyKeyChunk();
-                    this._reReadKeyEntries();
-                    this._updateKeyChunkPage();
-                } else if (
-                    this.groupPageStack[this.groupPageStack.length - 1] === 0 &&
-                    this.macroStack.length > 1
-                ) {
-                    this.macroStack.pop();
-                    this.groupPageStack.pop();
-
-                    this._clearAllKeyEntries();
-                    this._initializeKeys();
-                }
-                break;
-            case 'backdrag':
-                if (this.groupPageStack[this.groupPageStack.length - 1] > 0) {
-                    this.groupPageStack[this.groupPageStack.length - 1]--;
-                    this._updateKeyChunkPage();
-                }
-                break;
-            case 'encoder':
+            case 'group':
                 new EncoderDialog({
                     position: {
                         anchor: 'center',
@@ -754,21 +671,8 @@ class App {
         return new Sortable(container, {
             handle: '.key-handle',
             animation: 150,
-            onStart: (event) => {},
             onEnd: (event) => {
-                const pageOfElement = Math.floor(event.newIndex / this.keyChunkSize);
-                this.groupPageStack[this.groupPageStack.length - 1] = pageOfElement;
-
-                const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-                const pagesToRemove =
-                    pageCount - this.groupPageStack[this.groupPageStack.length - 1] - 1;
-
-                for (let i = 0; i < pagesToRemove; i++) {
-                    this._removeLastEmptyKeyChunk();
-                }
-
                 this._reReadKeyEntries();
-                this._updateKeyChunkPage();
             },
         });
     }
@@ -780,6 +684,10 @@ class App {
      * @param {string} command - The command associated with the button action.
      */
     keyControlsHandler(event, keyInstance, command) {
+        event.stopPropagation();
+
+        if (!command) return;
+
         switch (command) {
             case 'edit':
                 new EditDialog({
@@ -800,12 +708,16 @@ class App {
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
                     if (key === keyInstance.DOM.container) {
                         let macros = this.macroStack[this.macroStack.length - 1].content[i];
+                        if (this._hasNoNavigationKeys(macros.content)) {
+                            this._notify(
+                                'warning',
+                                `"${macros.label}" has no configured navigation key!`
+                            );
+                        }
                         this.macroStack.push(this._fillUpKeysEntries(macros));
                         break;
                     }
                 }
-
-                this.groupPageStack.push(0);
 
                 this._clearAllKeyEntries();
                 this._initializeKeys();
@@ -827,6 +739,24 @@ class App {
                     .catch((error) => {});
                 break;
 
+            case 'close':
+                if (this.macroStack.length > 1) {
+                    this.macroStack.pop();
+
+                    this._clearAllKeyEntries();
+                    this._initializeKeys();
+                }
+                break;
+
+            case 'root':
+                if (this.macroStack.length > 1) {
+                    this.macroStack.splice(1);
+
+                    this._clearAllKeyEntries();
+                    this._initializeKeys();
+                }
+                break;
+
             default:
                 console.error(`keyControlsHandler - unkown button: ${command}`);
                 break;
@@ -844,25 +774,25 @@ class App {
             keyInstance.clearData();
         } else {
             for (const property in response) {
-                if (Object.hasOwnProperty.call(response, property)) {
-                    const value = response[property];
-                    switch (property) {
-                        case 'type':
-                            keyInstance.setType(value);
-                            break;
-                        case 'label':
-                            keyInstance.setLabel(value);
-                            break;
-                        case 'color':
-                            keyInstance.setColor(value);
-                            break;
-                        case 'content':
-                            keyInstance.setContent(value);
-                            break;
-                        case 'encoder':
-                            keyInstance.setEncoder(value);
-                            break;
-                    }
+                const value = response[property];
+                switch (property) {
+                    case 'type':
+                        keyInstance.setType(value);
+                        break;
+                    case 'label':
+                        keyInstance.setLabel(value);
+                        break;
+                    case 'color':
+                        keyInstance.setColor(value);
+                        break;
+                    case 'content':
+                        keyInstance.setContent(
+                            value ? value : this._fillUpKeysEntries([utils.defaultKeys.close])
+                        );
+                        break;
+                    case 'encoder':
+                        keyInstance.setEncoder(value);
+                        break;
                 }
             }
         }
@@ -879,6 +809,45 @@ class App {
         groupObject.encoder = response.encoder;
 
         this._reReadKeyEntries();
+    }
+
+    /**
+     * Converts a macro stack by modifying and structuring the macros.
+     * Workaround for old savefiles
+     * @param {Object} macros - The macro stack to be converted.
+     * @returns {Object} The modified macro stack.
+     */
+    _convertMacroStack(macros) {
+        // Ensure macros are properly structured
+        const structuredMacros = Array.isArray(macros)
+            ? { label: 'Macros', content: macros }
+            : macros;
+
+        // Process each key in the macro stack
+        this._fillUpKeysEntries(structuredMacros.content).forEach((key) => {
+            if (key.type === 'group') {
+                // Add a navigation key to group if none exist
+                // if (this._hasNoCloseGroupEntry(key.content)) {
+                //     if (key.content[0].type === 'blank') {
+                //         key.content[0] = utils.defaultKeys.close;
+                //     } else {
+                //         key.content.unshift(utils.defaultKeys.close);
+                //     }
+                // }
+
+                // Fill up or truncate the group content based on the desired size
+                if (key.content.length < this.keyChunkSize) {
+                    this._fillUpKeysEntries(key.content);
+                } else if (key.content.length > this.keyChunkSize) {
+                    key.content = key.content.slice(0, this.keyChunkSize);
+                }
+
+                // Recursively process subgroups
+                this._convertMacroStack(key);
+            }
+        });
+
+        return structuredMacros;
     }
 
     /**
@@ -904,24 +873,37 @@ class App {
      * Initializes the keys and appends them to the key entries container.
      */
     _initializeKeys() {
-        const currentMacroStack = this._fillUpKeysEntries(
-            this.macroStack[this.macroStack.length - 1].content
-        );
-
-        for (const key of currentMacroStack) {
+        for (const key of this.macroStack[this.macroStack.length - 1].content.slice(
+            0,
+            this.keyChunkSize
+        )) {
             this._appendKeysToContainer(key);
         }
 
         this._reReadKeyEntries();
-        this._updateKeyChunkPage();
+
+        this.keyEntriesControls.group.childNodes[1].innerText = `${
+            this.macroStack[this.macroStack.length - 1].label
+        }`;
     }
 
     /**
-     * Generates an empty key entry.
-     * @returns {Object} - The empty key entry.
+     * Checks if a group of keys does not contain a 'close' or 'root' entry.
+     * @param {Array} content - The array of keys in the group.
+     * @returns {boolean} True if there is no 'close' or 'root' entry, otherwise false.
      */
-    _emptyKeyEntry() {
-        return { type: 'blank' };
+    _hasNoNavigationKeys(content) {
+        return !content.some((key) => {
+            return (
+                key.content &&
+                key.content.some((macro) => {
+                    return (
+                        Object.hasOwnProperty.call(macro, 'sys') &&
+                        ['close_group', 'go_to_root'].includes(macro.sys)
+                    );
+                })
+            );
+        });
     }
 
     /**
@@ -938,7 +920,7 @@ class App {
     _newKeyEntries(
         entries = {
             label: 'Macros',
-            content: [],
+            content: this._fillUpKeysEntries([]),
         }
     ) {
         this._clearAllKeyEntries();
@@ -946,22 +928,6 @@ class App {
         this.macroStack = [entries];
 
         this._initializeKeys();
-    }
-
-    /**
-     * Appends empty key entries to the current macro stack.
-     */
-    _appendEmptyKeyEntries() {
-        const currentMacroStack = this.macroStack[this.macroStack.length - 1].content;
-        const emptyKeys = this._fillUpKeysEntries([]);
-
-        currentMacroStack.push(...emptyKeys);
-
-        for (const key of emptyKeys) {
-            this._appendKeysToContainer(key);
-        }
-
-        this._updateKeyChunkPage();
     }
 
     /**
@@ -974,7 +940,7 @@ class App {
         if (modDiff !== 0 || macros.length === 0) {
             let difference = this.keyChunkSize - modDiff;
             for (let i = 0; i < difference; i++) {
-                macros.push(this._emptyKeyEntry());
+                macros.push(utils.defaultKeys.empty);
             }
         }
 
@@ -992,60 +958,6 @@ class App {
                 onButtonPressed: this.keyControlsHandler.bind(this),
             })
         );
-    }
-
-    /**
-     * Updates the current key chunk page and visibility.
-     */
-    _updateKeyChunkPage() {
-        const keyContainerOffset = this.keyEntriesContainer.offsetTop;
-        const firstChunkItemIndex =
-            this.groupPageStack[this.groupPageStack.length - 1] * this.keyChunkSize + 1;
-        const firstChunkItemOffset =
-            this.keyEntriesContainer.childNodes[firstChunkItemIndex].offsetTop;
-
-        this.keyEntriesContainer.scrollTop = firstChunkItemOffset - keyContainerOffset;
-
-        this.keyEntriesControls.page.childNodes[0].innerHTML = `${
-            this.macroStack[this.macroStack.length - 1].label
-        }`;
-
-        const pageCount = this.keyEntriesContainer.childNodes.length / this.keyChunkSize;
-        this.keyEntriesControls.page.childNodes[1].innerHTML = `${
-            this.groupPageStack[this.groupPageStack.length - 1] + 1
-        } / ${pageCount}`;
-
-        const firstPageOfGroup =
-            this.macroStack.length > 1 && this.groupPageStack[this.groupPageStack.length - 1] === 0;
-        this.keyEntriesControls.back.childNodes[0].className = firstPageOfGroup
-            ? 'fa-solid fa-arrow-turn-up fa-flip-horizontal'
-            : 'fa-solid fa-arrow-left';
-        this.keyEntriesControls.back.childNodes[1].innerText = firstPageOfGroup
-            ? 'Close'
-            : 'Previous';
-    }
-
-    /**
-     * Removes the last empty key chunk if possible.
-     */
-    _removeLastEmptyKeyChunk() {
-        const keyChunks = Array.from(this.keyEntriesContainer.childNodes);
-
-        if (keyChunks.length <= this.keyChunkSize) {
-            return;
-        }
-
-        const lastKeyChunk = keyChunks.slice(-this.keyChunkSize);
-        if (lastKeyChunk.every((key) => key.instance.type === 'blank')) {
-            for (const key of lastKeyChunk) {
-                this.keyEntriesContainer.removeChild(key);
-            }
-
-            this.macroStack[this.macroStack.length - 1].content.splice(
-                -this.keyChunkSize,
-                this.keyChunkSize
-            );
-        }
     }
 
     /**
