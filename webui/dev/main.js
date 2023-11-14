@@ -1,64 +1,59 @@
-var connection;
-var connectionStatus = document.querySelector('#connection-status');
-var inputData = document.querySelector('#data');
+let connection = {};
+const connectionBtn = document.querySelector('#connection');
+const sendBtn = document.querySelector('#send');
+const cmdBtns = document.querySelectorAll('.simple-cmd');
+const data = document.querySelector('#data');
 
 function payloadHandler(payload) {
-    let response;
-
     if ('ERR' in payload) {
         console.warn('Error: ' + payload.ERR);
     } else if ('ACK' in payload) {
         switch (payload.ACK) {
             case 'macros':
-                inputData.value = JSON.stringify(payload.CONTENT, null, 2);
-                response = JSON.stringify(payload.CONTENT);
-                break;
-            default:
-                response = payload.ACK;
+                data.value = JSON.stringify(payload.CONTENT, null, 2);
                 break;
         }
-        console.log('Response: ' + response);
     }
 }
 
-function connectionChanged(connected) {
-    if (connected) {
-        connectionStatus.innerHTML = 'Connected';
-    } else {
-        connectionStatus.innerHTML = 'Disonnected';
-    }
+function disableBtns(disable) {
+    sendBtn.disabled = disable;
+    cmdBtns.forEach((element) => {
+        element.disabled = disable;
+    });
 }
 
-document.querySelector('#connect').addEventListener('click', async () => {
-    if ('serial' in navigator) {
-        await navigator.serial
-            .requestPort()
-            .then((port) => {
-                connection = new SerialConnectionHandler({
-                    port: port,
-                    onReceived: payloadHandler,
-                    onConnectionChanged: connectionChanged,
-                });
-            })
-            .catch((e) => {
-                console.warn('Error: No port selected');
-            });
-    }
-});
-
-document.querySelector('#disconnect').addEventListener('click', () => {
+connectionBtn.addEventListener('click', async (event) => {
     if (connection.connected) {
         connection.close();
+        data.value = '';
+        connectionBtn.innerText = 'Connect';
+        disableBtns(true);
+    } else {
+        if ('serial' in navigator) {
+            await navigator.serial
+                .requestPort()
+                .then((port) => {
+                    connection = new SerialConnectionHandler({
+                        port: port,
+                        onReceived: payloadHandler,
+                    });
+                    connectionBtn.innerText = 'Disonnected';
+                    disableBtns(false);
+                })
+                .catch((e) => {
+                    console.warn('Error: No port selected');
+                });
+        }
     }
-    inputData.value = '';
 });
 
-document.querySelector('#send').addEventListener('click', async () => {
-    if (connection.connected && inputData.value != '') {
+sendBtn.addEventListener('click', async () => {
+    if (data.value != '') {
         try {
             await connection.send({
                 command: 'set_macros',
-                content: JSON.parse(inputData.value),
+                content: JSON.parse(data.value),
             });
         } catch (e) {
             console.error('can`t parse json string');
@@ -66,7 +61,7 @@ document.querySelector('#send').addEventListener('click', async () => {
     }
 });
 
-document.querySelectorAll('.simple-cmd').forEach((element) => {
+cmdBtns.forEach((element) => {
     element.addEventListener('click', async () => {
         await connection.send({
             command: element.dataset.cmd,
@@ -76,5 +71,7 @@ document.querySelectorAll('.simple-cmd').forEach((element) => {
 
 // triggers when the device is unplugged
 navigator.serial.addEventListener('disconnect', (event) => {
-    inputData.value = '';
+    connection = {};
+    data.value = '';
+    connectionBtn.innerText = 'Connect';
 });
