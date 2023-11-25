@@ -64,7 +64,7 @@ class BaseDialog {
                                 })),
                                 (DOM.buttons.copy = utils.create({
                                     attributes: {
-                                        title: 'Copy configuration',
+                                        title: _('Copy configuration'),
                                         class: 'dialog-button copy',
                                     },
                                     children: [
@@ -75,7 +75,7 @@ class BaseDialog {
                                             },
                                         }),
                                         utils.create({
-                                            text: 'copied',
+                                            text: _('Copied'),
                                             attributes: {
                                                 class: 'dialog-button-label',
                                                 style: `transition: opacity ${
@@ -99,7 +99,7 @@ class BaseDialog {
                                 })),
                                 (DOM.buttons.paste = utils.create({
                                     attributes: {
-                                        title: 'Paste configuration',
+                                        title: _('Paste configuration'),
                                         class: 'dialog-button paste',
                                     },
                                     children: [
@@ -110,7 +110,7 @@ class BaseDialog {
                                             },
                                         }),
                                         utils.create({
-                                            text: 'pasted',
+                                            text: _('Pasted'),
                                             attributes: {
                                                 class: 'dialog-button-label',
                                                 style: `transition: opacity ${
@@ -373,7 +373,7 @@ export class EditDialog extends BaseDialog {
         this.pasted = false;
 
         this._setContent();
-        this._setHeaderLabel(this.keyInstance.label || 'New');
+        this._setHeaderLabel(this.keyInstance.label || _('New'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues(this.keyInstance.getAllData());
         this._setPosition(this.DOM.dialog, position);
@@ -399,28 +399,28 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: 'Type: ',
+                                text: _('Type').concat(':'),
                             }),
                             (this.inputs.type = utils.create({
                                 type: 'select',
                                 children: [
                                     utils.create({
                                         type: 'option',
-                                        text: 'Blank',
+                                        text: _('Blank'),
                                         attributes: {
                                             value: 'blank',
                                         },
                                     }),
                                     utils.create({
                                         type: 'option',
-                                        text: 'Macro',
+                                        text: _('Macro'),
                                         attributes: {
                                             value: 'macro',
                                         },
                                     }),
                                     utils.create({
                                         type: 'option',
-                                        text: 'Group',
+                                        text: _('Group'),
                                         attributes: {
                                             value: 'group',
                                         },
@@ -438,12 +438,12 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: 'Label: ',
+                                text: _('Label').concat(':'),
                             }),
                             (this.inputs.label = utils.create({
                                 type: 'input',
                                 attributes: {
-                                    title: 'The label cannot be longer than 6 characters',
+                                    title: _('The label cannot be longer than 6 characters'),
                                     maxlength: 6,
                                 },
                                 events: {
@@ -458,7 +458,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: 'LED Color: ',
+                                text: _('LED Color').concat(':'),
                             }),
                             utils.create({
                                 children: [
@@ -487,7 +487,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: 'Content: ',
+                                text: _('Content').concat(':'),
                             }),
                             utils.create({
                                 attributes: {
@@ -527,7 +527,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: 'Encoder switch: ',
+                                        text: _('Encoder switch').concat(':'),
                                     }),
                                     utils.create({
                                         attributes: {
@@ -564,7 +564,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: 'Encoder increase: ',
+                                        text: _('Encoder increase').concat(':'),
                                     }),
                                     utils.create({
                                         attributes: {
@@ -601,7 +601,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: 'Encoder decrease: ',
+                                        text: _('Encoder decrease').concat(':'),
                                     }),
                                     utils.create({
                                         attributes: {
@@ -647,7 +647,7 @@ export class EditDialog extends BaseDialog {
      * @param {Event} event - The input event triggering this function.
      */
     _onInputLabel(event) {
-        this._setHeaderLabel(this.inputs.label.value || 'New');
+        this._setHeaderLabel(this.inputs.label.value || _('New'));
     }
 
     /**
@@ -679,7 +679,7 @@ export class EditDialog extends BaseDialog {
      */
     _onOK(event) {
         if (this.inputs.type.value !== 'blank' && this.inputs.label.value === '') {
-            this.inputs.label.placeholder = 'You have to enter a label!';
+            this.inputs.label.placeholder = _('You have to enter a label!');
             return;
         }
 
@@ -695,8 +695,8 @@ export class EditDialog extends BaseDialog {
                     top: event.y,
                     left: event.x,
                 },
-                title: 'Warning',
-                prompt: 'Do you really want to change the type and lost your configuration?',
+                title: _('Warning'),
+                prompt: _('Do you really want to change the type and lost your configuration?'),
             })
                 .then((response) => {
                     resolveAndRemove();
@@ -738,8 +738,8 @@ export class EditDialog extends BaseDialog {
                         top: event.y,
                         left: event.x,
                     },
-                    title: 'Warning',
-                    prompt: 'Do you really want to replace this configuration?',
+                    title: _('Warning'),
+                    prompt: _('Do you really want to replace this configuration?'),
                 })
                     .then((response) => {
                         pasteConfiguration();
@@ -924,7 +924,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: 'Encoder switch: ',
+                                text: _('Encoder switch').concat(':'),
                             }),
                             utils.create({
                                 attributes: {
@@ -960,7 +960,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: 'Encoder increase: ',
+                                text: _('Encoder increase').concat(':'),
                             }),
                             utils.create({
                                 attributes: {
@@ -996,7 +996,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: 'Encoder decrease: ',
+                                text: _('Encoder decrease').concat(':'),
                             }),
                             utils.create({
                                 attributes: {
@@ -1078,8 +1078,8 @@ export class EncoderDialog extends BaseDialog {
                         top: event.y,
                         left: event.x,
                     },
-                    title: 'Warning',
-                    prompt: 'Do you really want to replace this configuration?',
+                    title: _('Warning'),
+                    prompt: _('Do you really want to replace this configuration?'),
                 })
                     .then((response) => {
                         pasteConfiguration();
@@ -1229,24 +1229,24 @@ export class SettingsDialog extends BaseDialog {
         this.settings = settings;
         this.readonly = readonly;
         this.keyboardlayouts = [
-            ['Portuguese (Brazil)', 'br'],
-            ['Czech', 'cz'],
-            ['Danish', 'da'],
-            ['German', 'de'],
-            ['Spanish', 'es'],
-            ['French', 'fr'],
-            ['Hungarian', 'hu'],
-            ['Italian', 'it'],
-            ['Polish', 'po'],
-            ['Swedish', 'sw'],
-            ['Turkish', 'tr'],
-            ['English UK', 'uk'],
-            ['English US', 'us'],
+            [_('Portuguese (Brazil)'), 'br'],
+            [_('Czech'), 'cz'],
+            [_('Danish'), 'da'],
+            [_('German'), 'de'],
+            [_('Spanish'), 'es'],
+            [_('French'), 'fr'],
+            [_('Hungarian'), 'hu'],
+            [_('Italian'), 'it'],
+            [_('Polish'), 'po'],
+            [_('Swedish'), 'sw'],
+            [_('Turkish'), 'tr'],
+            [_('English UK'), 'uk'],
+            [_('English US'), 'us'],
         ];
 
         this._setContent();
         this._toggleCopyPasteButtons(false);
-        this._setHeaderLabel('Settings');
+        this._setHeaderLabel(_('Settings'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues();
         this._setPosition(this.DOM.dialog, position);
@@ -1267,14 +1267,14 @@ export class SettingsDialog extends BaseDialog {
                 },
                 children: [
                     utils.create({
-                        text: 'The settings can only be changed if the USB storage is disabled',
+                        text: _('The settings can only be changed if the USB storage is disabled'),
                         attributes: {
                             class: 'dialog-input-shorten',
                             style: this.readonly ? '' : 'display: none;',
                         },
                     }),
                     utils.create({
-                        text: 'Keyboard Layout: ',
+                        text: _('Keyboard Layout').concat(':'),
                     }),
                     (this.inputs.keyboardlayout = utils.create({
                         type: 'select',
@@ -1292,13 +1292,13 @@ export class SettingsDialog extends BaseDialog {
                         }),
                     })),
                     utils.create({
-                        text: 'Display Timeout: ',
+                        text: _('Display Timeout').concat(':'),
                     }),
                     (this.inputs.sleeptime = utils.create({
                         type: 'input',
                         attributes: {
                             type: 'number',
-                            title: 'The display timeout in seconds',
+                            title: _('The display timeout in seconds'),
                             class: 'dialog-input-shorten',
                             min: 1,
                         },
@@ -1309,13 +1309,13 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: 'Unicode Font: ',
+                                text: _('Unicode Font').concat(':'),
                             }),
                             (this.inputs.useunicodefont = utils.create({
                                 type: 'input',
                                 attributes: {
                                     type: 'checkbox',
-                                    title: 'This slightly increases the initial loading time!',
+                                    title: _('This slightly increases the initial loading time!'),
                                 },
                             })),
                         ],
@@ -1326,7 +1326,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: 'Flip Rotation: ',
+                                text: _('Flip Rotation').concat(':'),
                             }),
                             (this.inputs.fliprotation = utils.create({
                                 type: 'input',
@@ -1342,7 +1342,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: 'LCD/LED Brightness: ',
+                                text: _('LCD/LED Brightness').concat(':'),
                             }),
                             (this.inputs.brightness = utils.create({
                                 type: 'input',
@@ -1423,7 +1423,7 @@ export class ResetDialog extends BaseDialog {
         this._setContent();
         this._toggleOKButton(false);
         this._toggleCopyPasteButtons(false);
-        this._setHeaderLabel('Reboot');
+        this._setHeaderLabel(_('Reboot'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setPosition(this.DOM.dialog, position);
 
@@ -1442,7 +1442,7 @@ export class ResetDialog extends BaseDialog {
                 children: [
                     utils.create({
                         attributes: {
-                            title: 'Restart the script',
+                            title: _('Restart the script'),
                             class: 'button',
                         },
                         children: [
@@ -1453,7 +1453,7 @@ export class ResetDialog extends BaseDialog {
                                 },
                             }),
                             utils.create({
-                                text: 'Soft Reboot',
+                                text: _('Soft Reboot'),
                             }),
                         ],
                         events: {
@@ -1462,7 +1462,7 @@ export class ResetDialog extends BaseDialog {
                     }),
                     utils.create({
                         attributes: {
-                            title: 'Reboot the device (Disable USB storage)',
+                            title: _('Reboot the device (Disable USB storage)'),
                             class: 'button',
                         },
                         children: [
@@ -1473,7 +1473,7 @@ export class ResetDialog extends BaseDialog {
                                 },
                             }),
                             utils.create({
-                                text: 'Hard Reboot',
+                                text: _('Hard Reboot'),
                             }),
                         ],
                         events: {
@@ -1482,7 +1482,9 @@ export class ResetDialog extends BaseDialog {
                     }),
                     utils.create({
                         attributes: {
-                            title: 'Enable USB storage (you cannot store on the device when USB is enabled)',
+                            title: _(
+                                'Enable USB storage (you cannot store on the device when USB is enabled)'
+                            ),
                             class: 'button',
                         },
                         children: [
@@ -1493,7 +1495,7 @@ export class ResetDialog extends BaseDialog {
                                 },
                             }),
                             utils.create({
-                                text: 'Enable USB',
+                                text: _('Enable USB'),
                             }),
                         ],
                         events: {
@@ -1510,9 +1512,9 @@ export class ResetDialog extends BaseDialog {
      */
     _onButton(event, command) {
         const PROMPTS = {
-            softReset: 'Do you really want to reset the script?',
-            hardReset: 'Do you really want to reboot the macropad?',
-            enableUSB: 'Do you really want to reboot the macropad to enable USB storage?',
+            softReset: _('Do you really want to reset the script?'),
+            hardReset: _('Do you really want to reboot the macropad?'),
+            enableUSB: _('Do you really want to reboot the macropad to enable USB storage?'),
         };
 
         new ConfirmationDialog({
@@ -1521,7 +1523,7 @@ export class ResetDialog extends BaseDialog {
                 top: event.y,
                 left: event.x,
             },
-            title: 'Warning',
+            title: _('Warning'),
             prompt: PROMPTS[command],
         })
             .then((response) => {

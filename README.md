@@ -39,7 +39,7 @@ Your can enable the USB storage either by pressing the yellow blinking key (top,
 
 #### Ideas:
 
--   Multilingual WebUI
+-   Further translations for the WebUI. If you want to help me there is a template.json in the "lang" folder
 -   You tell me, feel free to contribute
 
 ---

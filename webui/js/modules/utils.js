@@ -180,7 +180,7 @@ export const defaultKeys = {
     empty: { type: 'blank' },
     close: {
         type: 'macro',
-        label: 'CLOSE',
+        label: '<-',
         color: [18, 18, 18],
         content: [{ sys: 'close_group' }],
     },

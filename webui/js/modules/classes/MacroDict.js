@@ -26,7 +26,7 @@ class MacroBase {
                 utils.create({
                     type: 'i',
                     attributes: {
-                        title: 'Move',
+                        title: _('Move'),
                         class: 'macro-entry-handle fa-solid fa-bars',
                     },
                 }),
@@ -43,7 +43,7 @@ class MacroBase {
                         utils.create({
                             type: 'i',
                             attributes: {
-                                title: 'Duplicate',
+                                title: _('Duplicate'),
                                 class: 'macro-entry-additionals fa-solid fa-clone',
                             },
                             events: {
@@ -53,7 +53,7 @@ class MacroBase {
                         utils.create({
                             type: 'i',
                             attributes: {
-                                title: 'Delete',
+                                title: _('Delete'),
                                 class: 'macro-entry-additionals fa-solid fa-trash',
                             },
                             events: {
@@ -133,7 +133,7 @@ class MacroSelector extends MacroBase {
                 children: [
                     utils.create({
                         type: 'option',
-                        text: 'Select a macro type',
+                        text: _('Select a macro type'),
                         attributes: {
                             disabled: true,
                             selected: true,
@@ -142,49 +142,49 @@ class MacroSelector extends MacroBase {
                     }),
                     utils.create({
                         type: 'option',
-                        text: 'Wait',
+                        text: _('Wait'),
                         attributes: {
                             value: 'wait',
                         },
                     }),
                     utils.create({
                         type: 'option',
-                        text: 'String',
+                        text: _('String'),
                         attributes: {
                             value: 'string',
                         },
                     }),
                     utils.create({
                         type: 'option',
-                        text: 'Keycode',
+                        text: _('Keycode'),
                         attributes: {
                             value: 'kc',
                         },
                     }),
                     utils.create({
                         type: 'option',
-                        text: 'Consumer Control Code',
+                        text: _('Consumer Control Code'),
                         attributes: {
                             value: 'ccc',
                         },
                     }),
                     utils.create({
                         type: 'option',
-                        text: 'Mouse Event',
+                        text: _('Mouse Event'),
                         attributes: {
                             value: 'mse',
                         },
                     }),
                     utils.create({
                         type: 'option',
-                        text: 'Tone',
+                        text: _('Tone'),
                         attributes: {
                             value: 'tone',
                         },
                     }),
                     utils.create({
                         type: 'option',
-                        text: 'Device Function',
+                        text: _('Device Function'),
                         attributes: {
                             value: 'sys',
                         },
@@ -230,12 +230,12 @@ class MacroWait extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'Wait:',
+                text: _('Wait').concat(':'),
             }),
             (this.input = utils.create({
                 type: 'input',
                 attributes: {
-                    title: 'Attention, it blocks the device for given seconds!',
+                    title: _('Attention, it blocks the device for given seconds!'),
                     style: `width:${this.inputWidth}px;`,
                     type: 'number',
                     value: this.value,
@@ -245,7 +245,7 @@ class MacroWait extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'seconds',
+                text: _('seconds'),
             }),
         ]);
     }
@@ -283,7 +283,7 @@ class MacroString extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'String Input:',
+                text: _('String Input').concat(':'),
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -462,7 +462,6 @@ class MacroKeycodes extends MacroBase {
             (this.press = utils.create({
                 type: 'input',
                 attributes: {
-                    title: 'press',
                     type: 'radio',
                     name: this.uniqueId,
                     checked: true,
@@ -470,19 +469,18 @@ class MacroKeycodes extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'Press',
+                text: _('Press'),
             }),
             (this.release = utils.create({
                 type: 'input',
                 attributes: {
-                    title: 'release',
                     type: 'radio',
                     name: this.uniqueId,
                 },
             })),
             utils.create({
                 type: 'span',
-                text: 'Release:',
+                text: _('Release').concat(':'),
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -572,7 +570,7 @@ class MacroConsumerControlCodes extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'Consumer Control Code:',
+                text: _('Consumer Control Code').concat(':'),
             }),
             (this.input = utils.create({
                 type: 'select',
@@ -655,13 +653,13 @@ class MacroTone extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'Play:',
+                text: _('Play').concat(':'),
             }),
             (this.chord = utils.create({
                 type: 'select',
                 attributes: {
                     type: 'select',
-                    title: 'Chord of the tone',
+                    title: _('Chord of the tone'),
                     style: `width:${this.inputWidth}px;`,
                     value: this.value.tone.frequency,
                 },
@@ -688,7 +686,7 @@ class MacroTone extends MacroBase {
                 type: 'input',
                 attributes: {
                     type: 'number',
-                    title: 'Frequency of the tone in Hz',
+                    title: _('Frequency of the tone in Hz'),
                     style: `width:${this.frequencyinputWidth}px;`,
                     value: this.value.tone.frequency,
                     min: 0,
@@ -707,13 +705,13 @@ class MacroTone extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'Hz for ',
+                text: _('Hz for').concat(' '),
             }),
             (this.duration = utils.create({
                 type: 'input',
                 attributes: {
                     type: 'number',
-                    title: 'Duration of the tone in seconds',
+                    title: _('Duration of the tone in seconds'),
                     style: `width:${this.inputWidth}px;`,
                     value: this.value.tone.duration,
                     min: 0,
@@ -722,7 +720,7 @@ class MacroTone extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: 'seconds',
+                text: _('seconds'),
             }),
         ]);
 
@@ -781,51 +779,51 @@ class MacroMouseEvents extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'X:',
+                text: _('X').concat(':'),
             }),
             (this.x = utils.create({
                 type: 'input',
                 attributes: {
                     type: 'number',
-                    title: 'Horizontally Mouse movement (e.g. 10 | -10)',
+                    title: _('Horizontally Mouse movement (e.g. 10 | -10)'),
                     style: `width:${this.numberInputWidth}px;`,
                     value: this.value.mse.x,
                 },
             })),
             utils.create({
                 type: 'span',
-                text: 'Y:',
+                text: _('Y').concat(':'),
             }),
             (this.y = utils.create({
                 type: 'input',
                 attributes: {
                     type: 'number',
-                    title: 'Vertically Mouse movement (e.g. 10 | -10)',
+                    title: _('Vertically Mouse movement (e.g. 10 | -10)'),
                     style: `width:${this.numberInputWidth}px;`,
                     value: this.value.mse.y,
                 },
             })),
             utils.create({
                 type: 'span',
-                text: 'Whl:',
+                text: _('Whl').concat(':'),
             }),
             (this.w = utils.create({
                 type: 'input',
                 attributes: {
                     type: 'number',
-                    title: 'Mousewheel movement (e.g. 1 | -1)',
+                    title: _('Mousewheel movement (e.g. 1 | -1)'),
                     style: `width:${this.numberInputWidth}px;`,
                     value: this.value.mse.w,
                 },
             })),
             utils.create({
                 type: 'span',
-                text: 'Btn:',
+                text: _('Btn').concat(':'),
             }),
             (this.b = utils.create({
                 type: 'select',
                 attributes: {
-                    title: 'Mouse Button',
+                    title: _('Mouse Button'),
                     list: 'mouse-button-events',
                     style: `width:${this.buttonInputWidth}px;`,
                     value: this.value.mse.b,
@@ -905,7 +903,7 @@ class MacroSystemFunctions extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: 'Device Function:',
+                text: _('Device Function').concat(':'),
             }),
             (this.input = utils.create({
                 type: 'select',

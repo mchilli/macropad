@@ -3,6 +3,7 @@
  */
 'use strict';
 
+import Translation from './modules/classes/Translation.js';
 import KeyContainer from './modules/classes/KeyContainer.js';
 import SerialConnectionHandler from './modules/classes/SerialConnectionHandler.js';
 import Sortable from './modules/classes/Sortable.js';
@@ -41,41 +42,53 @@ class App {
         keyEntriesContainer = undefined,
         keyEntriesControlsContainer = undefined,
     } = {}) {
-        this.mainContainer = mainContainer;
-        this.notificationContainer = notificationContainer;
+        const language = navigator.language.split('-')[0];
+        this._initTranslation(language).then(() => {
+            this.mainContainer = mainContainer;
+            this.notificationContainer = notificationContainer;
 
-        this.appControlsContainer = appControlsContainer;
-        this.appControls = this._initAppControls(this.appControlsContainer);
+            this.appControlsContainer = appControlsContainer;
+            this.appControls = this._initAppControls(this.appControlsContainer);
 
-        this.deviceConnected = false;
-        this.USBStorageEnabled = false;
-        this.serialConnection = null;
-        this.deviceControlsContainer = deviceControlsContainer;
-        this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
+            this.deviceConnected = false;
+            this.USBStorageEnabled = false;
+            this.serialConnection = null;
+            this.deviceControlsContainer = deviceControlsContainer;
+            this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
-        this.keyChunkSize = 12;
+            this.keyChunkSize = 12;
 
-        this.clipboard = {
-            key: null,
-            encoderConfig: null,
-        };
-        this.keyEntriesContainer = keyEntriesContainer;
-        this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
-        this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
+            this.clipboard = {
+                key: null,
+                encoderConfig: null,
+            };
+            this.keyEntriesContainer = keyEntriesContainer;
+            this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
+            this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
 
-        this.macroStack = [];
-        try {
-            const savedMacros = localStorage.getItem('macros');
-            if (savedMacros) {
-                const importedMacros = JSON.parse(savedMacros);
+            this.macroStack = [];
+            try {
+                const savedMacros = localStorage.getItem('macros');
+                if (savedMacros) {
+                    const importedMacros = JSON.parse(savedMacros);
 
-                this._newKeyEntries(this._convertMacroStack(importedMacros));
-            } else {
-                throw new Error();
+                    this._newKeyEntries(this._convertMacroStack(importedMacros));
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
+                this._newKeyEntries();
             }
-        } catch (e) {
-            this._newKeyEntries();
-        }
+        });
+    }
+
+    async _initTranslation(language) {
+        this.translation = new Translation();
+
+        // used _ as global translate function
+        window._ = this.translation.translate.bind(this.translation);
+
+        await this.translation.loadLanguage(language);
     }
 
     /**
@@ -96,7 +109,7 @@ class App {
                 console.warn('Error: No port selected');
             }
         } else {
-            this._notify('error', 'Your browser does not support serial connections');
+            this._notify('error', _('Your browser does not support serial connections'));
         }
     }
 
@@ -117,7 +130,7 @@ class App {
                     const importedMacros = payload.CONTENT;
                     this._newKeyEntries(this._convertMacroStack(importedMacros));
 
-                    this._notify('info', 'Received from macropad');
+                    this._notify('info', _('Received from macropad'));
                     response = JSON.stringify(importedMacros);
                     break;
                 case 'settings':
@@ -140,7 +153,7 @@ class App {
                             if (!this.USBStorageEnabled) {
                                 this._notify(
                                     'info',
-                                    'Changed settings only take effect after a soft reset',
+                                    _('Changed settings only take effect after a soft reset'),
                                     true
                                 );
                             }
@@ -152,16 +165,16 @@ class App {
                     const usbenabled = payload.CONTENT;
                     this.USBStorageEnabled = usbenabled;
 
-                    this._notify('success', 'Connected to macropad');
+                    this._notify('success', _('Connected to macropad'));
                     break;
                 case 'Macros received':
-                    this._notify('success', 'Sended to macropad');
+                    this._notify('success', _('Sended to macropad'));
                     break;
                 case 'Macros stored':
-                    this._notify('success', 'Stored on macropad');
+                    this._notify('success', _('Stored on macropad'));
                     break;
                 case 'Settings are set':
-                    this._notify('success', 'Settings set on macropad');
+                    this._notify('success', _('Settings set on macropad'));
                     break;
                 default:
                     this._notify('info', response);
@@ -179,18 +192,18 @@ class App {
      */
     _serialConnectionChanged(connected) {
         this.deviceConnected = connected;
-        this.appControls.connection.title = this.deviceConnected ? 'Disconnect' : 'Connect';
+        this.appControls.connection.title = this.deviceConnected ? _('Disconnect') : _('Connect');
         this.appControls.connection.childNodes[0].className = this.deviceConnected
             ? 'fa-solid fa-link-slash'
             : 'fa-solid fa-link';
         this.appControls.connection.childNodes[1].innerText = this.deviceConnected
-            ? 'Disconnect'
-            : 'Connect';
+            ? _('Disconnect')
+            : _('Connect');
 
         this.deviceControlsContainer.classList.toggle('hidden', !this.deviceConnected);
 
         if (!this.deviceConnected) {
-            this._notify('info', 'Disconnected from macropad');
+            this._notify('info', _('Disconnected from macropad'));
         }
     }
 
@@ -203,7 +216,7 @@ class App {
         let appControls = {
             connection: utils.create({
                 attributes: {
-                    title: 'Connect',
+                    title: _('Connect'),
                     class: 'button',
                 },
                 children: [
@@ -214,7 +227,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Connect',
+                        text: _('Connect'),
                     }),
                 ],
                 events: {
@@ -223,7 +236,7 @@ class App {
             }),
             new: utils.create({
                 attributes: {
-                    title: 'New',
+                    title: _('New'),
                     class: 'button',
                 },
                 children: [
@@ -234,7 +247,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'New',
+                        text: _('New'),
                     }),
                 ],
                 events: {
@@ -243,7 +256,7 @@ class App {
             }),
             save: utils.create({
                 attributes: {
-                    title: 'Save',
+                    title: _('Save'),
                     class: 'button',
                 },
                 children: [
@@ -254,7 +267,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Save',
+                        text: _('Save'),
                     }),
                 ],
                 events: {
@@ -263,7 +276,7 @@ class App {
             }),
             open: utils.create({
                 attributes: {
-                    title: 'Open',
+                    title: _('Open'),
                     class: 'button',
                 },
                 children: [
@@ -274,7 +287,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Open',
+                        text: _('Open'),
                     }),
                 ],
                 events: {
@@ -306,7 +319,7 @@ class App {
 
                 this._newKeyEntries(this._convertMacroStack(importedMacros));
 
-                this._notify('success', 'Macros loaded from file');
+                this._notify('success', _('Macros loaded from file'));
             } catch (error) {
                 console.error("appControlsHandler - can't parse JSON string:");
             }
@@ -321,8 +334,8 @@ class App {
                             top: event.y,
                             left: event.x,
                         },
-                        title: 'Warning',
-                        prompt: 'Do you really want to disconnect?',
+                        title: _('Warning'),
+                        prompt: _('Do you really want to disconnect?'),
                     })
                         .then(async (response) => {
                             this.serialConnection.close();
@@ -334,7 +347,7 @@ class App {
                 break;
             case 'new':
                 if (this._allKeyEntriesEmpty()) {
-                    this._notify('info', 'No macros configured');
+                    this._notify('info', _('No macros configured'));
                 } else {
                     new ConfirmationDialog({
                         position: {
@@ -342,8 +355,8 @@ class App {
                             top: event.y,
                             left: event.x,
                         },
-                        title: 'Warning',
-                        prompt: 'Do you really want to delete the current macros?',
+                        title: _('Warning'),
+                        prompt: _('Do you really want to delete the current macros?'),
                     })
                         .then((response) => {
                             this._newKeyEntries();
@@ -353,7 +366,7 @@ class App {
                 break;
             case 'save':
                 if (this._allKeyEntriesEmpty()) {
-                    this._notify('info', 'No macros configured');
+                    this._notify('info', _('No macros configured'));
                 } else {
                     utils.downloadObjectAsJson(this.macroStack[0], 'macros.json');
                 }
@@ -368,8 +381,8 @@ class App {
                             top: event.y,
                             left: event.x,
                         },
-                        title: 'Warning',
-                        prompt: 'Do you really want to replace the current macros?',
+                        title: _('Warning'),
+                        prompt: _('Do you really want to replace the current macros?'),
                     })
                         .then((response) => {
                             openFile();
@@ -393,7 +406,7 @@ class App {
         let deviceControls = {
             download: utils.create({
                 attributes: {
-                    title: 'Download from Macropad',
+                    title: _('Download from Macropad'),
                     class: 'button',
                 },
                 children: [
@@ -404,7 +417,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Download',
+                        text: _('Download'),
                     }),
                 ],
                 events: {
@@ -413,7 +426,7 @@ class App {
             }),
             upload: utils.create({
                 attributes: {
-                    title: 'Upload to Macropad',
+                    title: _('Upload to Macropad'),
                     class: 'button',
                 },
                 children: [
@@ -424,7 +437,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Upload',
+                        text: _('Upload'),
                     }),
                 ],
                 events: {
@@ -433,7 +446,7 @@ class App {
             }),
             save: utils.create({
                 attributes: {
-                    title: 'Store on Macropad (only stored macros are available after reset)',
+                    title: _('Store on Macropad (only stored macros are available after reset)'),
                     class: 'button',
                 },
                 children: [
@@ -444,7 +457,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Store',
+                        text: _('Store'),
                     }),
                 ],
                 events: {
@@ -453,7 +466,7 @@ class App {
             }),
             settings: utils.create({
                 attributes: {
-                    title: 'Open the dialog with device settings',
+                    title: _('Open the dialog with device settings'),
                     class: 'button',
                 },
                 children: [
@@ -464,7 +477,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Settings',
+                        text: _('Settings'),
                     }),
                 ],
                 events: {
@@ -473,7 +486,7 @@ class App {
             }),
             reboot: utils.create({
                 attributes: {
-                    title: 'Open the dialog with reboot options',
+                    title: _('Open the dialog with reboot options'),
                     class: 'button',
                 },
                 children: [
@@ -484,7 +497,7 @@ class App {
                         },
                     }),
                     utils.create({
-                        text: 'Reboot',
+                        text: _('Reboot'),
                     }),
                 ],
                 events: {
@@ -535,8 +548,10 @@ class App {
                             top: event.y,
                             left: event.x,
                         },
-                        title: 'Warning',
-                        prompt: 'Do you really want to replace the current macros and load it from the macropad?',
+                        title: _('Warning'),
+                        prompt: _(
+                            'Do you really want to replace the current macros and load it from the macropad?'
+                        ),
                     })
                         .then(async (response) => {
                             await this.serialConnection.send({
@@ -571,8 +586,8 @@ class App {
                         top: event.y,
                         left: event.x,
                     },
-                    title: 'Warning',
-                    prompt: 'Do you really want to send the current macros to the macropad?',
+                    title: _('Warning'),
+                    prompt: _('Do you really want to send the current macros to the macropad?'),
                 })
                     .then(async (response) => {
                         await this.serialConnection.send({
@@ -711,7 +726,10 @@ class App {
                         if (this._hasNoNavigationKeys(macros.content)) {
                             this._notify(
                                 'warning',
-                                `"${macros.label}" has no configured navigation key!`
+                                _('%s has no configured navigation key!').replace(
+                                    '%s',
+                                    macros.label
+                                )
                             );
                         }
                         this.macroStack.push(this._fillUpKeysEntries(macros));
@@ -729,8 +747,8 @@ class App {
                         top: event.y,
                         left: event.x,
                     },
-                    title: 'Warning',
-                    prompt: 'Do you really want to delete this key configuration?',
+                    title: _('Warning'),
+                    prompt: _('Do you really want to delete this key configuration?'),
                 })
                     .then((response) => {
                         keyInstance.clearData();

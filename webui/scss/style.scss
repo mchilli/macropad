@@ -197,10 +197,14 @@ body {
         box-sizing: border-box;
         align-self: flex-end;
         user-select: none;
-        word-break: break-word;
+        overflow: hidden;
         position: relative;
         background-color: var(--color-blue);
         border: 1px solid var(--color-grey);
+
+        div {
+            text-align: center;
+        }
 
         * {
             pointer-events: none;

@@ -81,7 +81,7 @@ export default class KeyContainer {
                 })),
                 utils.create({
                     attributes: {
-                        title: 'Move',
+                        title: _('Move'),
                         class: 'key-handle button',
                     },
                     children: [
@@ -109,7 +109,7 @@ export default class KeyContainer {
                     children: [
                         utils.create({
                             attributes: {
-                                title: 'Delete',
+                                title: _('Delete'),
                                 class: 'button delete',
                             },
                             children: [
@@ -126,7 +126,7 @@ export default class KeyContainer {
                         }),
                         utils.create({
                             attributes: {
-                                title: 'Edit',
+                                title: _('Edit'),
                                 class: 'button edit',
                             },
                             children: [
@@ -248,7 +248,7 @@ export default class KeyContainer {
         this._setClickEventCommand();
 
         this.DOM.type.classList.toggle('invisible', this.type === 'blank');
-        this.DOM.type.title = utils.capitalize(this.type);
+        this.DOM.type.title = _(utils.capitalize(this.type));
         this.DOM.type.children[0].className = this._getTypeIcon();
     }
 

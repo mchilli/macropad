@@ -8420,10 +8420,16 @@ body {
   box-sizing: border-box;
   align-self: flex-end;
   user-select: none;
-  word-break: break-word;
+  overflow: hidden;
   position: relative;
   background-color: var(--color-blue);
   border: 1px solid var(--color-grey);
+}
+.main-container .app-controls .button div,
+.main-container .device-controls .button div,
+.main-container .key-entries-controls .button div,
+.dialog-container .dialog-reboot-buttons .button div {
+  text-align: center;
 }
 .main-container .app-controls .button *,
 .main-container .device-controls .button *,
