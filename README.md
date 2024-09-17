@@ -25,7 +25,7 @@ This is an [Adafruit MacroPad](https://www.adafruit.com/product/5128) script tha
 
 Flash circuitpython on to your macropad, following this [guide](https://learn.adafruit.com/adafruit-macropad-rp2040/circuitpython).
 
-Then just extract the content of "[macropad.zip](https://github.com/mchilli/macropad/releases/latest/download/macropad.zip)" to your device.
+Then just extract the content of "[macropad-circuitpython-x.x.zip](https://github.com/mchilli/macropad/releases/latest/)" to your device.
 
 Now just configure your macropad over the [WebUI](https://mchilli.github.io/macropad/):
 
