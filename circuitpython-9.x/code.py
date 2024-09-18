@@ -108,7 +108,6 @@ class MacroApp():
 
         self.readonly = storage.getmount('/').readonly
         self.serial_data = usb_cdc.data
-        self.serial_buffer = ""
         self.serial_last_state = False
 
         self.macroStack = [self._init_macros()]
@@ -339,19 +338,17 @@ class MacroApp():
                                                  {}).get("decreased")
         )
 
-    def _handle_serial_data(self, payload: str) -> dict:
+    def _handle_serial_data(self, payload: object) -> dict:
         """ handle the data comming over the serial connection
 
         Args:
-            payload (str): the data, as json string
+            payload (object): the data
 
         Returns:
             dict: response, sended over the serial connection
         """
         response = {}
         try:
-            payload = json.loads(payload)
-
             if 'command' not in payload.keys():
                 response['ERR'] = 'Wrong payload: %s' % payload
                 return response
@@ -463,15 +460,8 @@ class MacroApp():
 
             if self.serial_data.connected:
                 if self.serial_data.in_waiting > 0:
-                    while self.serial_data.in_waiting:
-                        chunk = self.serial_data.read(
-                            self.serial_data.in_waiting)
-                        self.serial_buffer += chunk.decode("utf-8")
-
-                    if self.serial_buffer.endswith("\n"):
-                        self._send_serial_data(
-                            self._handle_serial_data(self.serial_buffer[:-1]))
-                        self.serial_buffer = ""
+                    self._send_serial_data(
+                        self._handle_serial_data(json.load(self.serial_data)))
 
                 # get key events, so no inputs will be stored during connection
                 # self.macropad.keys.events.get()
