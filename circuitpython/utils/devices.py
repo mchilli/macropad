@@ -145,11 +145,13 @@ class Key():
         self._func = func
         self._func_args = args
 
-    def _call_func(self) -> None:
+    def call_func(self) -> None:
         """ calls the function if setted with set_func
         """
+        if not self._func:
+            return
         if self._func_args:
-            return self._func(self._func_args) 
+            return self._func(self._func_args)
         return self._func()
 
     def _on_pressed(self) -> None:
@@ -157,7 +159,7 @@ class Key():
         """
         if self._func:
             self._set_led((255, 255, 255))
-            self._call_func()
+            self.call_func()
     
     def _on_released(self) -> None:
         """ Action that triggered when Key is released

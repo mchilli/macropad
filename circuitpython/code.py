@@ -445,6 +445,7 @@ class MacroApp():
         """ Start the Mainloop
         """
         self.sleep_timer = time.monotonic()
+        self.active_key = None
         while True:
             if not self.macropad.display_sleep and time.monotonic() - self.sleep_timer > SETTINGS["sleeptime"]:
                 self.macropad.display_sleep = True
@@ -470,8 +471,19 @@ class MacroApp():
             key_event = self.macropad.keys.events.get()
             if key_event:
                 self._display_on()
-                self.keys[key_event.key_number].pressed = True if key_event.pressed and not any(
-                    [key.pressed for key in self.keys]) else False
+                if key_event.pressed and not any([key.pressed for key in self.keys]):
+                    self.keys[key_event.key_number].pressed = True
+                    self.active_key = key_event.key_number
+                    self.active_key_delay = time.monotonic()
+
+                elif key_event.released and key_event.key_number == self.active_key:
+                    self.keys[key_event.key_number].pressed = False
+                    self.active_key = None
+            
+            # if a key is pressed continuously, the function triggers again after a short delay
+            if self.active_key and time.monotonic() - self.active_key_delay > 0.75:
+                self._display_on()
+                self.keys[self.active_key].call_func()
 
             if self.encoder.switch and self.encoder.on_switch:
                 self._display_on()
