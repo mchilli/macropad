@@ -123,7 +123,7 @@ class MacroApp():
         if self.readonly:
             return False
         with open(SETTINGSFILE, "w") as f:
-            f.write(json.dumps(new_settings, separators=(",", ":")))
+            json.dump(new_settings, f, separators=(",", ":"))
         return True
 
     def _init_macros(self) -> list[dict]:
@@ -154,7 +154,7 @@ class MacroApp():
         if self.readonly:
             return False
         with open(MACROFILE, "w") as f:
-            f.write(json.dumps(self.macroStack[0], separators=(",", ":")))
+            json.dump(self.macroStack[0], f, separators=(",", ":"))
         return True
 
     def _init_group_label(self) -> dict[str, Key]:
@@ -431,8 +431,8 @@ class MacroApp():
         Args:
             payload (dict): the data
         """
-        payloads = '%s\n' % json.dumps(payload, separators=(',', ':'))
-        self.serial_data.write(bytearray(payloads.encode()))
+        json.dump(payload, self.serial_data, separators=(',', ':'))
+        self.serial_data.write('\n')
 
     def _display_on(self) -> None:
         """ Turn on the display if it's in sleep mode and reset the sleep timer.
