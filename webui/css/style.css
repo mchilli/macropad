@@ -8438,8 +8438,13 @@ body {
   pointer-events: none;
 }
 
-.main-container .key-entries-controls .button {
+.main-container .key-entries-controls .container {
+  display: flex;
+  gap: var(--key-entries-gap);
   width: calc(var(--key-entry-size) * 3 + var(--key-entries-gap) * 2);
+}
+.main-container .key-entries-controls .button:last-child {
+  flex-grow: 1;
 }
 
 .dialog-container {

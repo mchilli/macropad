@@ -625,6 +625,30 @@ class App {
      */
     _initKeyChunkControls(container) {
         let keyChunkControls = {
+            container: utils.create({
+                attributes: {
+                    class: 'container',
+                },
+            }),
+            back: utils.create({
+                attributes: {
+                    class: 'button hidden',
+                },
+                children: [
+                    utils.create({
+                        type: 'i',
+                        attributes: {
+                            class: 'fa-solid fa-circle-left',
+                        },
+                    }),
+                    utils.create({
+                        text: _('Back'),
+                    }),
+                ],
+                events: {
+                    click: (event) => this._closeGroup(),
+                },
+            }),
             group: utils.create({
                 attributes: {
                     class: 'button',
@@ -644,7 +668,8 @@ class App {
             }),
         };
 
-        utils.appendElements(container, [keyChunkControls.group]);
+        utils.appendElements(keyChunkControls.container, [keyChunkControls.back, keyChunkControls.group]);
+        utils.appendElements(container, [keyChunkControls.container]);
 
         return keyChunkControls;
     }
@@ -733,6 +758,8 @@ class App {
                             );
                         }
                         this.macroStack.push(this._fillUpKeysEntries(macros));
+
+                        this.keyEntriesControls.back.classList.remove('hidden');
                         break;
                     }
                 }
@@ -758,12 +785,7 @@ class App {
                 break;
 
             case 'close':
-                if (this.macroStack.length > 1) {
-                    this.macroStack.pop();
-
-                    this._clearAllKeyEntries();
-                    this._initializeKeys();
-                }
+                this._closeGroup();
                 break;
 
             case 'root':
@@ -922,6 +944,22 @@ class App {
                 })
             );
         });
+    }
+
+    /**
+     * Closes the current group.
+     */
+    _closeGroup() {
+        if (this.macroStack.length > 1) {
+            this.macroStack.pop();
+
+            this._clearAllKeyEntries();
+            this._initializeKeys();
+        }
+        
+        if (this.macroStack.length === 1){
+            this.keyEntriesControls.back.classList.add('hidden');
+        }
     }
 
     /**
