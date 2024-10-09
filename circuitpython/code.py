@@ -22,6 +22,7 @@ from utils.system import System
 
 supervisor.runtime.autoreload = False
 
+VERSION = "1.3.0"
 # The file in which the settings are saved
 SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
@@ -456,6 +457,8 @@ class MacroApp():
             if self.serial_last_state != self.serial_data.connected:
                 self.serial_last_state = self.serial_data.connected
                 if self.serial_data.connected:
+                    self._send_serial_data(
+                        {'ACK': 'version', 'CONTENT': VERSION})
                     self._send_serial_data(
                         {'ACK': 'usbenabled', 'CONTENT': self.readonly})
 
