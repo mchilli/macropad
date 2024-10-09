@@ -22,7 +22,7 @@ export function create({
         element.setAttribute(attribute, value);
     }
     if (text !== undefined) {
-        element.innerText = text;
+        element.innerHTML = text;
     }
     for (const child of children) {
         element.append(child);

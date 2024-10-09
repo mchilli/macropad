@@ -102,6 +102,8 @@
     "Settings set on macropad": "",
     "Macros loaded from file": "",
     "%s has no configured navigation key!": "",
+    "Circuitpython files are up to date": "",
+    "New circuitpython files available": "",
 
     "Do you really want to disconnect?": "",
     "No macros configured": "",

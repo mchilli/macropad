@@ -102,6 +102,8 @@
     "Settings set on macropad": "Einstellungen auf dem Macropad festgelegt",
     "Macros loaded from file": "Makros aus Datei geladen",
     "%s has no configured navigation key!": "%s hat keine konfigurierte Navigationstaste!",
+    "Circuitpython files are up to date": "Circuitpython Dateien sind auf dem neuesten Stand",
+    "New circuitpython files available": "Neue Circuitpython Dateien verfügbar",
 
     "Do you really want to disconnect?": "Möchten Sie wirklich trennen?",
     "No macros configured": "Keine Makros konfiguriert",

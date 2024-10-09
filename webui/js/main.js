@@ -50,6 +50,7 @@ class App {
             this.appControlsContainer = appControlsContainer;
             this.appControls = this._initAppControls(this.appControlsContainer);
 
+            this.version = '0.0.0';
             this.deviceConnected = false;
             this.USBStorageEnabled = false;
             this.serialConnection = null;
@@ -166,6 +167,10 @@ class App {
                     this.USBStorageEnabled = usbenabled;
 
                     this._notify('success', _('Connected to macropad'));
+                    this._checkVersion();
+                    break;
+                case 'version':
+                    this.version = payload.CONTENT;
                     break;
                 case 'Macros received':
                     this._notify('success', _('Sended to macropad'));
@@ -1021,6 +1026,24 @@ class App {
      */
     _clearAllKeyEntries() {
         this.keyEntriesContainer.innerHTML = '';
+    }
+
+    /**
+     * Checks the latest release version of CircuitPython files for the macropad project from GitHub.
+     */
+    _checkVersion() {
+        let versionURL = 'https://api.github.com/repos/mchilli/macropad/releases/latest'
+        let filesURL = 'https://github.com/mchilli/macropad/releases/latest/'
+
+        fetch(versionURL)
+            .then(response => response.json())
+            .then(json => {
+                if (`v${this.version}` === json.tag_name) {
+                    this._notify('success', _('Circuitpython files are up to date'));
+                } else {
+                    this._notify('error',`<a href=${filesURL} target="_blank">${_('New circuitpython files available')}</a>`, true);
+                }
+            });
     }
 
     /**
