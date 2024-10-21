@@ -809,7 +809,7 @@ export class EditDialog extends BaseDialog {
         if (values.type !== 'blank') {
             values.label = this.inputs.label.value;
             values.color = utils.hexToRGB(this.inputs.colorPicker.value);
-            values.content = undefined;
+            values.content = this.keyInstance.content.length === 0 ? undefined : this.keyInstance.content;
         }
 
         if (this.pasted && values.type === 'group' && this.initType === 'group') {
