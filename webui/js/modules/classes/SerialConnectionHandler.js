@@ -99,6 +99,8 @@ export default class SerialConnectionHandler {
             }
         } catch (error) {
             console.error('Error while listening:', error);
+            this.connected = false;
+            this.onConnectionChanged(this.connected);
         }
     }
 
