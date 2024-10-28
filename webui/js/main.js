@@ -213,7 +213,7 @@ class App {
                         'success', 
                         _('%s macros sended to macropad').replace(
                                     '%s',
-                                    payload.CONTENT
+                                    payload.CONTENT || ""
                             )
                         );
                     this._transferActive(false);
