@@ -117,7 +117,7 @@ class Key():
 
         self._set_led(self.color)
 
-    def _set_led(self, color:tuple(int, int, int)) -> None:
+    def _set_led(self, color:tuple[int, int, int]) -> None:
         """ set and update the led color
 
         Args:
