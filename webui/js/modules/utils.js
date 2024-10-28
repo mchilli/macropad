@@ -172,6 +172,118 @@ export function openFile(accept = '*') {
 }
 
 /**
+ * Converts nested JSON data into a key ID-based structure for data storage.
+ * @param {Object} baseData - The base JSON data to convert.
+ * @returns {Object} A data store with each item referenced by a unique key ID.
+ */
+export function convertJsonToFileIds(baseData) {
+    let idCounter = 0
+    let dataStore = {}
+
+    const processContent = (content) => {
+        let processedContent = [];
+        
+        content.forEach(item => {
+            if (item.type === "group") {
+                idCounter += 1;
+                const keyId = idCounter;
+                dataStore[keyId] = {
+                    type: "group",
+                    label: item.label,
+                    color: item.color,
+                    content: processContent(item.content),
+                    encoder: {
+                        switch: item.encoder.switch,
+                        increased: item.encoder.increased,
+                        decreased: item.encoder.decreased
+                    }
+                };
+                processedContent.push(keyId);
+            } else if (item.type === "macro") {
+                idCounter += 1;
+                const fileId = idCounter;
+                dataStore[fileId] = {
+                    type: "macro",
+                    label: item.label,
+                    color: item.color,
+                    content: item.content
+                };
+                processedContent.push(fileId);
+            } else {
+                processedContent.push(false);
+            }
+        });
+
+        return processedContent;
+    }
+
+    dataStore[0] = {
+        type: "group",
+        label: baseData.label,
+        content: processContent(baseData.content),
+        encoder: {
+            switch: baseData.encoder.switch,
+            increased: baseData.encoder.increased,
+            decreased: baseData.encoder.decreased
+        }
+    };
+
+    return dataStore;
+}
+
+/**
+ * Restores structured JSON data from file IDs in the dataStore.
+ * @param {Object} dataStore - The source data store containing file data by IDs.
+ * @returns {Object} The reconstructed root data with nested group and macro content.
+ */
+export function restoreJsonFromFileIds(dataStore) {
+    const loadContent = (fileIds) => {
+        let content = [];
+        fileIds.forEach(fileId => {
+            if (fileId === false) {
+                content.push({ type: "blank" });
+            } else {
+                let data = dataStore[fileId];
+                if (data.type === "group") {
+                    let groupData = {
+                        type: "group",
+                        label: data.label,
+                        color: data.color,
+                        content: loadContent(data.content),
+                        encoder: {
+                            switch: data.encoder.switch,
+                            increased: data.encoder.increased,
+                            decreased: data.encoder.decreased
+                        }
+                    };
+                    content.push(groupData);
+                } else if (data.type === "macro") {
+                    let macroData = {
+                        type: "macro",
+                        label: data.label,
+                        color: data.color,
+                        content: data.content
+                    };
+                    content.push(macroData);
+                }
+            }
+        });
+        return content;
+    };
+
+    let rootData = dataStore[0];
+    return {
+        label: rootData.label,
+        content: loadContent(rootData.content),
+        encoder: {
+            switch: rootData.encoder.switch,
+            increased: rootData.encoder.increased,
+            decreased: rootData.encoder.decreased
+        }
+    };
+}
+
+/**
  * Default key definitions for a component.
  * @property {Object} empty - Represents an empty key.
  * @property {Object} close - Represents a close macro key.

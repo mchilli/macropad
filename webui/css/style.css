@@ -8257,6 +8257,7 @@ readers do not read off random characters that represent icons */
   --color-green: #add468;
   --color-yellow: #ffce54;
   --color-grey: #808080;
+  --color-lightgrey: #cccccc;
   --color-black: #404040;
   --color-white: #ffffff;
   --shadow-color: #808080bf;
@@ -8436,6 +8437,65 @@ body {
 .main-container .key-entries-controls .button *,
 .dialog-container .dialog-reboot-buttons .button * {
   pointer-events: none;
+}
+.main-container .app-controls .button.deactivated,
+.main-container .device-controls .button.deactivated,
+.main-container .key-entries-controls .button.deactivated,
+.dialog-container .dialog-reboot-buttons .button.deactivated {
+  background-color: var(--color-lightgrey) !important;
+  color: var(--color-grey) !important;
+}
+.main-container .app-controls .button.deactivated:hover,
+.main-container .device-controls .button.deactivated:hover,
+.main-container .key-entries-controls .button.deactivated:hover,
+.dialog-container .dialog-reboot-buttons .button.deactivated:hover {
+  cursor: initial !important;
+  box-shadow: none !important;
+}
+.main-container .app-controls .button.deactivated:active,
+.main-container .device-controls .button.deactivated:active,
+.main-container .key-entries-controls .button.deactivated:active,
+.dialog-container .dialog-reboot-buttons .button.deactivated:active {
+  transform: none !important;
+  box-shadow: none !important;
+}
+.main-container .app-controls .button.transfer,
+.main-container .device-controls .button.transfer,
+.main-container .key-entries-controls .button.transfer,
+.dialog-container .dialog-reboot-buttons .button.transfer {
+  background-color: var(--color-lightgrey) !important;
+  color: var(--color-grey) !important;
+}
+.main-container .app-controls .button.transfer:hover,
+.main-container .device-controls .button.transfer:hover,
+.main-container .key-entries-controls .button.transfer:hover,
+.dialog-container .dialog-reboot-buttons .button.transfer:hover {
+  cursor: initial !important;
+  box-shadow: none !important;
+}
+.main-container .app-controls .button.transfer:active,
+.main-container .device-controls .button.transfer:active,
+.main-container .key-entries-controls .button.transfer:active,
+.dialog-container .dialog-reboot-buttons .button.transfer:active {
+  transform: none !important;
+  box-shadow: none !important;
+}
+.main-container .app-controls .button.transfer i,
+.main-container .device-controls .button.transfer i,
+.main-container .key-entries-controls .button.transfer i,
+.dialog-container .dialog-reboot-buttons .button.transfer i {
+  animation-name: fa-spin;
+  animation-delay: 0s;
+  animation-direction: normal;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+.main-container .app-controls .button.transfer i::before,
+.main-container .device-controls .button.transfer i::before,
+.main-container .key-entries-controls .button.transfer i::before,
+.dialog-container .dialog-reboot-buttons .button.transfer i::before {
+  content: "\f2f1";
 }
 
 .main-container .key-entries-controls .container {
