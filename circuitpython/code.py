@@ -2,6 +2,7 @@
     @Author: MCHilli   <https://github.com/mchilli>
 """
 
+import gc
 import json
 import time
 
@@ -20,6 +21,7 @@ from adafruit_hid.mouse import Mouse
 from utils.devices import Encoder, Key
 from utils.system import System
 
+gc.enable()
 supervisor.runtime.autoreload = False
 
 VERSION = "1.3.0"
@@ -213,7 +215,9 @@ class MacroApp():
 
         self._update_tab()
 
-    def run_macro(self, item: dict, *args) -> None:
+        gc.collect()
+
+    def run_macro(self, item: tuple[str, list], *args) -> None:
         """ run the macro, can be:
                 Float (e.g. 0.25): delay in seconds
                 String (e.g. "Foo"): corresponding keys pressed & released
@@ -448,10 +452,15 @@ class MacroApp():
         self.sleep_timer = time.monotonic()
         self.active_key = None
         while True:
+            # display timeout
             if not self.macropad.display_sleep and time.monotonic() - self.sleep_timer > SETTINGS["sleeptime"]:
                 self.macropad.display_sleep = True
 
             self.macropad.display.refresh()
+
+            # garbage collection
+            if gc.mem_free() < MEMORYLIMIT:
+                gc.collect()
 
             # send after the connection is established
             if self.serial_last_state != self.serial_data.connected:
@@ -462,6 +471,7 @@ class MacroApp():
                     self._send_serial_data(
                         {'ACK': 'usbenabled', 'CONTENT': self.readonly})
 
+            # serial connection
             if self.serial_data.connected:
                 if self.serial_data.in_waiting > 0:
                     self._send_serial_data(
@@ -470,7 +480,8 @@ class MacroApp():
                 # get key events, so no inputs will be stored during connection
                 # self.macropad.keys.events.get()
                 # continue
-
+            
+            # key event handling
             key_event = self.macropad.keys.events.get()
             if key_event:
                 self._display_on()
@@ -488,6 +499,7 @@ class MacroApp():
                 self._display_on()
                 self.keys[self.active_key].call_func()
 
+            # encoder event handling
             if self.encoder.switch and self.encoder.on_switch:
                 self._display_on()
                 self.run_macro({
