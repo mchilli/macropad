@@ -12,8 +12,10 @@ import storage
 import supervisor
 import usb_cdc
 
+from micropython import const # type: ignore
+
 from adafruit_bitmap_font.bitmap_font import load_font
-from adafruit_display_text.label import Label
+from adafruit_display_text.bitmap_label import Label
 from adafruit_macropad import MacroPad
 from adafruit_hid.consumer_control_code import ConsumerControlCode
 from adafruit_hid.mouse import Mouse
@@ -24,11 +26,17 @@ from utils.system import System
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = "1.3.0"
+VERSION = const("1.4.0")
 # The file in which the settings are saved
-SETTINGSFILE = "settings.json"
+SETTINGSFILE = const("settings.json")
 # The file in which the macros are saved
-MACROFILE = "macros.json"
+MACROFILE = const("macros.json")
+# The default root configuration
+MACRODEFAULT = const("{\"type\":\"group\",\"label\":\"Macros\",\"content\":[false,false,false,false,false,false,false,false,false,false,false,false],\"encoder\":{\"switch\":[],\"increased\":[],\"decreased\":[]}}")
+# The memory limit on which the garbage collector fired
+MEMORYLIMIT = const(18000)
+# The byte size to read out the serial data after a transfer error
+READOUTSIZE = const(64)
 
 SETTINGS = {
     # Time in seconds until the display turns off
@@ -44,12 +52,9 @@ SETTINGS = {
 }
 
 try:
-    with open(SETTINGSFILE, "r") as f:
-        settings = json.load(f)
-        for key in SETTINGS:
-            if key in settings:
-                SETTINGS[key] = settings[key]
-except Exception:
+    with open(SETTINGSFILE, "rb") as f:
+        SETTINGS.update(json.load(f))
+except OSError:
     pass
 
 if SETTINGS["keyboardlayout"] == "br":
@@ -92,7 +97,6 @@ else:
     from adafruit_hid.keyboard_layout_us import KeyboardLayout
     from adafruit_hid.keycode import Keycode
 
-
 class MacroApp():
     """ Main Class """
 
@@ -113,12 +117,12 @@ class MacroApp():
         self.serial_data = usb_cdc.data
         self.serial_last_state = False
 
-        self.macroStack = [self._init_macros()]
-        self.keys = self._init_keys()
-        self.group_label = self._init_group_label()
         self.encoder = Encoder(self.macropad)
 
-        self._init_group()
+        self._init_keys()
+        self._init_group_label()
+        
+        self._init_macros()
 
     def _save_settings(self, new_settings) -> None:
         """ store the new settings in the settingsfile
@@ -129,39 +133,40 @@ class MacroApp():
             json.dump(new_settings, f, separators=(",", ":"))
         return True
 
-    def _init_macros(self) -> list[dict]:
-        """ initiate the macro json file
-
-        Returns:
-            dict: the json file as dict
+    def _init_macros(self) -> None:
+        """ initiate the macros
         """
-        rootLabel = "Macros"
+        self.macro_store = {}
+        self.group_stack = ["0"]
+
         try:
             with open(MACROFILE, "r") as f:
-                macros = json.load(f)
-                if isinstance(macros, list):
-                    return {
-                        "label": rootLabel,
-                        "content": macros,
-                    }
-                return macros
-        except OSError:
-            return {
-                "label": rootLabel,
-                "content": [],
-            }
+                self.macro_store = json.load(f)
+        except Exception:
+            self.macro_store = {"0": MACRODEFAULT}
 
-    def _save_macros(self) -> None:
-        """ store the macros in the macrofile
-        """
+        self._init_group()
+
+    def _save_macros(self) -> bool:
+        """ store the macros in the macro file
+        """ 
         if self.readonly:
             return False
+        
         with open(MACROFILE, "w") as f:
-            json.dump(self.macroStack[0], f, separators=(",", ":"))
+            f.write("{\n")
+            for i, (key_id, macro) in enumerate(self.macro_store.items()):
+                macro_str = str(macro).replace("\"", "\\\"")
+                f.write("\"%s\":\"%s\"" % (key_id, macro_str))
+                if i < len(self.macro_store) - 1:
+                    f.write(",\n")
+            f.write("\n}")
         return True
 
-    def _init_group_label(self) -> dict[str, Key]:
-        group_label = Label(
+    def _init_group_label(self) -> None:
+        """ Initialize and add a centered label to the display
+        """
+        self.group_label = Label(
             font=load_font(
                 "/fonts/6x12.pcf") if SETTINGS["useunicodefont"] else terminalio.FONT,
             text="",
@@ -170,22 +175,18 @@ class MacroApp():
             padding_left=0,
             padding_right=0,
             color=0xFFFFFF,
-            anchored_position=(self.macropad.display.width // 2,
-                               self.macropad.display.height - 10),
+            anchored_position=(
+                self.macropad.display.width // 2,
+                self.macropad.display.height - 10),
             anchor_point=(0.5, 0.0)
         )
 
-        self.macropad.display.root_group.append(group_label)
+        self.macropad.display.root_group.append(self.group_label)
 
-        return group_label
-
-    def _init_keys(self) -> list[Key]:
+    def _init_keys(self) -> None:
         """ Initiate the keys and a display group for each key
-
-        Returns:
-            list[Key]: a list of Keys
         """
-        keys = []
+        self.keys = []
 
         for i in range(self.macropad.keys.key_count):
             label = Label(
@@ -199,20 +200,17 @@ class MacroApp():
                 color=0xFFFFFF,
                 anchored_position=(
                     (self.macropad.display.width - 2) / 2 * (i % 3) + 1,
-                    self.macropad.display.height / 5 * (i // 3) + 2),
+                     self.macropad.display.height / 5 * (i // 3) + 2),
                 anchor_point=((i % 3) / 2, 0.0)
             )
 
-            keys.append(Key(self.macropad, i, label))
+            self.keys.append(Key(self.macropad, i, label))
             self.macropad.display.root_group.append(label)
-
-        return keys
 
     def _init_group(self) -> None:
         """ initiate the group content
         """
         self._update_encoder_macros()
-
         self._update_tab()
 
         gc.collect()
@@ -232,9 +230,9 @@ class MacroApp():
                     'sys': System Class Methodname
 
         Args:
-            item (dict): the macro item containing data
+            item (key_id:str, content:list): the key id and content data
         """
-        for key in item["content"]:
+        for key in item[1]:
             if isinstance(key, float):
                 time.sleep(key)
             elif isinstance(key, str):
@@ -275,27 +273,28 @@ class MacroApp():
         self.macropad.keyboard.release_all()
         self.macropad.mouse.release_all()
 
-    def open_group(self, item: dict, *args) -> None:
+    def open_group(self, item: tuple[str, list], *args) -> None:
         """ open a group
 
         Args:
-            item (dict): the group item containing data
+            item (key_id:str, content:list): the key id and content data
         """
-
-        self.macroStack.append(item)
+        self.group_stack.append(item[0])
         self._init_group()
 
     def close_group(self, *args) -> None:
         """ close a group and go a level up
         """
-        if len(self.macroStack) > 1:
-            self.macroStack.pop()
+        if len(self.group_stack) > 1:
+            self.group_stack.pop()
+
             self._init_group()
 
     def go_to_root(self, *args) -> None:
         """ close a group and go to root
         """
-        del self.macroStack[1:]
+        del self.group_stack[1:]
+        
         self._init_group()
 
     def _update_tab(self) -> None:
@@ -303,15 +302,20 @@ class MacroApp():
         """
         for key in self.keys:
             key.clear_props()
+        
+        group = json.loads(self.macro_store[self.group_stack[-1]])
 
-        for i, item in enumerate(self.macroStack[-1]["content"][:self.macropad.keys.key_count]):
-            self.keys[i].type = item["type"]
-            self.keys[i].label = "" if item["type"] == "blank" else item["label"]
-            self.keys[i].color = (
-                0, 0, 0) if item["type"] == "blank" else item["color"]
-            self.keys[i].set_func(self._get_key_func(item["type"]), item)
+        for i, key_id in enumerate(group["content"][:self.macropad.keys.key_count]):
+            if key_id:
+                macro_data = json.loads(self.macro_store[str(key_id)])
+                key_type = macro_data["type"]
+                
+                self.keys[i].type = key_type
+                self.keys[i].label = "" if key_type == "blank" else macro_data["label"]
+                self.keys[i].color = (0, 0, 0) if key_type == "blank" else macro_data["color"]
+                self.keys[i].set_func(self._get_key_func(key_type), (str(key_id), macro_data["content"]))
 
-        self.group_label.text = self.macroStack[-1]["label"]
+        self.group_label.text = group["label"]
 
         for key in self.keys:
             key.update_colors()
@@ -335,12 +339,12 @@ class MacroApp():
     def _update_encoder_macros(self) -> None:
         """ update the rotary encoder macros defined for opened group
         """
+        group = json.loads(self.macro_store[self.group_stack[-1]])
+
         self.encoder.update_encoder_macros(
-            on_switch=self.macroStack[-1].get("encoder", {}).get("switch"),
-            on_increased=self.macroStack[-1].get("encoder",
-                                                 {}).get("increased"),
-            on_decreased=self.macroStack[-1].get("encoder",
-                                                 {}).get("decreased")
+            on_switch = group.get("encoder", {}).get("switch"),
+            on_increased = group.get("encoder", {}).get("increased"),
+            on_decreased = group.get("encoder", {}).get("decreased")
         )
 
     def _handle_serial_data(self, payload: object) -> dict:
@@ -353,81 +357,105 @@ class MacroApp():
             dict: response, sended over the serial connection
         """
         response = {}
-        try:
-            if 'command' not in payload.keys():
-                response['ERR'] = 'Wrong payload: %s' % payload
+
+        if 'command' not in payload.keys():
+            response['ERR'] = 'Wrong payload: %s' % payload
+            return response
+
+        command = payload['command']
+
+        if command == 'get_settings':
+            response['ACK'] = 'settings'
+            response['CONTENT'] = SETTINGS
+            return response
+
+        elif command == 'set_settings':
+            if 'content' not in payload.keys():
+                response['ERR'] = 'No content: %s' % payload
                 return response
 
-            command = payload['command']
+            content = payload['content']
 
-            if command == 'get_settings':
-                response['ACK'] = 'settings'
-                response['CONTENT'] = SETTINGS
-                return response
-
-            elif command == 'set_settings':
-                if 'content' not in payload.keys():
-                    response['ERR'] = 'No content: %s' % payload
-                    return response
-
-                content = payload['content']
-
-                if self._save_settings(content):
-                    response['ACK'] = 'Settings are set'
-                else:
-                    response['ERR'] = 'Cannot set settings because USB storage is enabled'
-
-                return response
-
-            elif command == 'get_macros':
-                response['ACK'] = 'macros'
-                response['CONTENT'] = self.macroStack[0]
-                return response
-
-            elif command == 'set_macros':
-                if 'content' not in payload.keys():
-                    response['ERR'] = 'No content: %s' % payload
-                    return response
-
-                content = payload['content']
-                self.macroStack = [content]
-                self._display_on()
-                self._init_group()
-
-                response['ACK'] = 'Macros received'
-                return response
-
-            elif command == 'save_macros':
-                if self._save_macros():
-                    response['ACK'] = 'Macros stored'
-                else:
-                    response['ERR'] = 'Cannot store macros because USB storage is enabled'
-
-                return response
-
-            elif command == 'enable_usb':
-                System.enable_usb()
-
-                response['ACK'] = 'Enable USB'
-                return response
-
-            elif command == 'soft_reset':
-                System.soft_reset()
-
-                response['ACK'] = 'Softreset'
-                return response
-
-            elif command == 'hard_reset':
-                System.hard_reset()
-
-                response['ACK'] = 'Hardreset'
-                return response
-
+            if self._save_settings(content):
+                response['ACK'] = 'Settings are set'
             else:
-                response['ERR'] = 'Unkown command: %s' % command
+                response['ERR'] = 'Cannot set settings because USB storage is enabled'
+
+            return response
+
+        elif command == 'get_macros':
+            self._send_serial_data({
+                    "ACK":"macros",
+                    "CONTENT": "start"
+                })
+            
+            for key_id in self.macro_store.keys():
+                self._send_serial_data({
+                    "ACK":"macros",
+                    "ID": key_id,
+                    "CONTENT": self.macro_store[key_id]
+                })
+
+            # transfer complete
+            response['ACK'] = 'macros'
+            response['CONTENT'] = 'end'
+            return response
+
+        elif command == 'set_macros':
+            if 'content' not in payload.keys():
+                response['ERR'] = 'No content: %s' % payload
                 return response
-        except Exception as e:
-            response['ERR'] = str(e)
+
+            content = payload['content']
+
+            if content == "start":
+                # prepare transfer
+                self.macro_store = {}
+
+                gc.collect()
+                return
+            
+            elif content == "end":
+                # transfer complete
+                self._init_group()
+                self._display_on()
+            
+            else:
+                self.macro_store[payload['id']] = content
+                return
+
+            response['ACK'] = 'Macros received'
+            response['CONTENT'] = len(self.macro_store)
+            return response
+
+        elif command == 'save_macros':
+            if self._save_macros():
+                response['ACK'] = 'Macros stored'
+            else:
+                response['ERR'] = 'Cannot store macros because USB storage is enabled'
+
+            return response
+
+        elif command == 'enable_usb':
+            System.enable_usb()
+
+            response['ACK'] = 'Enable USB'
+            return response
+
+        elif command == 'soft_reset':
+            System.soft_reset()
+
+            response['ACK'] = 'Softreset'
+            return response
+
+        elif command == 'hard_reset':
+            System.hard_reset()
+
+            response['ACK'] = 'Hardreset'
+            return response
+
+        else:
+            response['ERR'] = 'Unkown command: %s' % command
             return response
 
     def _send_serial_data(self, payload: dict) -> None:
@@ -450,7 +478,9 @@ class MacroApp():
         """ Start the Mainloop
         """
         self.sleep_timer = time.monotonic()
-        self.active_key = None
+        active_key = None
+        data_error = False
+
         while True:
             # display timeout
             if not self.macropad.display_sleep and time.monotonic() - self.sleep_timer > SETTINGS["sleeptime"]:
@@ -473,9 +503,30 @@ class MacroApp():
 
             # serial connection
             if self.serial_data.connected:
-                if self.serial_data.in_waiting > 0:
+                # if an error occured, reload saved macrofile
+                if data_error and self.serial_data.in_waiting == 0:
+                    data_error = False
+                    self._init_macros()
+
+                    gc.collect()
+                    
                     self._send_serial_data(
-                        self._handle_serial_data(json.load(self.serial_data)))
+                        {"WARN": 'Reloaded: %s' % MACROFILE})
+
+                # if an error occured, read all data to out to free the connection
+                elif data_error:
+                    self.serial_data.read(min(READOUTSIZE, self.serial_data.in_waiting))
+
+                # try to handle all incoming data
+                elif self.serial_data.in_waiting > 0:
+                    try:
+                        response = self._handle_serial_data(json.load(self.serial_data))
+                        if response:
+                            self._send_serial_data(response)
+                    except Exception as e:
+                        # prepare error handling
+                        self._send_serial_data({"ERR": e})
+                        data_error = True
 
                 # get key events, so no inputs will be stored during connection
                 # self.macropad.keys.events.get()
@@ -487,35 +538,29 @@ class MacroApp():
                 self._display_on()
                 if key_event.pressed and not any([key.pressed for key in self.keys]):
                     self.keys[key_event.key_number].pressed = True
-                    self.active_key = key_event.key_number
+                    active_key = key_event.key_number
                     self.active_key_delay = time.monotonic()
 
-                elif key_event.released and key_event.key_number == self.active_key:
+                elif key_event.released and key_event.key_number == active_key:
                     self.keys[key_event.key_number].pressed = False
-                    self.active_key = None
+                    active_key = None
             
             # if a key is pressed continuously, the function triggers again after a short delay
-            if self.active_key and time.monotonic() - self.active_key_delay > 0.75:
+            if active_key and time.monotonic() - self.active_key_delay > 0.75:
                 self._display_on()
-                self.keys[self.active_key].call_func()
+                self.keys[active_key].call_func()
 
             # encoder event handling
             if self.encoder.switch and self.encoder.on_switch:
                 self._display_on()
-                self.run_macro({
-                    "content": self.encoder.on_switch
-                })
+                self.run_macro((self.group_stack[-1], self.encoder.on_switch))
+
             if self.encoder.increased and self.encoder.on_increased:
                 self._display_on()
-                self.run_macro({
-                    "content": self.encoder.on_increased
-                })
+                self.run_macro((self.group_stack[-1], self.encoder.on_increased))
+
             if self.encoder.decreased and self.encoder.on_decreased:
                 self._display_on()
-                self.run_macro({
-                    "content": self.encoder.on_decreased
-                })
+                self.run_macro((self.group_stack[-1], self.encoder.on_decreased))
 
-
-app = MacroApp()
-app.start()
+MacroApp().start()
