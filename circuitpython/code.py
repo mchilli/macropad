@@ -12,8 +12,6 @@ import storage
 import supervisor
 import usb_cdc
 
-from micropython import const # type: ignore
-
 from adafruit_bitmap_font.bitmap_font import load_font
 from adafruit_display_text.bitmap_label import Label
 from adafruit_macropad import MacroPad
@@ -26,17 +24,17 @@ from utils.system import System
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = const("1.4.0")
+VERSION = "1.4.0"
 # The file in which the settings are saved
-SETTINGSFILE = const("settings.json")
+SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
-MACROFILE = const("macros.json")
+MACROFILE = "macros.json"
 # The default root configuration
-MACRODEFAULT = const("{\"type\":\"group\",\"label\":\"Macros\",\"content\":[false,false,false,false,false,false,false,false,false,false,false,false],\"encoder\":{\"switch\":[],\"increased\":[],\"decreased\":[]}}")
+MACRODEFAULT = "{\"type\":\"group\",\"label\":\"Macros\",\"content\":[false,false,false,false,false,false,false,false,false,false,false,false],\"encoder\":{\"switch\":[],\"increased\":[],\"decreased\":[]}}"
 # The memory limit on which the garbage collector fired
-MEMORYLIMIT = const(18000)
+MEMORYLIMIT = 18000
 # The byte size to read out the serial data after a transfer error
-READOUTSIZE = const(64)
+READOUTSIZE = 64
 
 SETTINGS = {
     # Time in seconds until the display turns off
@@ -465,7 +463,7 @@ class MacroApp():
             payload (dict): the data
         """
         json.dump(payload, self.serial_data, separators=(',', ':'))
-        self.serial_data.write('\n')
+        self.serial_data.write(b'\n')
 
     def _display_on(self) -> None:
         """ Turn on the display if it's in sleep mode and reset the sleep timer.
