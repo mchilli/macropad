@@ -837,17 +837,17 @@ class App {
             case 'open':
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
                     if (key === keyInstance.DOM.container) {
-                        let macros = this.macroStack[this.macroStack.length - 1].content[i];
-                        if (this._hasNoNavigationKeys(macros.content)) {
+                        const group = this.macroStack[this.macroStack.length - 1].content[i];
+                        if (this._hasNoNavigationKeys(group)) {
                             this._notify(
                                 'warning',
                                 _('%s has no configured navigation key!').replace(
                                     '%s',
-                                    macros.label
+                                    group.label
                                 )
                             );
                         }
-                        this.macroStack.push(this._fillUpKeysEntries(macros));
+                        this.macroStack.push(this._fillUpKeysEntries(group));
 
                         this.keyEntriesControls.back.classList.remove('hidden');
                         break;
@@ -1018,22 +1018,22 @@ class App {
     }
 
     /**
-     * Checks if a group of keys does not contain a 'close' or 'root' entry.
-     * @param {Array} content - The array of keys in the group.
+     * Checks if a group does not contain a 'close' or 'root' entry.
+     * @param {Array} group - The group contains the macros.
      * @returns {boolean} True if there is no 'close' or 'root' entry, otherwise false.
      */
-    _hasNoNavigationKeys(content) {
-        return !content.some((key) => {
-            return (
-                key.content &&
-                key.content.some((macro) => {
-                    return (
-                        Object.hasOwnProperty.call(macro, 'sys') &&
-                        ['close_group', 'go_to_root'].includes(macro.sys)
-                    );
-                })
-            );
-        });
+    _hasNoNavigationKeys(group) {
+        const macros = [
+            ...group.content
+                .filter(obj => obj.type === "macro" && obj.content)
+                .flatMap(obj => obj.content),
+            ...group.encoder.decreased,
+            ...group.encoder.increased,
+            ...group.encoder.switch
+        ];
+        return macros.every(
+            macro => !macro.sys || !['close_group', 'go_to_root'].includes(macro.sys)
+        );
     }
 
     /**
