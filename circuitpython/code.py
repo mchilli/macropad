@@ -253,6 +253,11 @@ class MacroApp():
                 if 'tone' in key:
                     self.macropad.play_tone(
                         key['tone']['frequency'], key['tone']['duration'])
+                if 'file' in key:
+                    try:
+                        self.macropad.play_file(key['file'])
+                    except Exception:
+                        pass
                 if 'mse' in key:
                     if "b" in key["mse"]:
                         btn = getattr(
