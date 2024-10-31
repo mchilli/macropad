@@ -12,6 +12,7 @@ This is an [Adafruit MacroPad](https://www.adafruit.com/product/5128) script tha
 -   Groups can store more macros or groups
 -   Define encoder macros for different groups
 -   Choose colors for every single macro or group
+-   Up to about **400** key configs, depending on the size of the macros
 -   Save your configurations locally by downloading it as a JSON file
 
 -   Device settings:
@@ -35,7 +36,9 @@ If you are happy with your configuration don't forget to `Store`! Otherwise your
 
 #### Other Informations:
 
-Your can enable the USB storage either by pressing the yellow blinking key (top, left) when plugin the device, you can enable it through the WebUI under "reboot" or you can set a macro with the device function "enable_usb".
+Your can enable the USB storage either by pressing the yellow blinking key (top, left) when plugging the device, enable it through the WebUI under "reboot" or you can set a macro with the device function "enable_usb".
+
+To play **mono** audio files such as .mp3 or .wav, place them on the macropad and define the path to the file in the WebUI. The available files are listed in the macro after the connection has been established. Keep in mind that the macropad is blocked during playback. So make sure that the sound files are not too long!
 
 #### Ideas:
 
