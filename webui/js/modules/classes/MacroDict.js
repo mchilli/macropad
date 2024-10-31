@@ -184,7 +184,7 @@ class MacroSelector extends MacroBase {
                     }),
                     utils.create({
                         type: 'option',
-                        text: _('Soundfile'),
+                        text: _('Audio file'),
                         attributes: {
                             value: 'file',
                         },
@@ -760,7 +760,7 @@ class MacroTone extends MacroBase {
  * @class
  * @extends MacroBase
  */
-class MacroSoundfile extends MacroBase {
+class MacroAudioFile extends MacroBase {
     constructor(value = { file: '' }) {
         super();
 
@@ -779,7 +779,7 @@ class MacroSoundfile extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('Soundfile').concat(':'),
+                text: _('Audio file').concat(':'),
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -788,8 +788,23 @@ class MacroSoundfile extends MacroBase {
                     placeholder: 'audio/sound.mp3',
                     style: `width:${this.inputWidth}px;`,
                     value: this.value,
+                    list: "audiofiles"
                 },
-            }))
+            })),
+            utils.create({
+                type: 'datalist',
+                attributes: {
+                    id: 'audiofiles'
+                },
+                children: audioFiles.map((value) => {
+                    return utils.create({
+                        type: 'option',
+                        attributes: {
+                            value: value,
+                        },
+                    });
+                }),
+            })
         ]);
     }
 
@@ -1017,7 +1032,7 @@ export function getMacroByType(type) {
         case 'tone':
             return new MacroTone();
         case 'file':
-            return new MacroSoundfile();
+            return new MacroAudioFile();
         case 'mse':
             return new MacroMouseEvents();
         case 'sys':
@@ -1047,7 +1062,7 @@ export function getMacroByValue(value) {
                 case value.hasOwnProperty('tone'):
                     return new MacroTone(value);
                 case value.hasOwnProperty('file'):
-                    return new MacroSoundfile(value);
+                    return new MacroAudioFile(value);
                 case value.hasOwnProperty('mse'):
                     return new MacroMouseEvents(value);
                 case value.hasOwnProperty('sys'):
@@ -1056,4 +1071,13 @@ export function getMacroByValue(value) {
         default:
             return new MacroBase().DOM.container;
     }
+}
+
+/**
+ * Sets the audioFiles array to a new list of audio files for the audio file macro.
+ * @param {Array} newAudioFiles - An array of new audio file paths.
+*/
+let audioFiles = []
+export function setAudioFiles(newAudioFiles) {
+    audioFiles = newAudioFiles;
 }

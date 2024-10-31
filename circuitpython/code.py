@@ -20,6 +20,7 @@ from adafruit_hid.mouse import Mouse
 
 from utils.devices import Encoder, Key
 from utils.system import System
+from utils.utils import get_audio_files
 
 gc.enable()
 supervisor.runtime.autoreload = False
@@ -501,6 +502,8 @@ class MacroApp():
                 if self.serial_data.connected:
                     self._send_serial_data(
                         {'ACK': 'version', 'CONTENT': VERSION})
+                    self._send_serial_data(
+                        {'ACK': 'audiofiles', 'CONTENT': get_audio_files()})
                     self._send_serial_data(
                         {'ACK': 'usbenabled', 'CONTENT': self.readonly})
 

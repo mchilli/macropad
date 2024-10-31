@@ -16,7 +16,7 @@ import {
     ResetDialog,
     NotificationDialog,
 } from './modules/classes/Dialogs.js';
-
+import { setAudioFiles } from './modules/classes/MacroDict.js';
 import * as utils from './modules/utils.js';
 
 /**
@@ -191,6 +191,9 @@ class App {
                         })
                         .catch((error) => {});
                     response = JSON.stringify(importedSettings);
+                    break;
+                case 'audiofiles':
+                    setAudioFiles(payload.CONTENT);
                     break;
                 case 'usbenabled':
                     const usbenabled = payload.CONTENT;
