@@ -16,7 +16,7 @@ import {
     ResetDialog,
     NotificationDialog,
 } from './modules/classes/Dialogs.js';
-
+import { setAudioFiles } from './modules/classes/MacroDict.js';
 import * as utils from './modules/utils.js';
 
 /**
@@ -54,6 +54,7 @@ class App {
             this.deviceConnected = false;
             this.USBStorageEnabled = false;
             this.serialConnection = null;
+            this.transferActive = false;
             this.deviceControlsContainer = deviceControlsContainer;
             this.deviceControls = this._initDeviceControls(this.deviceControlsContainer);
 
@@ -67,6 +68,7 @@ class App {
             this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
             this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
 
+            this.macroBuffer = {};
             this.macroStack = [];
             try {
                 const savedMacros = localStorage.getItem('macros');
@@ -121,18 +123,46 @@ class App {
     _serialReceivedData(payload) {
         if ('ERR' in payload) {
             this._notify('error', payload.ERR);
-
-            console.warn('Error: ' + payload.ERR);
+            this._transferActive(false);
+            console.error('Error: ' + payload.ERR);
+        } else if ('WARN' in payload) {
+            this._notify('warning', payload.WARN);
+            this._transferActive(false);
+            console.warn('Warning: ' + payload.WARN);
         } else if ('ACK' in payload) {
             let response = payload.ACK;
 
             switch (payload.ACK) {
                 case 'macros':
-                    const importedMacros = payload.CONTENT;
-                    this._newKeyEntries(this._convertMacroStack(importedMacros));
-
-                    this._notify('info', _('Received from macropad'));
-                    response = JSON.stringify(importedMacros);
+                    if (this.version >= "1.4.0") {
+                        // circuitpython version >= 1.4.0
+                        switch (payload.CONTENT) {
+                            case "start":
+                                response = "receiving macros ...";
+                                break;
+    
+                            case "end":
+                                const importedMacros = utils.restoreJsonFromFileIds(this.macroBuffer);
+                                this._newKeyEntries(this._convertMacroStack(importedMacros));
+                                this._notify('info', _('Received from macropad'));
+                                this._transferActive(false);
+                                this.macroBuffer = {};
+                                response = "macros received";
+                                break;
+                        
+                            default:
+                                this.macroBuffer[payload.ID] = JSON.parse(payload.CONTENT);
+                                return;
+                        }
+                    } else {
+                        // circuitpython version < 1.4.0
+                        const importedMacros = payload.CONTENT;
+                        this._newKeyEntries(this._convertMacroStack(importedMacros));
+    
+                        this._notify('info', _('Received from macropad'));
+                        this._transferActive(false);
+                        response = JSON.stringify(importedMacros);
+                    }
                     break;
                 case 'settings':
                     const importedSettings = payload.CONTENT;
@@ -162,21 +192,38 @@ class App {
                         .catch((error) => {});
                     response = JSON.stringify(importedSettings);
                     break;
+                case 'audiofiles':
+                    setAudioFiles(payload.CONTENT);
+                    break;
                 case 'usbenabled':
                     const usbenabled = payload.CONTENT;
                     this.USBStorageEnabled = usbenabled;
+                    if (this.USBStorageEnabled) {
+                        this.deviceControls.save.classList.add("deactivated");
+                        this._notify('warning', _('The macros can only be stored if the USB storage is disabled'), true);
+                    } else {
+                        this.deviceControls.save.classList.remove("deactivated");
+                    }
 
-                    this._notify('success', _('Connected to macropad'));
+                    this._notify('success', `${_('Connected to macropad')} | Version: ${this.version}`);
                     this._checkVersion();
                     break;
                 case 'version':
                     this.version = payload.CONTENT;
                     break;
                 case 'Macros received':
-                    this._notify('success', _('Sended to macropad'));
+                    this._notify(
+                        'success', 
+                        _('%s macros sended to macropad').replace(
+                                    '%s',
+                                    payload.CONTENT || ""
+                            )
+                        );
+                    this._transferActive(false);
                     break;
                 case 'Macros stored':
                     this._notify('success', _('Stored on macropad'));
+                    this._transferActive(false);
                     break;
                 case 'Settings are set':
                     this._notify('success', _('Settings set on macropad'));
@@ -542,7 +589,9 @@ class App {
 
         switch (command) {
             case 'getMacros':
+                if (this.transferActive) break;
                 if (this._allKeyEntriesEmpty()) {
+                    this._transferActive(true);
                     await this.serialConnection.send({
                         command: COMMANDS[command],
                     });
@@ -559,6 +608,7 @@ class App {
                         ),
                     })
                         .then(async (response) => {
+                            this._transferActive(true);
                             await this.serialConnection.send({
                                 command: COMMANDS[command],
                             });
@@ -567,8 +617,11 @@ class App {
                 }
                 break;
 
-            case 'getSettings':
             case 'saveMacros':
+                if (this.USBStorageEnabled) break;
+                if (this.transferActive) break;
+                this._transferActive(true);
+            case 'getSettings':
             case 'softReset':
                 await this.serialConnection.send({
                     command: COMMANDS[command],
@@ -585,6 +638,7 @@ class App {
                 break;
 
             case 'setMacros':
+                if (this.transferActive) break;
                 new ConfirmationDialog({
                     position: {
                         anchor: 'center',
@@ -594,11 +648,45 @@ class App {
                     title: _('Warning'),
                     prompt: _('Do you really want to send the current macros to the macropad?'),
                 })
-                    .then(async (response) => {
-                        await this.serialConnection.send({
-                            command: COMMANDS[command],
-                            content: this.macroStack[0],
-                        });
+                    .then(async () => {
+                        this._transferActive(true);
+                        if (this.version >= "1.4.0") {
+                            // circuitpython version >= 1.4.0
+                            const macros = utils.convertJsonToFileIds(this.macroStack[0])
+                            this.serialConnection.send({
+                                // transfer start
+                                command: COMMANDS[command],
+                                content: "start",
+                            }).then(async () => {
+                                const promises = [];
+                                for (const id in macros) {
+                                    if (Object.prototype.hasOwnProperty.call(macros, id)) {
+                                        const macro = macros[id];
+                                        promises.push(await this.serialConnection.send({
+                                            command: COMMANDS[command],
+                                            id: id,
+                                            content: JSON.stringify(macro),
+                                        }))
+                                        
+                                    }
+                                }
+        
+                                Promise.all(promises).then(async () => {
+                                    await this.serialConnection.send({
+                                        // transfer end
+                                        command: COMMANDS[command],
+                                        content: "end",
+                                    });
+                                })
+                            })
+                        } else {
+                            // circuitpython version < 1.4.0
+                            await this.serialConnection.send({
+                                command: COMMANDS[command],
+                                content: this.macroStack[0],
+                            });
+                        }
+
                     })
                     .catch((error) => {});
                 break;
@@ -752,17 +840,17 @@ class App {
             case 'open':
                 for (const [i, key] of this.keyEntriesContainer.childNodes.entries()) {
                     if (key === keyInstance.DOM.container) {
-                        let macros = this.macroStack[this.macroStack.length - 1].content[i];
-                        if (this._hasNoNavigationKeys(macros.content)) {
+                        const group = this.macroStack[this.macroStack.length - 1].content[i];
+                        if (this._hasNoNavigationKeys(group)) {
                             this._notify(
                                 'warning',
                                 _('%s has no configured navigation key!').replace(
                                     '%s',
-                                    macros.label
+                                    group.label
                                 )
                             );
                         }
-                        this.macroStack.push(this._fillUpKeysEntries(macros));
+                        this.macroStack.push(this._fillUpKeysEntries(group));
 
                         this.keyEntriesControls.back.classList.remove('hidden');
                         break;
@@ -933,22 +1021,22 @@ class App {
     }
 
     /**
-     * Checks if a group of keys does not contain a 'close' or 'root' entry.
-     * @param {Array} content - The array of keys in the group.
+     * Checks if a group does not contain a 'close' or 'root' entry.
+     * @param {Array} group - The group contains the macros.
      * @returns {boolean} True if there is no 'close' or 'root' entry, otherwise false.
      */
-    _hasNoNavigationKeys(content) {
-        return !content.some((key) => {
-            return (
-                key.content &&
-                key.content.some((macro) => {
-                    return (
-                        Object.hasOwnProperty.call(macro, 'sys') &&
-                        ['close_group', 'go_to_root'].includes(macro.sys)
-                    );
-                })
-            );
-        });
+    _hasNoNavigationKeys(group) {
+        const macros = [
+            ...group.content
+                .filter(obj => obj.type === "macro" && obj.content)
+                .flatMap(obj => obj.content),
+            ...group.encoder.decreased,
+            ...group.encoder.increased,
+            ...group.encoder.switch
+        ];
+        return macros.every(
+            macro => !macro.sys || !['close_group', 'go_to_root'].includes(macro.sys)
+        );
     }
 
     /**
@@ -1029,6 +1117,20 @@ class App {
     }
 
     /**
+     * Toggles the 'transfer' class on control buttons and sets transferActive state.
+     * @param {boolean} active - Indicates whether to enable or disable transfer mode.
+     */
+    _transferActive(active) {
+        const buttons = [this.deviceControls.download, this.deviceControls.upload, this.deviceControls.save];
+
+        this.transferActive = active;
+
+        buttons.forEach(button => {
+            button.classList.toggle('transfer', active);
+        });
+    }
+
+    /**
      * Checks the latest release version of CircuitPython files for the macropad project from GitHub.
      */
     _checkVersion() {
@@ -1038,7 +1140,7 @@ class App {
         fetch(versionURL)
             .then(response => response.json())
             .then(json => {
-                if (`v${this.version}` === json.tag_name) {
+                if (this.version >= json.tag_name.substring(1)) {
                     this._notify('success', _('Circuitpython files are up to date'));
                 } else {
                     this._notify('error',`<a href=${filesURL} target="_blank">${_('New circuitpython files available')}</a>`, true);

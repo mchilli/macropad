@@ -11,6 +11,7 @@
     --color-green: #add468;
     --color-yellow: #ffce54;
     --color-grey: #808080;
+    --color-lightgrey: #cccccc;
     --color-black: #404040;
     --color-white: #ffffff;
 
@@ -208,6 +209,49 @@ body {
 
         * {
             pointer-events: none;
+        }
+
+        &.deactivated {
+            background-color: var(--color-lightgrey) !important;
+            color: var(--color-grey) !important;
+
+            &:hover {
+                cursor: initial !important;
+                box-shadow: none !important;
+            }
+
+            &:active {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        &.transfer {
+            background-color: var(--color-lightgrey) !important;
+            color: var(--color-grey) !important;
+
+            &:hover {
+                cursor: initial !important;
+                box-shadow: none !important;
+            }
+
+            &:active {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            i {
+                &::before {
+                    content: "\f2f1";
+                }
+
+                animation-name: fa-spin;
+                animation-delay: 0s;
+                animation-direction: normal;
+                animation-duration: 2s;
+                animation-iteration-count: infinite;
+                animation-timing-function: linear;
+            }
         }
     }
 }

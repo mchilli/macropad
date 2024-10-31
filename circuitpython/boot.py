@@ -6,21 +6,14 @@ import storage
 import supervisor
 import usb_cdc
 
+from utils.utils import path_exist
+
 USBENABLEDFILE = "usbenabled"
-
-
-def file_exist(file):
-    try:
-        os.stat(file)
-        return True
-    except OSError:
-        return False
-
 
 supervisor.set_usb_identification('MCHilli', 'MacroPad by MCHilli')
 
 usb_enabled = False
-if file_exist(USBENABLEDFILE):
+if path_exist(USBENABLEDFILE):
     usb_enabled = True
     storage.remount("/", readonly=False)
     os.remove(USBENABLEDFILE)
