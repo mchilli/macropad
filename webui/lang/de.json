@@ -80,6 +80,8 @@
     "Store on Macropad (only stored macros are available after reset)": "Auf dem Macropad speichern (nur gespeicherte Makros sind nach dem Neustarten verfügbar)",
     "Open the dialog with device settings": "Den Dialog mit den Geräteeinstellungen öffnen",
     "Open the dialog with reboot options": "Den Dialog mit den Neustartoptionen öffnen",
+    "Export configuration": "Konfiguration exportieren",
+    "Import configuration": "Konfiguration importieren",
     "Copy configuration": "Konfiguration kopieren",
     "Paste configuration": "Konfiguration einfügen",
     "Restart the script": "Skript neu starten",
