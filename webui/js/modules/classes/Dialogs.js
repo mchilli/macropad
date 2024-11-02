@@ -249,12 +249,19 @@ class BaseDialog {
     }
 
     /**
+     * Toggles the visibility of the 'Export' and 'Import' buttons in the dialog.
+     * @param {boolean} visible - Whether to display the buttons (true) or hide them (false).
+     */
+    _toggleExportImportButtons(visible) {
+        this.DOM.buttons.export.style.display = visible ? 'block' : 'none';
+        this.DOM.buttons.import.style.display = visible ? 'block' : 'none';
+    }
+
+    /**
      * Toggles the visibility of the 'Copy' and 'Paste' buttons in the dialog.
      * @param {boolean} visible - Whether to display the buttons (true) or hide them (false).
      */
-    _toggleHeaderButtons(visible) {
-        this.DOM.buttons.export.style.display = visible ? 'block' : 'none';
-        this.DOM.buttons.import.style.display = visible ? 'block' : 'none';
+    _toggleCopyPasteButtons(visible) {
         this.DOM.buttons.copy.style.display = visible ? 'block' : 'none';
         this.DOM.buttons.paste.style.display = visible ? 'block' : 'none';
     }
@@ -999,6 +1006,7 @@ export class EncoderDialog extends BaseDialog {
         this.pasted = false;
 
         this._setContent();
+        this._toggleExportImportButtons(false);
         this._setHeaderLabel(this.groupObject.label);
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues(this.groupObject);
@@ -1289,7 +1297,8 @@ export class ConfirmationDialog extends BaseDialog {
         this.prompt = prompt;
 
         this._setContent();
-        this._toggleHeaderButtons(false);
+        this._toggleExportImportButtons(false);
+        this._toggleCopyPasteButtons(false);
         this._setHeaderLabel(this.title);
         this._appendToParent(this.parent, this.DOM.container);
         this._setPosition(this.DOM.dialog, position);
@@ -1349,7 +1358,8 @@ export class SettingsDialog extends BaseDialog {
         ];
 
         this._setContent();
-        this._toggleHeaderButtons(false);
+        this._toggleExportImportButtons(false);
+        this._toggleCopyPasteButtons(false);
         this._setHeaderLabel(_('Settings'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues();
@@ -1526,7 +1536,8 @@ export class ResetDialog extends BaseDialog {
 
         this._setContent();
         this._toggleOKButton(false);
-        this._toggleHeaderButtons(false);
+        this._toggleExportImportButtons(false);
+        this._toggleCopyPasteButtons(false);
         this._setHeaderLabel(_('Reboot'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setPosition(this.DOM.dialog, position);
