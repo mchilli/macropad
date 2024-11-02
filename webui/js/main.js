@@ -33,6 +33,7 @@ class App {
      * @param {Element} options.deviceControlsContainer - Container for device controls.
      * @param {Element} options.keyEntriesContainer - Container for key entries.
      * @param {Element} options.keyEntriesControlsContainer - Container for key entry controls.
+     * @param {Element} options.informationContainer - Container for Further Information.
      */
     constructor({
         mainContainer = undefined,
@@ -41,6 +42,7 @@ class App {
         deviceControlsContainer = undefined,
         keyEntriesContainer = undefined,
         keyEntriesControlsContainer = undefined,
+        informationContainer = undefined,
     } = {}) {
         const language = navigator.language.split('-')[0];
         this._initTranslation(language).then(() => {
@@ -67,6 +69,8 @@ class App {
             this.keyEntriesContainer = keyEntriesContainer;
             this.keyEntriesSortable = this._initKeyChunkSortable(this.keyEntriesContainer);
             this.keyEntriesControls = this._initKeyChunkControls(keyEntriesControlsContainer);
+
+            this.informationContainer = informationContainer;
 
             this.macroBuffer = {};
             this.macroStack = [];
@@ -206,6 +210,7 @@ class App {
                     }
 
                     this._notify('success', `${_('Connected to macropad')} | Version: ${this.version}`);
+                    this._updateInformation();
                     this._checkVersion();
                     break;
                 case 'version':
@@ -256,6 +261,7 @@ class App {
 
         if (!this.deviceConnected) {
             this._notify('info', _('Disconnected from macropad'));
+            this._updateInformation();
         }
     }
 
@@ -753,14 +759,15 @@ class App {
                             class: 'fa-solid fa-pen',
                         },
                     }),
-                    utils.create(),
                 ],
                 events: {
                     click: (event) => this._keyChunkControlsHandler(event, 'group'),
                 },
             }),
+            label: utils.create(),
         };
 
+        utils.appendElements(keyChunkControls.group, [keyChunkControls.label]);
         utils.appendElements(keyChunkControls.container, [keyChunkControls.back, keyChunkControls.group]);
         utils.appendElements(container, [keyChunkControls.container]);
 
@@ -1000,6 +1007,7 @@ class App {
         );
 
         localStorage.setItem('macros', JSON.stringify(this.macroStack[0]));
+        this._updateInformation();
     }
 
     /**
@@ -1015,9 +1023,7 @@ class App {
 
         this._reReadKeyEntries();
 
-        this.keyEntriesControls.group.childNodes[1].innerText = `${
-            this.macroStack[this.macroStack.length - 1].label
-        }`;
+        this.keyEntriesControls.label.innerText = `${this.macroStack[this.macroStack.length - 1].label}`;
     }
 
     /**
@@ -1070,6 +1076,11 @@ class App {
         entries = {
             label: 'Macros',
             content: this._fillUpKeysEntries([]),
+            encoder: {
+                switch: [],
+                increased: [],
+                decreased: []
+            }
         }
     ) {
         this._clearAllKeyEntries();
@@ -1149,6 +1160,20 @@ class App {
     }
 
     /**
+     * Updates the information container with details about the macro stack,
+     * including the number of keys and device version (if connected).
+     */
+    _updateInformation() {
+        let infos = [];
+        infos.push(`Keys: ${Object.keys(utils.convertJsonToFileIds(this.macroStack[0])).length - 1}`);
+        if (this.deviceConnected) {
+            infos.push(`Version: ${this.version}`);
+        }
+        
+        this.informationContainer.innerText = infos.join(' | ');
+    }
+
+    /**
      * Display a notification message.
      * @param {string} type - The type of the the notification (info, success, warning, error)
      * @param {string} prompt - The message to display in the notification.
@@ -1173,4 +1198,5 @@ const app = new App({
     deviceControlsContainer: document.querySelector('.device-controls'),
     keyEntriesContainer: document.querySelector('.key-entries'),
     keyEntriesControlsContainer: document.querySelector('.key-entries-controls'),
+    informationContainer: document.querySelector('.information'),
 });
