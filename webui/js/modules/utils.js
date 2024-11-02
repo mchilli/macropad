@@ -289,11 +289,30 @@ export function restoreJsonFromFileIds(dataStore) {
  * @property {Object} close - Represents a close macro key.
  */
 export const defaultKeys = {
-    empty: { type: 'blank' },
+    empty: { 
+        type: 'blank' 
+    },
+    macro: {
+        type: 'macro',
+        label: 'unkown',
+        color: [255, 255, 255],
+        content: []
+    },
+    group: {
+        type: 'group',
+        label: 'unkown',
+        color: [255, 255, 255],
+        content: [],
+        encoder: {
+            switch: [],
+            increased: [],
+            decreased: []
+        }
+    },
     close: {
         type: 'macro',
         label: '<-',
         color: [18, 18, 18],
         content: [{ sys: 'close_group' }],
-    },
+    }
 };

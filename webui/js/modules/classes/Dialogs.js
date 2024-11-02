@@ -62,6 +62,44 @@ class BaseDialog {
                                             this._onDragDialog(this.DOM.dialog, event),
                                     },
                                 })),
+                                (DOM.buttons.export = utils.create({
+                                    attributes: {
+                                        title: _('Export configuration'),
+                                        class: 'dialog-button export',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-file-export',
+                                            },
+                                        })
+                                    ],
+                                    events: {
+                                        click: (event) => {
+                                            this._onExport(event);
+                                        },
+                                    },
+                                })),
+                                (DOM.buttons.import = utils.create({
+                                    attributes: {
+                                        title: _('Import configuration'),
+                                        class: 'dialog-button import',
+                                    },
+                                    children: [
+                                        utils.create({
+                                            type: 'i',
+                                            attributes: {
+                                                class: 'fa-solid fa-file-import',
+                                            },
+                                        })
+                                    ],
+                                    events: {
+                                        click: (event) => {
+                                            this._onImport(event);
+                                        },
+                                    },
+                                })),
                                 (DOM.buttons.copy = utils.create({
                                     attributes: {
                                         title: _('Copy configuration'),
@@ -214,7 +252,9 @@ class BaseDialog {
      * Toggles the visibility of the 'Copy' and 'Paste' buttons in the dialog.
      * @param {boolean} visible - Whether to display the buttons (true) or hide them (false).
      */
-    _toggleCopyPasteButtons(visible) {
+    _toggleHeaderButtons(visible) {
+        this.DOM.buttons.export.style.display = visible ? 'block' : 'none';
+        this.DOM.buttons.import.style.display = visible ? 'block' : 'none';
         this.DOM.buttons.copy.style.display = visible ? 'block' : 'none';
         this.DOM.buttons.paste.style.display = visible ? 'block' : 'none';
     }
@@ -327,6 +367,20 @@ class BaseDialog {
         this.resolve(this);
         this._removeFromParent(this.DOM.container);
     }
+
+    /**
+     * Placeholder function for handling the 'Export' button click event.
+     * This function should be overridden with specific functionality.
+     * @param {Event} event - The event triggering the copy action.
+     */
+    _onExport(event) {}
+
+    /**
+     * Placeholder function for handling the 'Import' button click event.
+     * This function should be overridden with specific functionality.
+     * @param {Event} event - The event triggering the copy action.
+     */
+    _onImport(event) {}
 
     /**
      * Placeholder function for handling the 'Copy' button click event.
@@ -708,6 +762,52 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
+     * Handles exporting key configuration.
+     * @param {Event} event - The event triggering the export action.
+     */
+    _onExport(event) {
+        if (this.inputs.type.value !== 'blank') {
+            utils.downloadObjectAsJson(this.keyInstance.getAllData(), `${this.inputs.label.value}.json`)
+        }
+    }
+
+    /**
+     * Handles importing key configuration.
+     * @param {Event} event - The event triggering the import action.
+     */
+    _onImport(event) {
+        const importConfiguration = async () => {
+            try {
+                const content = await utils.openFile('.json');
+                const keyConfiguration = JSON.parse(content);
+                
+                this.clipboard.key = {...utils.defaultKeys.group, ...keyConfiguration};
+
+                this._pasteConfiguration();
+            } catch (error) {
+                console.error(`Import error: ${error}`);
+            }
+        };
+        if (this.inputs.type.value !== 'blank') {
+            new ConfirmationDialog({
+                position: {
+                    anchor: 'center',
+                    top: event.y,
+                    left: event.x,
+                },
+                title: _('Warning'),
+                prompt: _('Do you really want to replace this configuration?'),
+            })
+                .then((response) => {
+                    importConfiguration();
+                })
+                .catch((error) => {});
+        } else {
+            importConfiguration();
+        }
+    }
+
+    /**
      * Handles copying key configuration.
      * @param {Event} event - The event triggering the copy action.
      */
@@ -722,14 +822,6 @@ export class EditDialog extends BaseDialog {
      * @param {Event} event - The event triggering the paste action.
      */
     _onPaste(event) {
-        const pasteConfiguration = () => {
-            this._setInitialValues(this.clipboard.key);
-            this._onChangeType();
-            this._onInputLabel();
-
-            this.initType = this.clipboard.key.type;
-            this.pasted = true;
-        };
         if (this.clipboard.key !== null) {
             if (this.inputs.type.value !== 'blank') {
                 new ConfirmationDialog({
@@ -742,14 +834,26 @@ export class EditDialog extends BaseDialog {
                     prompt: _('Do you really want to replace this configuration?'),
                 })
                     .then((response) => {
-                        pasteConfiguration();
+                        this._pasteConfiguration();
                     })
                     .catch((error) => {});
             } else {
-                pasteConfiguration();
+                this._pasteConfiguration();
             }
         }
     }
+
+    /**
+     * Pastes the configuration from the clipboard.
+     */
+    _pasteConfiguration() {
+        this._setInitialValues(this.clipboard.key);
+        this._onChangeType();
+        this._onInputLabel();
+
+        this.initType = this.clipboard.key.type;
+        this.pasted = true;
+    };
 
     /**
      * Initializes a sortable macro list for a given container.
@@ -1185,7 +1289,7 @@ export class ConfirmationDialog extends BaseDialog {
         this.prompt = prompt;
 
         this._setContent();
-        this._toggleCopyPasteButtons(false);
+        this._toggleHeaderButtons(false);
         this._setHeaderLabel(this.title);
         this._appendToParent(this.parent, this.DOM.container);
         this._setPosition(this.DOM.dialog, position);
@@ -1245,7 +1349,7 @@ export class SettingsDialog extends BaseDialog {
         ];
 
         this._setContent();
-        this._toggleCopyPasteButtons(false);
+        this._toggleHeaderButtons(false);
         this._setHeaderLabel(_('Settings'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues();
@@ -1422,7 +1526,7 @@ export class ResetDialog extends BaseDialog {
 
         this._setContent();
         this._toggleOKButton(false);
-        this._toggleCopyPasteButtons(false);
+        this._toggleHeaderButtons(false);
         this._setHeaderLabel(_('Reboot'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setPosition(this.DOM.dialog, position);
