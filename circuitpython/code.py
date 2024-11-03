@@ -216,7 +216,7 @@ class MacroApp():
 
     def run_macro(self, item: tuple[str, list], *args) -> None:
         """ run the macro, can be:
-                Float (e.g. 0.25): delay in seconds
+                Int | Float (e.g. 0.25): delay in seconds
                 String (e.g. "Foo"): corresponding keys pressed & released
                 Dict {}: 
                     'kc': Keycodes (e.g. "SHIFT"): key pressed | (e.g. "-SHIFT"): key released
@@ -232,7 +232,7 @@ class MacroApp():
             item (key_id:str, content:list): the key id and content data
         """
         for key in item[1]:
-            if isinstance(key, float):
+            if isinstance(key, (int, float)):
                 time.sleep(key)
             elif isinstance(key, str):
                 self.macropad.keyboard_layout.write(key)
