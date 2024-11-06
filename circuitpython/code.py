@@ -557,14 +557,14 @@ class MacroApp():
                 if key_event.pressed and not any([key.pressed for key in self.keys]):
                     self.keys[key_event.key_number].pressed = True
                     active_key = key_event.key_number
-                    self.active_key_delay = time.monotonic()
+                    active_key_delay = time.monotonic()
 
                 elif key_event.released and key_event.key_number == active_key:
                     self.keys[key_event.key_number].pressed = False
                     active_key = None
             
             # if a key is pressed continuously, the function triggers again after a short delay
-            if active_key and time.monotonic() - self.active_key_delay > 0.75:
+            if active_key is not None and time.monotonic() - active_key_delay > 0.75:
                 self._display_on()
                 self.keys[active_key].call_func()
 
