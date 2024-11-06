@@ -283,7 +283,6 @@ class MacroString extends MacroBase {
 
         this.type = 'string';
         this.value = value;
-        this.inputWidth = 270;
 
         this._setContent();
 
@@ -302,7 +301,7 @@ class MacroString extends MacroBase {
             (this.input = utils.create({
                 type: 'input',
                 attributes: {
-                    style: `width:${this.inputWidth}px;`,
+                    style: 'flex-grow:1;',
                     value: this.value,
                 },
             })),
@@ -329,7 +328,6 @@ class MacroKeycodes extends MacroBase {
 
         this.type = 'kc';
         this.value = value;
-        this.inputWidth = 180;
         this.uniqueId = utils.uniqueId();
 
         this.autocompleteList = [
@@ -501,7 +499,7 @@ class MacroKeycodes extends MacroBase {
                 type: 'input',
                 attributes: {
                     list: 'keycodes',
-                    style: `width:${this.inputWidth}px;`,
+                    style: 'flex-grow:1;',
                     value:
                         this.value.kc.slice(0, 1) === '-' ? this.value.kc.slice(1) : this.value.kc,
                 },
@@ -776,7 +774,6 @@ class MacroAudioFile extends MacroBase {
 
         this.type = 'file';
         this.value = value.file;
-        this.inputWidth = 270;
 
         this._setContent();
 
@@ -797,7 +794,7 @@ class MacroAudioFile extends MacroBase {
                 attributes: {
                     title: _('Path to the .mp3 or .wav file'),
                     placeholder: 'audio/sound.mp3',
-                    style: `width:${this.inputWidth}px;`,
+                    style: 'flex-grow:1;',
                     value: this.value,
                     list: "audiofiles"
                 },
