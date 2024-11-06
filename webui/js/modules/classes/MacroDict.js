@@ -1223,19 +1223,18 @@ class MacroMouseEvents extends MacroBase {
      * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
      */
     getValue() {
-        return ['0', ''].includes(this.x.value) &&
-            ['0', ''].includes(this.y.value) &&
-            ['0', ''].includes(this.w.value) &&
-            this.b.value === ''
-            ? false
-            : {
-                  mse: {
-                      x: parseInt(this.x.value),
-                      y: parseInt(this.y.value),
-                      w: parseInt(this.w.value),
-                      b: this.b.value,
-                  },
-              };
+        const fields = [this.x.value, this.y.value, this.w.value, this.b.value];
+        if (fields.every(value => value === '0' || value === '')) return false;
+
+        const values = {};
+        ['x', 'y', 'w'].forEach(field => {
+            if (this[field].value && this[field].value !== '0') {
+                values[field] = parseInt(this[field].value);
+            }
+        });
+        if (this.b.value) values.b = this.b.value;
+        
+        return { mse: values }
     }
 }
 
