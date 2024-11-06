@@ -238,13 +238,25 @@ class MacroApp():
                 self.macropad.keyboard_layout.write(key)
             elif isinstance(key, dict):
                 if 'kc' in key:
-                    key_name = key['kc'][1:] if key['kc'][:1] == "-" else key['kc']
-                    key_code = getattr(Keycode, key_name.upper(), None)
-                    if key_code:
-                        if key['kc'][:1] != "-":
-                            self.macropad.keyboard.press(key_code)
+                    key_codes = [
+                        getattr(Keycode, key_name, None)
+                        for key_name in key['kc'].lstrip('-+').upper().split(',')
+                        if getattr(Keycode, key_name, None) is not None
+                    ]
+                    if key_codes:
+                        if key['kc'] == 'RELALL':
+                            # release all keys
+                            self.macropad.keyboard.release_all()
+                        elif key['kc'][0] == '+':
+                            # tap keys
+                            self.macropad.keyboard.press(*key_codes)
+                            self.macropad.keyboard.release(*key_codes)
+                        elif key['kc'][0] == '-':
+                            # release keys
+                            self.macropad.keyboard.release(*key_codes)
                         else:
-                            self.macropad.keyboard.release(key_code)
+                            # press keys
+                            self.macropad.keyboard.press(*key_codes)
                 if 'ccc' in key:
                     control_code = getattr(
                         ConsumerControlCode, key['ccc'].upper(), None)

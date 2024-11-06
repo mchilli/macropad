@@ -322,7 +322,7 @@ class MacroString extends MacroBase {
  * @class
  * @extends MacroBase
  */
-class MacroKeycodes extends MacroBase {
+class MacroKeycodesOld extends MacroBase {
     constructor(value = { kc: '' }) {
         super();
 
@@ -540,6 +540,296 @@ class MacroKeycodes extends MacroBase {
         this.uniqueId = utils.uniqueId();
         this.press.name = this.uniqueId;
         this.release.name = this.uniqueId;
+    }
+}
+
+/**
+ * Represents a keycodes macro.
+ * @class
+ * @extends MacroBase
+ */
+class MacroKeycodes extends MacroBase {
+    constructor(value = { kc: '+' }) {
+        super();
+
+        this.type = 'kc';
+        this.value = value;
+        
+        this.behaviourList = [
+            [_('Tap'), 'tap'],
+            [_('Press'), 'press'],
+            [_('Release'), 'release'],
+            [_('Release all'), 'release_all']
+        ],
+
+        this.keyCodeListWidth = 18;
+        this.keyCodeList = [
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F',
+            'G',
+            'H',
+            'I',
+            'J',
+            'K',
+            'L',
+            'M',
+            'N',
+            'O',
+            'P',
+            'Q',
+            'R',
+            'S',
+            'T',
+            'U',
+            'V',
+            'W',
+            'X',
+            'Y',
+            'Z',
+            'ZERO',
+            'ONE',
+            'TWO',
+            'THREE',
+            'FOUR',
+            'FIVE',
+            'SIX',
+            'SEVEN',
+            'EIGHT',
+            'NINE',
+            'ENTER',
+            'RETURN',
+            'ESCAPE',
+            'BACKSPACE',
+            'TAB',
+            'SPACEBAR',
+            'SPACE',
+            'MINUS',
+            'EQUALS',
+            'LEFT_BRACKET',
+            'RIGHT_BRACKET',
+            'BACKSLASH',
+            'POUND',
+            'SEMICOLON',
+            'QUOTE',
+            'GRAVE_ACCENT',
+            'COMMA',
+            'PERIOD',
+            'FORWARD_SLASH',
+            'CAPS_LOCK',
+            'F1',
+            'F2',
+            'F3',
+            'F4',
+            'F5',
+            'F6',
+            'F7',
+            'F8',
+            'F9',
+            'F10',
+            'F11',
+            'F12',
+            'F13',
+            'F14',
+            'F15',
+            'F16',
+            'F17',
+            'F18',
+            'F19',
+            'F20',
+            'F21',
+            'F22',
+            'F23',
+            'F24',
+            'PRINT_SCREEN',
+            'SCROLL_LOCK',
+            'PAUSE',
+            'INSERT',
+            'HOME',
+            'PAGE_UP',
+            'DELETE',
+            'END',
+            'PAGE_DOWN',
+            'RIGHT_ARROW',
+            'LEFT_ARROW',
+            'DOWN_ARROW',
+            'UP_ARROW',
+            'KEYPAD_NUMLOCK',
+            'KEYPAD_FORWARD_SLASH',
+            'KEYPAD_ASTERISK',
+            'KEYPAD_MINUS',
+            'KEYPAD_PLUS',
+            'KEYPAD_ENTER',
+            'KEYPAD_ONE',
+            'KEYPAD_TWO',
+            'KEYPAD_THREE',
+            'KEYPAD_FOUR',
+            'KEYPAD_FIVE',
+            'KEYPAD_SIX',
+            'KEYPAD_SEVEN',
+            'KEYPAD_EIGHT',
+            'KEYPAD_NINE',
+            'KEYPAD_ZERO',
+            'KEYPAD_PERIOD',
+            'KEYPAD_BACKSLASH',
+            'APPLICATION',
+            'POWER',
+            'KEYPAD_EQUALS',
+            'LEFT_CONTROL',
+            'CONTROL',
+            'LEFT_SHIFT',
+            'SHIFT',
+            'LEFT_ALT',
+            'ALT',
+            'OPTION',
+            'LEFT_GUI',
+            'GUI',
+            'WINDOWS',
+            'COMMAND',
+            'RIGHT_CONTROL',
+            'RIGHT_SHIFT',
+            'RIGHT_ALT',
+            'RIGHT_GUI',
+        ];
+
+        this._setContent();
+
+        return this.DOM.container;
+    }
+
+    /**
+     * Set the content for the keycodes macro.
+     */
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
+            (this.behaviour = utils.create({
+                type: 'select',
+                children: this.behaviourList.map((value) => {
+                    return utils.create({
+                        type: 'option',
+                        text: value[0],
+                        attributes: {
+                            value: value[1],
+                        },
+                    });
+                }),
+                events: {
+                    change: (event) => {
+                        this._updateVisibility();
+                    }
+                }
+            })),
+            this.additions = utils.create({
+                attributes: {
+                    style: 'display:flex; flex-grow:1;'
+                },
+                children: [
+                    utils.create({
+                        type: 'span',
+                        text: ':',
+                    }),
+                    (this.input = utils.create({
+                        type: 'input',
+                        attributes: {
+                            style: 'flex-grow:1;',
+                            placeholder: 'e.g. CONTROL,ALT,F1'
+                        },
+                    })),
+                    utils.create({
+                        type: 'select',
+                        attributes: {
+                            style: `width:${this.keyCodeListWidth}px;`,
+                        },
+                        children: [
+                            utils.create({
+                                type: 'option',
+                                text: '',
+                                attributes: {
+                                    disabled: true,
+                                    selected: true
+                                }
+                            }),
+                            ...this.keyCodeList.map((value) => {
+                                return utils.create({
+                                    type: 'option',
+                                    text: value
+                                });
+                            })
+                        ],
+                        events: {
+                            change: (event) => {
+                                let list = this.input.value.split(',').filter(Boolean);
+                                list.push(event.target.value);
+                                event.target.selectedIndex = 0
+                                this.input.value = list.join(',');
+                            }
+                        }
+                    }),
+                ]
+            })
+        ]);
+
+        if (this.value.kc === 'RELALL') {
+            this.behaviour.value = 'release_all';
+            this.input.value = '';
+        } else {
+            const prefix = this.value.kc.charAt(0);
+            this.input.value = this.value.kc.slice(1);
+
+            switch (prefix) {
+                case '+':
+                    this.behaviour.value = 'tap';
+                    break;
+                case '-':
+                    this.behaviour.value = 'release';
+                    break;
+                default:
+                    this.behaviour.value = 'press';
+                    this.input.value = this.value.kc;
+                    break;
+            }
+        }
+
+        this._updateVisibility();
+    }
+
+    /**
+     * Updates the visibility of the additions based on the current behavior.
+     */
+    _updateVisibility() {
+        this.additions.classList.toggle('hidden', ['release_all'].includes(this.behaviour.value));
+    }
+
+    /**
+     * Get the value of the keycodes macro.
+     * @returns {Object|false} An object representing the keycodes or `false` if no keycodes are entered.
+     */
+    getValue() {
+        const prefix = {
+            'tap': '+',
+            'release': '-',
+            'press': ''
+        }[this.behaviour.value] || '';
+
+        if (this.behaviour.value === 'release_all') {
+            return { kc: 'RELALL' };
+        }
+
+        if (!this.input.value.trim()) {
+            return false;
+        }
+
+        const formattedInput = this.input.value
+            .replace(/\s+/g, '')    // Remove whitespace
+            .toUpperCase()          // Convert to uppercase
+            .split(',')             // Split by comma
+            .filter(Boolean)        // Remove empty entries
+            .join(',');             // Join with commas
+
+        return { kc: `${prefix}${formattedInput}` };
     }
 }
 
