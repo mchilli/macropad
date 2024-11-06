@@ -9,6 +9,8 @@ import * as utils from '../utils.js';
 class MacroBase {
     constructor() {
         this.DOM = this._initDOM();
+
+        this.type = '';
     }
 
     /**
@@ -74,7 +76,9 @@ class MacroBase {
      * Duplicates the current macro element and inserts it after the original.
      */
     _duplicateMacro() {
-        const entry = getMacroByValue(this.getValue());
+        const value = this.getValue();
+        const entry = value ? getMacroByValue(value) : getMacroByType(this.type);
+
         this.DOM.container.parentNode.insertBefore(entry, this.DOM.container.nextSibling);
     }
 
@@ -110,6 +114,7 @@ class MacroSelector extends MacroBase {
     constructor() {
         super();
 
+        this.type = 'selector';
         this.inputWidth = 180;
 
         this._setContent();
@@ -222,6 +227,7 @@ class MacroWait extends MacroBase {
     constructor(value = 0) {
         super();
 
+        this.type = 'wait';
         this.value = value;
         this.inputWidth = 40;
 
@@ -275,6 +281,7 @@ class MacroString extends MacroBase {
     constructor(value = '') {
         super();
 
+        this.type = 'string';
         this.value = value;
         this.inputWidth = 270;
 
@@ -320,6 +327,7 @@ class MacroKeycodes extends MacroBase {
     constructor(value = { kc: '' }) {
         super();
 
+        this.type = 'kc';
         this.value = value;
         this.inputWidth = 180;
         this.uniqueId = utils.uniqueId();
@@ -546,6 +554,7 @@ class MacroConsumerControlCodes extends MacroBase {
     constructor(value = { ccc: '' }) {
         super();
 
+        this.type = 'ccc';
         this.value = value;
         this.inputWidth = 200;
 
@@ -624,6 +633,7 @@ class MacroTone extends MacroBase {
     constructor(value = { tone: {} }) {
         super();
 
+        this.type = 'tone';
         const defaultTone = { frequency: 0, duration: 0 };
         this.value = {
             tone: { ...defaultTone, ...value.tone },
@@ -764,6 +774,7 @@ class MacroAudioFile extends MacroBase {
     constructor(value = { file: '' }) {
         super();
 
+        this.type = 'file';
         this.value = value.file;
         this.inputWidth = 270;
 
@@ -828,6 +839,7 @@ class MacroMouseEvents extends MacroBase {
     constructor(value = { mse: {} }) {
         super();
 
+        this.type = 'mse';
         const defaultMouseEvent = { x: 0, y: 0, w: 0, b: '' };
         this.value = {
             mse: { ...defaultMouseEvent, ...value.mse },
@@ -949,6 +961,7 @@ class MacroSystemFunctions extends MacroBase {
     constructor(value = { sys: '' }) {
         super();
 
+        this.type = 'sys';
         this.value = value;
         this.inputWidth = 170;
 
@@ -1069,7 +1082,7 @@ export function getMacroByValue(value) {
                     return new MacroSystemFunctions(value);
             }
         default:
-            return new MacroBase().DOM.container;
+            return new MacroSelector();
     }
 }
 
