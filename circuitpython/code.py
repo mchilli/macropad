@@ -173,7 +173,7 @@ class MacroApp():
             padding_bottom=0,
             padding_left=0,
             padding_right=0,
-            color=0xFFFFFF,
+            color=0xffffff,
             anchored_position=(
                 self.macropad.display.width // 2,
                 self.macropad.display.height - 10),
@@ -196,7 +196,7 @@ class MacroApp():
                 padding_bottom=1,
                 padding_left=4,
                 padding_right=4,
-                color=0xFFFFFF,
+                color=0xffffff,
                 anchored_position=(
                     (self.macropad.display.width - 2) / 2 * (i % 3) + 1,
                      self.macropad.display.height / 5 * (i // 3) + 2),
@@ -320,6 +320,11 @@ class MacroApp():
     def _update_tab(self) -> None:
         """ update the current displayed group tab 
         """
+        key_funcs = {
+            "macro": self.run_macro,
+            "group": self.open_group
+        }
+
         for key in self.keys:
             key.clear_props()
         
@@ -329,32 +334,17 @@ class MacroApp():
             if key_id:
                 macro_data = json.loads(self.macro_store[str(key_id)])
                 key_type = macro_data["type"]
-                
-                self.keys[i].type = key_type
-                self.keys[i].label = "" if key_type == "blank" else macro_data["label"]
-                self.keys[i].color = (0, 0, 0) if key_type == "blank" else macro_data["color"]
-                self.keys[i].set_func(self._get_key_func(key_type), (str(key_id), macro_data["content"]))
+
+                key = self.keys[i]
+                key.type = key_type
+                key.label = macro_data["label"]
+                key.color = macro_data["color"]
+                key.set_func(key_funcs.get(key_type), (str(key_id), macro_data["content"]))
 
         self.group_label.text = group["label"]
 
         for key in self.keys:
             key.update_colors()
-
-    def _get_key_func(self, type: str) -> function:
-        """ get the specific function for the type
-
-        Args:
-            type (str): the item type
-
-        Returns:
-            function: return the function for type
-        """
-        key_funcs = {
-            "blank": None,
-            "group": self.open_group
-        }
-
-        return key_funcs.get(type, self.run_macro)
 
     def _update_encoder_macros(self) -> None:
         """ update the rotary encoder macros defined for opened group
