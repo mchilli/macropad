@@ -25,7 +25,7 @@ from utils.utils import get_audio_files
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = "1.4.1"
+VERSION = "1.4.2"
 # The file in which the settings are saved
 SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
@@ -441,7 +441,7 @@ class MacroApp():
                 return
 
             response['ACK'] = 'Macros received'
-            response['CONTENT'] = len(self.macro_store)
+            response['CONTENT'] = len(self.macro_store) - 1
             return response
 
         elif command == 'save_macros':
