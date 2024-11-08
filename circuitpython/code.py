@@ -25,7 +25,7 @@ from utils.utils import get_audio_files
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = "1.4.1"
+VERSION = "1.4.2"
 # The file in which the settings are saved
 SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
@@ -173,7 +173,7 @@ class MacroApp():
             padding_bottom=0,
             padding_left=0,
             padding_right=0,
-            color=0xFFFFFF,
+            color=0xffffff,
             anchored_position=(
                 self.macropad.display.width // 2,
                 self.macropad.display.height - 10),
@@ -196,7 +196,7 @@ class MacroApp():
                 padding_bottom=1,
                 padding_left=4,
                 padding_right=4,
-                color=0xFFFFFF,
+                color=0xffffff,
                 anchored_position=(
                     (self.macropad.display.width - 2) / 2 * (i % 3) + 1,
                      self.macropad.display.height / 5 * (i // 3) + 2),
@@ -235,16 +235,32 @@ class MacroApp():
             if isinstance(key, (int, float)):
                 time.sleep(key)
             elif isinstance(key, str):
-                self.macropad.keyboard_layout.write(key)
+                try:
+                    self.macropad.keyboard_layout.write(key)
+                except ValueError:
+                    # if any of the characters has no keycode
+                    pass
             elif isinstance(key, dict):
                 if 'kc' in key:
-                    key_name = key['kc'][1:] if key['kc'][:1] == "-" else key['kc']
-                    key_code = getattr(Keycode, key_name.upper(), None)
-                    if key_code:
-                        if key['kc'][:1] != "-":
-                            self.macropad.keyboard.press(key_code)
+                    key_codes = [
+                        getattr(Keycode, key_name, None)
+                        for key_name in key['kc'].lstrip('-+').upper().split(',')
+                        if getattr(Keycode, key_name, None) is not None
+                    ]
+                    if key_codes:
+                        if key['kc'] == 'RELALL':
+                            # release all keys
+                            self.macropad.keyboard.release_all()
+                        elif key['kc'][0] == '+':
+                            # tap keys
+                            self.macropad.keyboard.press(*key_codes)
+                            self.macropad.keyboard.release(*key_codes)
+                        elif key['kc'][0] == '-':
+                            # release keys
+                            self.macropad.keyboard.release(*key_codes)
                         else:
-                            self.macropad.keyboard.release(key_code)
+                            # press keys
+                            self.macropad.keyboard.press(*key_codes)
                 if 'ccc' in key:
                     control_code = getattr(
                         ConsumerControlCode, key['ccc'].upper(), None)
@@ -304,6 +320,11 @@ class MacroApp():
     def _update_tab(self) -> None:
         """ update the current displayed group tab 
         """
+        key_funcs = {
+            "macro": self.run_macro,
+            "group": self.open_group
+        }
+
         for key in self.keys:
             key.clear_props()
         
@@ -313,32 +334,17 @@ class MacroApp():
             if key_id:
                 macro_data = json.loads(self.macro_store[str(key_id)])
                 key_type = macro_data["type"]
-                
-                self.keys[i].type = key_type
-                self.keys[i].label = "" if key_type == "blank" else macro_data["label"]
-                self.keys[i].color = (0, 0, 0) if key_type == "blank" else macro_data["color"]
-                self.keys[i].set_func(self._get_key_func(key_type), (str(key_id), macro_data["content"]))
+
+                key = self.keys[i]
+                key.type = key_type
+                key.label = macro_data["label"]
+                key.color = macro_data["color"]
+                key.set_func(key_funcs.get(key_type), (str(key_id), macro_data["content"]))
 
         self.group_label.text = group["label"]
 
         for key in self.keys:
             key.update_colors()
-
-    def _get_key_func(self, type: str) -> function:
-        """ get the specific function for the type
-
-        Args:
-            type (str): the item type
-
-        Returns:
-            function: return the function for type
-        """
-        key_funcs = {
-            "blank": None,
-            "group": self.open_group
-        }
-
-        return key_funcs.get(type, self.run_macro)
 
     def _update_encoder_macros(self) -> None:
         """ update the rotary encoder macros defined for opened group
@@ -429,7 +435,7 @@ class MacroApp():
                 return
 
             response['ACK'] = 'Macros received'
-            response['CONTENT'] = len(self.macro_store)
+            response['CONTENT'] = len(self.macro_store) - 1
             return response
 
         elif command == 'save_macros':
@@ -545,14 +551,14 @@ class MacroApp():
                 if key_event.pressed and not any([key.pressed for key in self.keys]):
                     self.keys[key_event.key_number].pressed = True
                     active_key = key_event.key_number
-                    self.active_key_delay = time.monotonic()
+                    active_key_delay = time.monotonic()
 
                 elif key_event.released and key_event.key_number == active_key:
                     self.keys[key_event.key_number].pressed = False
                     active_key = None
             
             # if a key is pressed continuously, the function triggers again after a short delay
-            if active_key and time.monotonic() - self.active_key_delay > 0.75:
+            if active_key is not None and time.monotonic() - active_key_delay > 0.75:
                 self._display_on()
                 self.keys[active_key].call_func()
 

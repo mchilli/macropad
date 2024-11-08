@@ -919,7 +919,7 @@ export class EditDialog extends BaseDialog {
 
         if (values.type !== 'blank') {
             values.label = this.inputs.label.value;
-            values.color = utils.hexToRGB(this.inputs.colorPicker.value);
+            values.color = this.inputs.colorPicker.value.slice(1);
             values.content = this.keyInstance.content.length === 0 ? undefined : this.keyInstance.content;
         }
 
@@ -956,9 +956,9 @@ export class EditDialog extends BaseDialog {
         this.inputs.container.classList.add(key.type);
 
         this.inputs.label.value = key.label;
-
-        this.inputs.colorPicker.value = utils.rgbToHex(key.color);
-        this.inputs.colorText.value = utils.rgbToHex(key.color).toUpperCase();
+        
+        this.inputs.colorPicker.value = `#${utils.validateHex(key.color)}`;
+        this.inputs.colorText.value = `#${utils.validateHex(key.color).toUpperCase()}`;
 
         switch (key.type) {
             case 'macro':

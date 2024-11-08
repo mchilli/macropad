@@ -8272,6 +8272,8 @@ readers do not read off random characters that represent icons */
   --key-control-border-radius: 10px;
   --dialog-button-size: 40px;
   --dialog-gap: calc(var(--dialog-button-size) / 10);
+  --macro-visible-count: 10;
+  --macro-entry-min-width: 400px;
   --macro-entry-height: 30px;
 }
 
@@ -8602,13 +8604,14 @@ body {
   border: 1px solid var(--color-grey);
   box-sizing: border-box;
   padding: var(--dialog-gap);
-  max-height: calc(var(--macro-entry-height) * 5 + var(--dialog-gap) * 6);
+  max-height: calc(var(--macro-entry-height) * var(--macro-visible-count) + var(--dialog-gap) * (var(--macro-visible-count) + 1));
   overflow: auto;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container {
   display: flex;
   gap: var(--dialog-gap);
   align-items: center;
+  min-width: var(--macro-entry-min-width);
   height: var(--macro-entry-height);
   padding: var(--dialog-gap);
   background-color: var(--color-green);
@@ -8620,6 +8623,9 @@ body {
   cursor: grab;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
   text-wrap: nowrap;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls {

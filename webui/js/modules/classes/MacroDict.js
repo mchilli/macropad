@@ -9,6 +9,8 @@ import * as utils from '../utils.js';
 class MacroBase {
     constructor() {
         this.DOM = this._initDOM();
+
+        this.type = '';
     }
 
     /**
@@ -74,7 +76,9 @@ class MacroBase {
      * Duplicates the current macro element and inserts it after the original.
      */
     _duplicateMacro() {
-        const entry = getMacroByValue(this.getValue());
+        const value = this.getValue();
+        const entry = value ? getMacroByValue(value) : getMacroByType(this.type);
+
         this.DOM.container.parentNode.insertBefore(entry, this.DOM.container.nextSibling);
     }
 
@@ -110,6 +114,7 @@ class MacroSelector extends MacroBase {
     constructor() {
         super();
 
+        this.type = 'selector';
         this.inputWidth = 180;
 
         this._setContent();
@@ -222,6 +227,7 @@ class MacroWait extends MacroBase {
     constructor(value = 0) {
         super();
 
+        this.type = 'wait';
         this.value = value;
         this.inputWidth = 40;
 
@@ -275,8 +281,8 @@ class MacroString extends MacroBase {
     constructor(value = '') {
         super();
 
+        this.type = 'string';
         this.value = value;
-        this.inputWidth = 270;
 
         this._setContent();
 
@@ -295,7 +301,7 @@ class MacroString extends MacroBase {
             (this.input = utils.create({
                 type: 'input',
                 attributes: {
-                    style: `width:${this.inputWidth}px;`,
+                    style: 'flex-grow:1;',
                     value: this.value,
                 },
             })),
@@ -316,12 +322,12 @@ class MacroString extends MacroBase {
  * @class
  * @extends MacroBase
  */
-class MacroKeycodes extends MacroBase {
+class MacroKeycodesOld extends MacroBase {
     constructor(value = { kc: '' }) {
         super();
 
+        this.type = 'kc';
         this.value = value;
-        this.inputWidth = 180;
         this.uniqueId = utils.uniqueId();
 
         this.autocompleteList = [
@@ -493,7 +499,7 @@ class MacroKeycodes extends MacroBase {
                 type: 'input',
                 attributes: {
                     list: 'keycodes',
-                    style: `width:${this.inputWidth}px;`,
+                    style: 'flex-grow:1;',
                     value:
                         this.value.kc.slice(0, 1) === '-' ? this.value.kc.slice(1) : this.value.kc,
                 },
@@ -538,6 +544,296 @@ class MacroKeycodes extends MacroBase {
 }
 
 /**
+ * Represents a keycodes macro.
+ * @class
+ * @extends MacroBase
+ */
+class MacroKeycodes extends MacroBase {
+    constructor(value = { kc: '+' }) {
+        super();
+
+        this.type = 'kc';
+        this.value = value;
+        
+        this.behaviourList = [
+            [_('Tap'), 'tap'],
+            [_('Press'), 'press'],
+            [_('Release'), 'release'],
+            [_('Release all'), 'release_all']
+        ],
+
+        this.keyCodeListWidth = 18;
+        this.keyCodeList = [
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F',
+            'G',
+            'H',
+            'I',
+            'J',
+            'K',
+            'L',
+            'M',
+            'N',
+            'O',
+            'P',
+            'Q',
+            'R',
+            'S',
+            'T',
+            'U',
+            'V',
+            'W',
+            'X',
+            'Y',
+            'Z',
+            'ZERO',
+            'ONE',
+            'TWO',
+            'THREE',
+            'FOUR',
+            'FIVE',
+            'SIX',
+            'SEVEN',
+            'EIGHT',
+            'NINE',
+            'ENTER',
+            'RETURN',
+            'ESCAPE',
+            'BACKSPACE',
+            'TAB',
+            'SPACEBAR',
+            'SPACE',
+            'MINUS',
+            'EQUALS',
+            'LEFT_BRACKET',
+            'RIGHT_BRACKET',
+            'BACKSLASH',
+            'POUND',
+            'SEMICOLON',
+            'QUOTE',
+            'GRAVE_ACCENT',
+            'COMMA',
+            'PERIOD',
+            'FORWARD_SLASH',
+            'CAPS_LOCK',
+            'F1',
+            'F2',
+            'F3',
+            'F4',
+            'F5',
+            'F6',
+            'F7',
+            'F8',
+            'F9',
+            'F10',
+            'F11',
+            'F12',
+            'F13',
+            'F14',
+            'F15',
+            'F16',
+            'F17',
+            'F18',
+            'F19',
+            'F20',
+            'F21',
+            'F22',
+            'F23',
+            'F24',
+            'PRINT_SCREEN',
+            'SCROLL_LOCK',
+            'PAUSE',
+            'INSERT',
+            'HOME',
+            'PAGE_UP',
+            'DELETE',
+            'END',
+            'PAGE_DOWN',
+            'RIGHT_ARROW',
+            'LEFT_ARROW',
+            'DOWN_ARROW',
+            'UP_ARROW',
+            'KEYPAD_NUMLOCK',
+            'KEYPAD_FORWARD_SLASH',
+            'KEYPAD_ASTERISK',
+            'KEYPAD_MINUS',
+            'KEYPAD_PLUS',
+            'KEYPAD_ENTER',
+            'KEYPAD_ONE',
+            'KEYPAD_TWO',
+            'KEYPAD_THREE',
+            'KEYPAD_FOUR',
+            'KEYPAD_FIVE',
+            'KEYPAD_SIX',
+            'KEYPAD_SEVEN',
+            'KEYPAD_EIGHT',
+            'KEYPAD_NINE',
+            'KEYPAD_ZERO',
+            'KEYPAD_PERIOD',
+            'KEYPAD_BACKSLASH',
+            'APPLICATION',
+            'POWER',
+            'KEYPAD_EQUALS',
+            'LEFT_CONTROL',
+            'CONTROL',
+            'LEFT_SHIFT',
+            'SHIFT',
+            'LEFT_ALT',
+            'ALT',
+            'OPTION',
+            'LEFT_GUI',
+            'GUI',
+            'WINDOWS',
+            'COMMAND',
+            'RIGHT_CONTROL',
+            'RIGHT_SHIFT',
+            'RIGHT_ALT',
+            'RIGHT_GUI',
+        ];
+
+        this._setContent();
+
+        return this.DOM.container;
+    }
+
+    /**
+     * Set the content for the keycodes macro.
+     */
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
+            (this.behaviour = utils.create({
+                type: 'select',
+                children: this.behaviourList.map((value) => {
+                    return utils.create({
+                        type: 'option',
+                        text: value[0],
+                        attributes: {
+                            value: value[1],
+                        },
+                    });
+                }),
+                events: {
+                    change: (event) => {
+                        this._updateVisibility();
+                    }
+                }
+            })),
+            this.additions = utils.create({
+                attributes: {
+                    style: 'display:flex; flex-grow:1;'
+                },
+                children: [
+                    utils.create({
+                        type: 'span',
+                        text: ':',
+                    }),
+                    (this.input = utils.create({
+                        type: 'input',
+                        attributes: {
+                            style: 'flex-grow:1;',
+                            placeholder: 'e.g. CONTROL,ALT,F1'
+                        },
+                    })),
+                    utils.create({
+                        type: 'select',
+                        attributes: {
+                            style: `width:${this.keyCodeListWidth}px;`,
+                        },
+                        children: [
+                            utils.create({
+                                type: 'option',
+                                text: '',
+                                attributes: {
+                                    disabled: true,
+                                    selected: true
+                                }
+                            }),
+                            ...this.keyCodeList.map((value) => {
+                                return utils.create({
+                                    type: 'option',
+                                    text: value
+                                });
+                            })
+                        ],
+                        events: {
+                            change: (event) => {
+                                let list = this.input.value.split(',').filter(Boolean);
+                                list.push(event.target.value);
+                                event.target.selectedIndex = 0
+                                this.input.value = list.join(',');
+                            }
+                        }
+                    }),
+                ]
+            })
+        ]);
+
+        if (this.value.kc === 'RELALL') {
+            this.behaviour.value = 'release_all';
+            this.input.value = '';
+        } else {
+            const prefix = this.value.kc.charAt(0);
+            this.input.value = this.value.kc.slice(1);
+
+            switch (prefix) {
+                case '+':
+                    this.behaviour.value = 'tap';
+                    break;
+                case '-':
+                    this.behaviour.value = 'release';
+                    break;
+                default:
+                    this.behaviour.value = 'press';
+                    this.input.value = this.value.kc;
+                    break;
+            }
+        }
+
+        this._updateVisibility();
+    }
+
+    /**
+     * Updates the visibility of the additions based on the current behavior.
+     */
+    _updateVisibility() {
+        this.additions.classList.toggle('hidden', ['release_all'].includes(this.behaviour.value));
+    }
+
+    /**
+     * Get the value of the keycodes macro.
+     * @returns {Object|false} An object representing the keycodes or `false` if no keycodes are entered.
+     */
+    getValue() {
+        const prefix = {
+            'tap': '+',
+            'release': '-',
+            'press': ''
+        }[this.behaviour.value] || '';
+
+        if (this.behaviour.value === 'release_all') {
+            return { kc: 'RELALL' };
+        }
+
+        if (!this.input.value.trim()) {
+            return false;
+        }
+
+        const formattedInput = this.input.value
+            .replace(/\s+/g, '')    // Remove whitespace
+            .toUpperCase()          // Convert to uppercase
+            .split(',')             // Split by comma
+            .filter(Boolean)        // Remove empty entries
+            .join(',');             // Join with commas
+
+        return { kc: `${prefix}${formattedInput}` };
+    }
+}
+
+/**
  * Represents a consumer control codes macro.
  * @class
  * @extends MacroBase
@@ -546,6 +842,7 @@ class MacroConsumerControlCodes extends MacroBase {
     constructor(value = { ccc: '' }) {
         super();
 
+        this.type = 'ccc';
         this.value = value;
         this.inputWidth = 200;
 
@@ -624,6 +921,7 @@ class MacroTone extends MacroBase {
     constructor(value = { tone: {} }) {
         super();
 
+        this.type = 'tone';
         const defaultTone = { frequency: 0, duration: 0 };
         this.value = {
             tone: { ...defaultTone, ...value.tone },
@@ -764,8 +1062,8 @@ class MacroAudioFile extends MacroBase {
     constructor(value = { file: '' }) {
         super();
 
+        this.type = 'file';
         this.value = value.file;
-        this.inputWidth = 270;
 
         this._setContent();
 
@@ -786,7 +1084,7 @@ class MacroAudioFile extends MacroBase {
                 attributes: {
                     title: _('Path to the .mp3 or .wav file'),
                     placeholder: 'audio/sound.mp3',
-                    style: `width:${this.inputWidth}px;`,
+                    style: 'flex-grow:1;',
                     value: this.value,
                     list: "audiofiles"
                 },
@@ -828,6 +1126,7 @@ class MacroMouseEvents extends MacroBase {
     constructor(value = { mse: {} }) {
         super();
 
+        this.type = 'mse';
         const defaultMouseEvent = { x: 0, y: 0, w: 0, b: '' };
         this.value = {
             mse: { ...defaultMouseEvent, ...value.mse },
@@ -924,19 +1223,18 @@ class MacroMouseEvents extends MacroBase {
      * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
      */
     getValue() {
-        return ['0', ''].includes(this.x.value) &&
-            ['0', ''].includes(this.y.value) &&
-            ['0', ''].includes(this.w.value) &&
-            this.b.value === ''
-            ? false
-            : {
-                  mse: {
-                      x: parseInt(this.x.value),
-                      y: parseInt(this.y.value),
-                      w: parseInt(this.w.value),
-                      b: this.b.value,
-                  },
-              };
+        const fields = [this.x.value, this.y.value, this.w.value, this.b.value];
+        if (fields.every(value => value === '0' || value === '')) return false;
+
+        const values = {};
+        ['x', 'y', 'w'].forEach(field => {
+            if (this[field].value && this[field].value !== '0') {
+                values[field] = parseInt(this[field].value);
+            }
+        });
+        if (this.b.value) values.b = this.b.value;
+        
+        return { mse: values }
     }
 }
 
@@ -949,6 +1247,7 @@ class MacroSystemFunctions extends MacroBase {
     constructor(value = { sys: '' }) {
         super();
 
+        this.type = 'sys';
         this.value = value;
         this.inputWidth = 170;
 
@@ -1069,7 +1368,7 @@ export function getMacroByValue(value) {
                     return new MacroSystemFunctions(value);
             }
         default:
-            return new MacroBase().DOM.container;
+            return new MacroSelector();
     }
 }
 
