@@ -235,7 +235,11 @@ class MacroApp():
             if isinstance(key, (int, float)):
                 time.sleep(key)
             elif isinstance(key, str):
-                self.macropad.keyboard_layout.write(key)
+                try:
+                    self.macropad.keyboard_layout.write(key)
+                except ValueError:
+                    # if any of the characters has no keycode
+                    pass
             elif isinstance(key, dict):
                 if 'kc' in key:
                     key_codes = [
