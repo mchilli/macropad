@@ -92,23 +92,32 @@ export function capitalize(s) {
  * @returns {Array} - An array representing the RGB color values [R, G, B].
  */
 export function hexToRGB(hexcolor) {
-    const r = parseInt(hexcolor.substr(1, 2), 16);
-    const g = parseInt(hexcolor.substr(3, 2), 16);
-    const b = parseInt(hexcolor.substr(5, 2), 16);
+    const r = parseInt(hexcolor.substring(1, 3), 16);
+    const g = parseInt(hexcolor.substring(3, 5), 16);
+    const b = parseInt(hexcolor.substring(5, 7), 16);
     return [r, g, b];
 }
 
 /**
  * Converts an RGB color array to a hexadecimal color string.
  * @param {Array} rgb - An array representing the RGB color values [R, G, B].
- * @returns {string} - The hexadecimal color string (e.g., '#RRGGBB').
+ * @returns {string} - The hexadecimal color string (e.g. 'RRGGBB').
  */
 export function rgbToHex([r, g, b]) {
     const intToHex = (c) => {
         const hex = c.toString(16);
         return hex.length == 1 ? '0' + hex : hex;
     };
-    return '#' + intToHex(r) + intToHex(g) + intToHex(b);
+    return intToHex(r) + intToHex(g) + intToHex(b);
+}
+
+/**
+ * Validates and converts RGB color objects to hex format if needed.
+ * @param {string|object} color - The color in hex format or RGB object.
+ * @returns {string} - The color in hex format (e.g. 'RRGGBB').
+ */
+export function validateHex(color) {
+    return typeof color === 'object' ? rgbToHex(color) : color;
 }
 
 /**
@@ -190,7 +199,7 @@ export function convertJsonToFileIds(baseData) {
                 dataStore[keyId] = {
                     type: "group",
                     label: item.label,
-                    color: item.color,
+                    color: validateHex(item.color),
                     content: processContent(item.content),
                     encoder: {
                         switch: item.encoder.switch,
@@ -205,7 +214,7 @@ export function convertJsonToFileIds(baseData) {
                 dataStore[fileId] = {
                     type: "macro",
                     label: item.label,
-                    color: item.color,
+                    color: validateHex(item.color),
                     content: item.content
                 };
                 processedContent.push(fileId);
@@ -248,7 +257,7 @@ export function restoreJsonFromFileIds(dataStore) {
                     let groupData = {
                         type: "group",
                         label: data.label,
-                        color: data.color,
+                        color: validateHex(data.color),
                         content: loadContent(data.content),
                         encoder: {
                             switch: data.encoder.switch,
@@ -261,7 +270,7 @@ export function restoreJsonFromFileIds(dataStore) {
                     let macroData = {
                         type: "macro",
                         label: data.label,
-                        color: data.color,
+                        color: validateHex(data.color),
                         content: data.content
                     };
                     content.push(macroData);
@@ -295,13 +304,13 @@ export const defaultKeys = {
     macro: {
         type: 'macro',
         label: 'unkown',
-        color: [255, 255, 255],
+        color: 'ffffff',
         content: []
     },
     group: {
         type: 'group',
         label: 'unkown',
-        color: [255, 255, 255],
+        color: 'ffffff',
         content: [],
         encoder: {
             switch: [],
@@ -312,7 +321,7 @@ export const defaultKeys = {
     close: {
         type: 'macro',
         label: '<-',
-        color: [18, 18, 18],
+        color: '121212',
         content: [{ sys: 'close_group' }],
     }
 };

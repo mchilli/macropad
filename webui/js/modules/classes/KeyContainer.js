@@ -53,13 +53,10 @@ export default class KeyContainer {
     _initDOM() {
         let DOM = {};
 
-        const [r, g, b] = this.color;
-        const style = `background-color: rgb(${r},${g},${b})`;
-
         DOM.container = utils.create({
             attributes: {
                 class: 'key-container',
-                style: style,
+                style: `background-color: #${utils.validateHex(this.color)}`,
             },
             children: [
                 (DOM.type = utils.create({
@@ -281,13 +278,12 @@ export default class KeyContainer {
 
     /**
      * Sets the color for the KeyContainer.
-     * @param {number[]} [color=[255, 255, 255]] - The color to set for the KeyContainer.
+     * @param {string} [color='ffffff'] - The color to set for the KeyContainer.
      */
-    setColor(color = [255, 255, 255]) {
-        this.color = color;
-        const [r, g, b] = this.color;
+    setColor(color = 'ffffff') {
+        this.color = utils.validateHex(color);
         utils.style(this.DOM.container, {
-            'background-color': `rgb(${r},${g},${b})`,
+            'background-color': `#${this.color}`,
         });
     }
 

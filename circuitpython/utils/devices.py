@@ -108,7 +108,7 @@ class Key():
     def update_colors(self) -> None:
         """ update the backgroundcolor and color based on type
         """
-        if self.type in ["blank", "group"]:
+        if self.type in [None, "group"]:
             self._label.background_color = 0x000000
             self._label.color = 0xffffff
         else:
@@ -117,12 +117,14 @@ class Key():
 
         self._set_led(self.color)
 
-    def _set_led(self, color:tuple[int, int, int]) -> None:
+    def _set_led(self, color:list[int, int, int] | str) -> None:
         """ set and update the led color
 
         Args:
-            color (tuple): the led color (R, G, B)
+            color (list | string): the led color (R, G, B) | rrggbb
         """
+        if isinstance(color, str): 
+            color = (int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16))
         self._macropad.pixels[self._index] = color
         self._macropad.pixels.show()
 
@@ -131,7 +133,7 @@ class Key():
         """
         self._label.text = ""
         self._type = None
-        self._color = (0, 0, 0)
+        self._color = '000000'
         self._func = None
         self._func_args = None
 
@@ -158,7 +160,7 @@ class Key():
         """ Action that triggered when Key is pressed
         """
         if self._func:
-            self._set_led((255, 255, 255))
+            self._set_led('ffffff')
             self.call_func()
     
     def _on_released(self) -> None:
