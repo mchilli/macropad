@@ -25,7 +25,7 @@ from utils.utils import get_audio_files
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = "1.4.2"
+VERSION = "1.5.0"
 # The file in which the settings are saved
 SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
