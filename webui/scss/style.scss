@@ -422,6 +422,18 @@ body {
                     }
                 }
 
+                .input-retrigger-container {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--dialog-gap);
+
+                    .input-retrigger {
+                        width: calc(var(--dialog-button-size) / 2);
+                        height: calc(var(--dialog-button-size) / 2);
+                        margin: 0;
+                    }
+                }
+
                 &.blank .input-label,
                 &.blank .input-color,
                 &.blank .input-content,

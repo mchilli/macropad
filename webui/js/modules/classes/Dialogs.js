@@ -573,6 +573,26 @@ export class EditDialog extends BaseDialog {
                                     }),
                                 ],
                             }),
+                            utils.create({
+                                attributes: {
+                                    class: 'input-retrigger-container',
+                                },
+                                children: [
+                                    (this.inputs.retrigger = utils.create({
+                                        type: 'input',
+                                        attributes: {
+                                            type: 'checkbox',
+                                            title: _(
+                                                'If enabled, the macro will be retriggered when holding the key'
+                                            ),
+                                            class: 'input-retrigger',
+                                        },
+                                    })),
+                                    utils.create({
+                                        text: _('retrigger'),
+                                    }),
+                                ],
+                            }),
                         ],
                     }),
                     utils.create({
@@ -927,6 +947,7 @@ export class EditDialog extends BaseDialog {
             values.content = JSON.parse(JSON.stringify(this.clipboard.key.content));
         } else if (values.type === 'macro') {
             values.content = this._getMacroEntryValues(this.inputs.content);
+            values.retrigger = this.inputs.retrigger.checked;
         }
 
         if (values.type === 'group') {
@@ -963,6 +984,7 @@ export class EditDialog extends BaseDialog {
         switch (key.type) {
             case 'macro':
                 this._appendMultipleMacros(this.inputs.content, key.content);
+                this.inputs.retrigger.checked = key.retrigger || false;
                 break;
             case 'group':
                 this._appendMultipleMacros(this.inputs.switch, key.encoder.switch);

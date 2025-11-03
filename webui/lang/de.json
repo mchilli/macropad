@@ -30,6 +30,8 @@
     "You have to enter a label!": "Sie müssen eine Beschriftung eingeben!",
     "LED Color": "LED-Farbe",
     "Content": "Inhalt",
+    "retrigger": "retriggern",
+    "If enabled, the macro will be retriggered when holding the key": "Wenn aktiviert, wird das Makro erneut ausgelöst, wenn die Taste gehalten wird",
     "Encoder switch": "Drehreglertaste",
     "Encoder increase": "Drehregler erhöhen",
     "Encoder decrease": "Drehregler verringern",

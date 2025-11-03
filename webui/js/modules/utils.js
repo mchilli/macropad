@@ -217,6 +217,9 @@ export function convertJsonToFileIds(baseData) {
                     color: validateHex(item.color),
                     content: item.content
                 };
+                if (item.retrigger) {
+                    dataStore[fileId].retrigger = item.retrigger;
+                }
                 processedContent.push(fileId);
             } else {
                 processedContent.push(false);
@@ -271,7 +274,7 @@ export function restoreJsonFromFileIds(dataStore) {
                         type: "macro",
                         label: data.label,
                         color: validateHex(data.color),
-                        content: data.content
+                        retrigger: data.retrigger || false,
                     };
                     content.push(macroData);
                 }

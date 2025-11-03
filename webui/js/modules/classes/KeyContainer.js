@@ -23,6 +23,7 @@ export default class KeyContainer {
         label = '',
         color = [255, 255, 255],
         content = [],
+        retrigger = false,
         encoder = {},
         onButtonPressed = () => {},
     } = {}) {
@@ -30,6 +31,7 @@ export default class KeyContainer {
         this.label = label;
         this.color = color;
         this.content = content;
+        this.retrigger = retrigger;
 
         const defaultEncoder = {
             switch: [],
@@ -206,6 +208,7 @@ export default class KeyContainer {
                     color: this.color,
                     label: this.label,
                     content: this.content,
+                    retrigger: this.retrigger,
                 };
             case 'group':
                 return {
@@ -228,6 +231,7 @@ export default class KeyContainer {
             color: this.color,
             label: this.label,
             content: this.content,
+            retrigger: this.retrigger,
             encoder: this.encoder,
         };
     }
@@ -294,6 +298,14 @@ export default class KeyContainer {
     setContent(content = []) {
         this.content = content;
         this._setClickEventCommand();
+    }
+
+    /**
+     * Sets the content for the KeyContainer.
+     * @param {Array} [content=[]] - The content to set for the KeyContainer.
+     */
+    setRetrigger(retrigger = false) {
+        this.retrigger = retrigger;
     }
 
     /**

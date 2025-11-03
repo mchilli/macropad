@@ -930,6 +930,9 @@ class App {
                             value ? value : this._fillUpKeysEntries([utils.defaultKeys.close])
                         );
                         break;
+                    case 'retrigger':
+                        keyInstance.setRetrigger(value);
+                        break;
                     case 'encoder':
                         keyInstance.setEncoder(value);
                         break;
