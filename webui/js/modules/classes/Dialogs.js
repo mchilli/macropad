@@ -73,7 +73,7 @@ class BaseDialog {
                                             attributes: {
                                                 class: 'fa-solid fa-file-export',
                                             },
-                                        })
+                                        }),
                                     ],
                                     events: {
                                         click: (event) => {
@@ -92,7 +92,7 @@ class BaseDialog {
                                             attributes: {
                                                 class: 'fa-solid fa-file-import',
                                             },
-                                        })
+                                        }),
                                     ],
                                     events: {
                                         click: (event) => {
@@ -794,7 +794,10 @@ export class EditDialog extends BaseDialog {
      */
     _onExport(event) {
         if (this.inputs.type.value !== 'blank') {
-            utils.downloadObjectAsJson(this.keyInstance.getAllData(), `${this.inputs.label.value}.json`)
+            utils.downloadObjectAsJson(
+                this.keyInstance.getAllData(),
+                `${this.inputs.label.value}.json`
+            );
         }
     }
 
@@ -807,8 +810,8 @@ export class EditDialog extends BaseDialog {
             try {
                 const content = await utils.openFile('.json');
                 const keyConfiguration = JSON.parse(content);
-                
-                this.clipboard.key = {...utils.defaultKeys.group, ...keyConfiguration};
+
+                this.clipboard.key = { ...utils.defaultKeys.group, ...keyConfiguration };
 
                 this._pasteConfiguration();
             } catch (error) {
@@ -880,7 +883,7 @@ export class EditDialog extends BaseDialog {
 
         this.initType = this.clipboard.key.type;
         this.pasted = true;
-    };
+    }
 
     /**
      * Initializes a sortable macro list for a given container.
@@ -940,7 +943,8 @@ export class EditDialog extends BaseDialog {
         if (values.type !== 'blank') {
             values.label = this.inputs.label.value;
             values.color = this.inputs.colorPicker.value.slice(1);
-            values.content = this.keyInstance.content.length === 0 ? undefined : this.keyInstance.content;
+            values.content =
+                this.keyInstance.content.length === 0 ? undefined : this.keyInstance.content;
         }
 
         if (this.pasted && values.type === 'group' && this.initType === 'group') {
@@ -977,7 +981,7 @@ export class EditDialog extends BaseDialog {
         this.inputs.container.classList.add(key.type);
 
         this.inputs.label.value = key.label;
-        
+
         this.inputs.colorPicker.value = `#${utils.validateHex(key.color)}`;
         this.inputs.colorText.value = `#${utils.validateHex(key.color).toUpperCase()}`;
 

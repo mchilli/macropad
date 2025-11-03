@@ -561,15 +561,14 @@ class MacroKeycodes extends MacroBase {
 
         this.type = 'kc';
         this.value = value;
-        
-        this.behaviourList = [
+
+        (this.behaviourList = [
             [_('Tap'), 'tap'],
             [_('Press'), 'press'],
             [_('Release'), 'release'],
-            [_('Release all'), 'release_all']
-        ],
-
-        this.keyCodeListWidth = 18;
+            [_('Release all'), 'release_all'],
+        ]),
+            (this.keyCodeListWidth = 18);
         this.keyCodeList = [
             'A',
             'B',
@@ -726,12 +725,12 @@ class MacroKeycodes extends MacroBase {
                 events: {
                     change: (event) => {
                         this._updateVisibility();
-                    }
-                }
+                    },
+                },
             })),
-            this.additions = utils.create({
+            (this.additions = utils.create({
                 attributes: {
-                    style: 'display:flex; flex-grow:1;'
+                    style: 'display:flex; flex-grow:1;',
                 },
                 children: [
                     utils.create({
@@ -742,7 +741,7 @@ class MacroKeycodes extends MacroBase {
                         type: 'input',
                         attributes: {
                             style: 'flex-grow:1;',
-                            placeholder: 'e.g. CONTROL,ALT,F1'
+                            placeholder: 'e.g. CONTROL,ALT,F1',
                         },
                     })),
                     utils.create({
@@ -756,27 +755,27 @@ class MacroKeycodes extends MacroBase {
                                 text: '',
                                 attributes: {
                                     disabled: true,
-                                    selected: true
-                                }
+                                    selected: true,
+                                },
                             }),
                             ...this.keyCodeList.map((value) => {
                                 return utils.create({
                                     type: 'option',
-                                    text: value
+                                    text: value,
                                 });
-                            })
+                            }),
                         ],
                         events: {
                             change: (event) => {
                                 let list = this.input.value.split(',').filter(Boolean);
                                 list.push(event.target.value);
-                                event.target.selectedIndex = 0
+                                event.target.selectedIndex = 0;
                                 this.input.value = list.join(',');
-                            }
-                        }
+                            },
+                        },
                     }),
-                ]
-            })
+                ],
+            })),
         ]);
 
         if (this.value.kc === 'RELALL') {
@@ -815,11 +814,12 @@ class MacroKeycodes extends MacroBase {
      * @returns {Object|false} An object representing the keycodes or `false` if no keycodes are entered.
      */
     getValue() {
-        const prefix = {
-            'tap': '+',
-            'release': '-',
-            'press': ''
-        }[this.behaviour.value] || '';
+        const prefix =
+            {
+                tap: '+',
+                release: '-',
+                press: '',
+            }[this.behaviour.value] || '';
 
         if (this.behaviour.value === 'release_all') {
             return { kc: 'RELALL' };
@@ -830,11 +830,11 @@ class MacroKeycodes extends MacroBase {
         }
 
         const formattedInput = this.input.value
-            .replace(/\s+/g, '')    // Remove whitespace
-            .toUpperCase()          // Convert to uppercase
-            .split(',')             // Split by comma
-            .filter(Boolean)        // Remove empty entries
-            .join(',');             // Join with commas
+            .replace(/\s+/g, '') // Remove whitespace
+            .toUpperCase() // Convert to uppercase
+            .split(',') // Split by comma
+            .filter(Boolean) // Remove empty entries
+            .join(','); // Join with commas
 
         return { kc: `${prefix}${formattedInput}` };
     }
@@ -1093,13 +1093,13 @@ class MacroAudioFile extends MacroBase {
                     placeholder: 'audio/sound.mp3',
                     style: 'flex-grow:1;',
                     value: this.value,
-                    list: "audiofiles"
+                    list: 'audiofiles',
                 },
             })),
             utils.create({
                 type: 'datalist',
                 attributes: {
-                    id: 'audiofiles'
+                    id: 'audiofiles',
                 },
                 children: audioFiles.map((value) => {
                     return utils.create({
@@ -1109,7 +1109,7 @@ class MacroAudioFile extends MacroBase {
                         },
                     });
                 }),
-            })
+            }),
         ]);
     }
 
@@ -1374,17 +1374,17 @@ class MacroMouseEvents extends MacroBase {
      */
     getValue() {
         const fields = [this.x.value, this.y.value, this.w.value, this.b.value];
-        if (fields.every(value => value === '0' || value === '')) return false;
+        if (fields.every((value) => value === '0' || value === '')) return false;
 
         const values = {};
-        ['x', 'y', 'w'].forEach(field => {
+        ['x', 'y', 'w'].forEach((field) => {
             if (this[field].value && this[field].value !== '0') {
                 values[field] = parseInt(this[field].value);
             }
         });
         if (this.b.value) values.b = this.b.value;
-        
-        return { mse: values }
+
+        return { mse: values };
     }
 }
 
@@ -1529,8 +1529,8 @@ export function getMacroByValue(value) {
 /**
  * Sets the audioFiles array to a new list of audio files for the audio file macro.
  * @param {Array} newAudioFiles - An array of new audio file paths.
-*/
-let audioFiles = []
+ */
+let audioFiles = [];
 export function setAudioFiles(newAudioFiles) {
     audioFiles = newAudioFiles;
 }

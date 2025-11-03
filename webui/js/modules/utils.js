@@ -186,36 +186,36 @@ export function openFile(accept = '*') {
  * @returns {Object} A data store with each item referenced by a unique key ID.
  */
 export function convertJsonToFileIds(baseData) {
-    let idCounter = 0
-    let dataStore = {}
+    let idCounter = 0;
+    let dataStore = {};
 
     const processContent = (content) => {
         let processedContent = [];
-        
-        content.forEach(item => {
-            if (item.type === "group") {
+
+        content.forEach((item) => {
+            if (item.type === 'group') {
                 idCounter += 1;
                 const keyId = idCounter;
                 dataStore[keyId] = {
-                    type: "group",
+                    type: 'group',
                     label: item.label,
                     color: validateHex(item.color),
                     content: processContent(item.content),
                     encoder: {
                         switch: item.encoder.switch,
                         increased: item.encoder.increased,
-                        decreased: item.encoder.decreased
-                    }
+                        decreased: item.encoder.decreased,
+                    },
                 };
                 processedContent.push(keyId);
-            } else if (item.type === "macro") {
+            } else if (item.type === 'macro') {
                 idCounter += 1;
                 const fileId = idCounter;
                 dataStore[fileId] = {
-                    type: "macro",
+                    type: 'macro',
                     label: item.label,
                     color: validateHex(item.color),
-                    content: item.content
+                    content: item.content,
                 };
                 if (item.retrigger) {
                     dataStore[fileId].retrigger = item.retrigger;
@@ -227,17 +227,17 @@ export function convertJsonToFileIds(baseData) {
         });
 
         return processedContent;
-    }
+    };
 
     dataStore[0] = {
-        type: "group",
+        type: 'group',
         label: baseData.label,
         content: processContent(baseData.content),
         encoder: {
             switch: baseData.encoder.switch,
             increased: baseData.encoder.increased,
-            decreased: baseData.encoder.decreased
-        }
+            decreased: baseData.encoder.decreased,
+        },
     };
 
     return dataStore;
@@ -251,29 +251,30 @@ export function convertJsonToFileIds(baseData) {
 export function restoreJsonFromFileIds(dataStore) {
     const loadContent = (fileIds) => {
         let content = [];
-        fileIds.forEach(fileId => {
+        fileIds.forEach((fileId) => {
             if (fileId === false) {
-                content.push({ type: "blank" });
+                content.push({ type: 'blank' });
             } else {
                 let data = dataStore[fileId];
-                if (data.type === "group") {
+                if (data.type === 'group') {
                     let groupData = {
-                        type: "group",
+                        type: 'group',
                         label: data.label,
                         color: validateHex(data.color),
                         content: loadContent(data.content),
                         encoder: {
                             switch: data.encoder.switch,
                             increased: data.encoder.increased,
-                            decreased: data.encoder.decreased
-                        }
+                            decreased: data.encoder.decreased,
+                        },
                     };
                     content.push(groupData);
-                } else if (data.type === "macro") {
+                } else if (data.type === 'macro') {
                     let macroData = {
-                        type: "macro",
+                        type: 'macro',
                         label: data.label,
                         color: validateHex(data.color),
+                        content: data.content,
                         retrigger: data.retrigger || false,
                     };
                     content.push(macroData);
@@ -290,8 +291,8 @@ export function restoreJsonFromFileIds(dataStore) {
         encoder: {
             switch: rootData.encoder.switch,
             increased: rootData.encoder.increased,
-            decreased: rootData.encoder.decreased
-        }
+            decreased: rootData.encoder.decreased,
+        },
     };
 }
 
@@ -301,14 +302,14 @@ export function restoreJsonFromFileIds(dataStore) {
  * @property {Object} close - Represents a close macro key.
  */
 export const defaultKeys = {
-    empty: { 
-        type: 'blank' 
+    empty: {
+        type: 'blank',
     },
     macro: {
         type: 'macro',
         label: 'unkown',
         color: 'ffffff',
-        content: []
+        content: [],
     },
     group: {
         type: 'group',
@@ -318,13 +319,13 @@ export const defaultKeys = {
         encoder: {
             switch: [],
             increased: [],
-            decreased: []
-        }
+            decreased: [],
+        },
     },
     close: {
         type: 'macro',
         label: '<-',
         color: '121212',
         content: [{ sys: 'close_group' }],
-    }
+    },
 };

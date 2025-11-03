@@ -138,22 +138,24 @@ class App {
 
             switch (payload.ACK) {
                 case 'macros':
-                    if (this.version >= "1.4.0") {
+                    if (this.version >= '1.4.0') {
                         // circuitpython version >= 1.4.0
                         switch (payload.CONTENT) {
-                            case "start":
-                                response = "receiving macros ...";
+                            case 'start':
+                                response = 'receiving macros ...';
                                 break;
-    
-                            case "end":
-                                const importedMacros = utils.restoreJsonFromFileIds(this.macroBuffer);
+
+                            case 'end':
+                                const importedMacros = utils.restoreJsonFromFileIds(
+                                    this.macroBuffer
+                                );
                                 this._newKeyEntries(this._convertMacroStack(importedMacros));
                                 this._notify('info', _('Received from macropad'));
                                 this._transferActive(false);
                                 this.macroBuffer = {};
-                                response = "macros received";
+                                response = 'macros received';
                                 break;
-                        
+
                             default:
                                 this.macroBuffer[payload.ID] = JSON.parse(payload.CONTENT);
                                 return;
@@ -162,7 +164,7 @@ class App {
                         // circuitpython version < 1.4.0
                         const importedMacros = payload.CONTENT;
                         this._newKeyEntries(this._convertMacroStack(importedMacros));
-    
+
                         this._notify('info', _('Received from macropad'));
                         this._transferActive(false);
                         response = JSON.stringify(importedMacros);
@@ -203,13 +205,20 @@ class App {
                     const usbenabled = payload.CONTENT;
                     this.USBStorageEnabled = usbenabled;
                     if (this.USBStorageEnabled) {
-                        this.deviceControls.save.classList.add("deactivated");
-                        this._notify('warning', _('The macros can only be stored if the USB storage is disabled'), true);
+                        this.deviceControls.save.classList.add('deactivated');
+                        this._notify(
+                            'warning',
+                            _('The macros can only be stored if the USB storage is disabled'),
+                            true
+                        );
                     } else {
-                        this.deviceControls.save.classList.remove("deactivated");
+                        this.deviceControls.save.classList.remove('deactivated');
                     }
 
-                    this._notify('success', `${_('Connected to macropad')} | Version: ${this.version}`);
+                    this._notify(
+                        'success',
+                        `${_('Connected to macropad')} | Version: ${this.version}`
+                    );
                     this._updateInformation();
                     this._checkVersion();
                     break;
@@ -218,12 +227,9 @@ class App {
                     break;
                 case 'Macros received':
                     this._notify(
-                        'success', 
-                        _('%s macros sended to macropad').replace(
-                                    '%s',
-                                    payload.CONTENT || ""
-                            )
-                        );
+                        'success',
+                        _('%s macros sended to macropad').replace('%s', payload.CONTENT || '')
+                    );
                     this._transferActive(false);
                     break;
                 case 'Macros stored':
@@ -656,35 +662,38 @@ class App {
                 })
                     .then(async () => {
                         this._transferActive(true);
-                        if (this.version >= "1.4.0") {
+                        if (this.version >= '1.4.0') {
                             // circuitpython version >= 1.4.0
-                            const macros = utils.convertJsonToFileIds(this.macroStack[0])
-                            this.serialConnection.send({
-                                // transfer start
-                                command: COMMANDS[command],
-                                content: "start",
-                            }).then(async () => {
-                                const promises = [];
-                                for (const id in macros) {
-                                    if (Object.prototype.hasOwnProperty.call(macros, id)) {
-                                        const macro = macros[id];
-                                        promises.push(await this.serialConnection.send({
-                                            command: COMMANDS[command],
-                                            id: id,
-                                            content: JSON.stringify(macro),
-                                        }))
-                                        
-                                    }
-                                }
-        
-                                Promise.all(promises).then(async () => {
-                                    await this.serialConnection.send({
-                                        // transfer end
-                                        command: COMMANDS[command],
-                                        content: "end",
-                                    });
+                            const macros = utils.convertJsonToFileIds(this.macroStack[0]);
+                            this.serialConnection
+                                .send({
+                                    // transfer start
+                                    command: COMMANDS[command],
+                                    content: 'start',
                                 })
-                            })
+                                .then(async () => {
+                                    const promises = [];
+                                    for (const id in macros) {
+                                        if (Object.prototype.hasOwnProperty.call(macros, id)) {
+                                            const macro = macros[id];
+                                            promises.push(
+                                                await this.serialConnection.send({
+                                                    command: COMMANDS[command],
+                                                    id: id,
+                                                    content: JSON.stringify(macro),
+                                                })
+                                            );
+                                        }
+                                    }
+
+                                    Promise.all(promises).then(async () => {
+                                        await this.serialConnection.send({
+                                            // transfer end
+                                            command: COMMANDS[command],
+                                            content: 'end',
+                                        });
+                                    });
+                                });
                         } else {
                             // circuitpython version < 1.4.0
                             await this.serialConnection.send({
@@ -692,7 +701,6 @@ class App {
                                 content: this.macroStack[0],
                             });
                         }
-
                     })
                     .catch((error) => {});
                 break;
@@ -768,7 +776,10 @@ class App {
         };
 
         utils.appendElements(keyChunkControls.group, [keyChunkControls.label]);
-        utils.appendElements(keyChunkControls.container, [keyChunkControls.back, keyChunkControls.group]);
+        utils.appendElements(keyChunkControls.container, [
+            keyChunkControls.back,
+            keyChunkControls.group,
+        ]);
         utils.appendElements(container, [keyChunkControls.container]);
 
         return keyChunkControls;
@@ -851,10 +862,7 @@ class App {
                         if (this._hasNoNavigationKeys(group)) {
                             this._notify(
                                 'warning',
-                                _('%s has no configured navigation key!').replace(
-                                    '%s',
-                                    group.label
-                                )
+                                _('%s has no configured navigation key!').replace('%s', group.label)
                             );
                         }
                         this.macroStack.push(this._fillUpKeysEntries(group));
@@ -1026,7 +1034,9 @@ class App {
 
         this._reReadKeyEntries();
 
-        this.keyEntriesControls.label.innerText = `${this.macroStack[this.macroStack.length - 1].label}`;
+        this.keyEntriesControls.label.innerText = `${
+            this.macroStack[this.macroStack.length - 1].label
+        }`;
     }
 
     /**
@@ -1037,14 +1047,14 @@ class App {
     _hasNoNavigationKeys(group) {
         const macros = [
             ...group.content
-                .filter(obj => obj.type === "macro" && obj.content)
-                .flatMap(obj => obj.content),
+                .filter((obj) => obj.type === 'macro' && obj.content)
+                .flatMap((obj) => obj.content),
             ...group.encoder.decreased,
             ...group.encoder.increased,
-            ...group.encoder.switch
+            ...group.encoder.switch,
         ];
         return macros.every(
-            macro => !macro.sys || !['close_group', 'go_to_root'].includes(macro.sys)
+            (macro) => !macro.sys || !['close_group', 'go_to_root'].includes(macro.sys)
         );
     }
 
@@ -1058,8 +1068,8 @@ class App {
             this._clearAllKeyEntries();
             this._initializeKeys();
         }
-        
-        if (this.macroStack.length === 1){
+
+        if (this.macroStack.length === 1) {
             this.keyEntriesControls.back.classList.add('hidden');
         }
     }
@@ -1082,8 +1092,8 @@ class App {
             encoder: {
                 switch: [],
                 increased: [],
-                decreased: []
-            }
+                decreased: [],
+            },
         }
     ) {
         this._clearAllKeyEntries();
@@ -1135,11 +1145,15 @@ class App {
      * @param {boolean} active - Indicates whether to enable or disable transfer mode.
      */
     _transferActive(active) {
-        const buttons = [this.deviceControls.download, this.deviceControls.upload, this.deviceControls.save];
+        const buttons = [
+            this.deviceControls.download,
+            this.deviceControls.upload,
+            this.deviceControls.save,
+        ];
 
         this.transferActive = active;
 
-        buttons.forEach(button => {
+        buttons.forEach((button) => {
             button.classList.toggle('transfer', active);
         });
     }
@@ -1148,16 +1162,22 @@ class App {
      * Checks the latest release version of CircuitPython files for the macropad project from GitHub.
      */
     _checkVersion() {
-        let versionURL = 'https://api.github.com/repos/mchilli/macropad/releases/latest'
-        let filesURL = 'https://github.com/mchilli/macropad/releases/latest/'
+        let versionURL = 'https://api.github.com/repos/mchilli/macropad/releases/latest';
+        let filesURL = 'https://github.com/mchilli/macropad/releases/latest/';
 
         fetch(versionURL)
-            .then(response => response.json())
-            .then(json => {
+            .then((response) => response.json())
+            .then((json) => {
                 if (this.version >= json.tag_name.substring(1)) {
                     this._notify('success', _('Circuitpython files are up to date'));
                 } else {
-                    this._notify('error',`<a href=${filesURL} target="_blank">${_('New circuitpython files available')}</a>`, true);
+                    this._notify(
+                        'error',
+                        `<a href=${filesURL} target="_blank">${_(
+                            'New circuitpython files available'
+                        )}</a>`,
+                        true
+                    );
                 }
             });
     }
@@ -1168,11 +1188,13 @@ class App {
      */
     _updateInformation() {
         let infos = [];
-        infos.push(`Keys: ${Object.keys(utils.convertJsonToFileIds(this.macroStack[0])).length - 1}`);
+        infos.push(
+            `Keys: ${Object.keys(utils.convertJsonToFileIds(this.macroStack[0])).length - 1}`
+        );
         if (this.deviceConnected) {
             infos.push(`Version: ${this.version}`);
         }
-        
+
         this.informationContainer.innerText = infos.join(' | ');
     }
 
