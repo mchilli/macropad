@@ -221,6 +221,11 @@ class MacroApp():
                 Dict {}: 
                     'kc': Keycodes (e.g. "SHIFT"): key pressed | (e.g. "-SHIFT"): key released
                     'ccc': Consumer Control codes (e.g. "MUTE")
+                    'tone': Dict {}: 
+                        'frequency': frequency of the tone in Hz (e.g. 880)
+                        'duration': duration of the tone in seconds (e.g. 0.25)
+                    'file': Dict {}: 
+                        'file': the mono audio file (e.g. audio/*.mp3|*.wav)
                     'mse': Dict {}: 
                         'x': horizontally Mouse movement (e.g. 10 | -10)
                         'y': vertically Mouse movement (e.g. 10 | -10)
