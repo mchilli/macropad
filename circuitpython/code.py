@@ -214,7 +214,7 @@ class MacroApp():
 
         gc.collect()
 
-    def run_macro(self, item: tuple[str, list], *args) -> None:
+    def run_macro(self, item: tuple[str, list], just_pressed=False, *args) -> None:
         """ run the macro, can be:
                 Int | Float (e.g. 0.25): delay in seconds
                 String (e.g. "Foo"): corresponding keys pressed & released
@@ -237,16 +237,16 @@ class MacroApp():
             item (key_id:str, content:list): the key id and content data
         """
         for key in item[1]:
-            if isinstance(key, (int, float)):
+            if isinstance(key, (int, float)) and just_pressed:
                 time.sleep(key)
-            elif isinstance(key, str):
+            elif isinstance(key, str) and just_pressed:
                 try:
                     self.macropad.keyboard_layout.write(key)
                 except ValueError:
                     # if any of the characters has no keycode
                     pass
             elif isinstance(key, dict):
-                if 'kc' in key:
+                if 'kc' in key and just_pressed:
                     key_codes = [
                         getattr(Keycode, key_name, None)
                         for key_name in key['kc'].lstrip('-+').upper().split(',')
@@ -266,21 +266,21 @@ class MacroApp():
                         else:
                             # press keys
                             self.macropad.keyboard.press(*key_codes)
-                if 'ccc' in key:
+                if 'ccc' in key and just_pressed:
                     control_code = getattr(
                         ConsumerControlCode, key['ccc'].upper(), None)
                     if control_code:
                         self.macropad.consumer_control.press(control_code)
                         self.macropad.consumer_control.release()
-                if 'tone' in key:
+                if 'tone' in key and just_pressed:
                     self.macropad.play_tone(
                         key['tone']['frequency'], key['tone']['duration'])
-                if 'file' in key:
+                if 'file' in key and just_pressed:
                     try:
                         self.macropad.play_file(key['file'])
                     except Exception:
                         pass
-                if 'mse' in key:
+                if 'mse' in key and just_pressed:
                     if "b" in key["mse"]:
                         btn = getattr(
                             Mouse, f"{key['mse']['b'].upper()}_BUTTON", None)
@@ -290,7 +290,7 @@ class MacroApp():
                         key["mse"].get('x', 0),
                         key["mse"].get('y', 0),
                         key["mse"].get('w', 0))
-                if 'sys' in key:
+                if 'sys' in key and just_pressed:
                     method = getattr(System, key['sys'], None)
                     if method:
                         method(self)
@@ -298,14 +298,15 @@ class MacroApp():
         self.macropad.keyboard.release_all()
         self.macropad.mouse.release_all()
 
-    def open_group(self, item: tuple[str, list], *args) -> None:
+    def open_group(self, item: tuple[str, list], just_pressed=False, *args) -> None:
         """ open a group
 
         Args:
             item (key_id:str, content:list): the key id and content data
         """
-        self.group_stack.append(item[0])
-        self._init_group()
+        if just_pressed:
+            self.group_stack.append(item[0])
+            self._init_group()
 
     def close_group(self, *args) -> None:
         """ close a group and go a level up

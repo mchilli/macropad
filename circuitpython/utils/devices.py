@@ -134,6 +134,7 @@ class Key():
         self._label.text = ""
         self._type = None
         self._color = '000000'
+        self._just_pressed = False
         self._func = None
         self._func_args = None
 
@@ -153,18 +154,23 @@ class Key():
         if not self._func:
             return
         if self._func_args:
-            return self._func(self._func_args)
-        return self._func()
+            return self._func(self._func_args, just_pressed=self._just_pressed)
+        return self._func(just_pressed=self._just_pressed)
 
     def _on_pressed(self) -> None:
         """ Action that triggered when Key is pressed
         """
         if self._func:
+            self._just_pressed = True
             self._set_led('ffffff')
             self.call_func()
     
     def _on_released(self) -> None:
         """ Action that triggered when Key is released
         """
+        if self._func and self._just_pressed:
+            self._just_pressed = False
+            self.call_func()
+
         self._set_led(self.color)
     
