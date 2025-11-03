@@ -196,6 +196,13 @@ class MacroSelector extends MacroBase {
                     }),
                     utils.create({
                         type: 'option',
+                        text: _('MIDI'),
+                        attributes: {
+                            value: 'midi',
+                        },
+                    }),
+                    utils.create({
+                        type: 'option',
                         text: _('Device Function'),
                         attributes: {
                             value: 'sys',
@@ -1111,9 +1118,152 @@ class MacroAudioFile extends MacroBase {
      * @returns {string|false} The soundfile path or `false` if the value is empty.
      */
     getValue() {
-        return this.input.value === '' ? false : {
-            file: `${this.input.value}`
+        return this.input.value === ''
+            ? false
+            : {
+                  file: `${this.input.value}`,
+              };
+    }
+}
+
+/**
+ * Represents a tone macro.
+ * @class
+ * @extends MacroBase
+ */
+class MacroMidi extends MacroBase {
+    constructor(value = { tone: {} }) {
+        super();
+
+        this.type = 'tone';
+        const defaultTone = { frequency: 0, duration: 0 };
+        this.value = {
+            tone: { ...defaultTone, ...value.tone },
         };
+
+        this.inputWidth = 46;
+        this.frequencyinputWidth = 58;
+
+        this.autocompleteList = {
+            '': 0,
+            C: 261,
+            D: 293,
+            E: 329,
+            G: 392,
+            A: 440,
+            B: 494,
+            Cm: 277,
+            Dm: 311,
+            Em: 349,
+            Fm: 370,
+            Gm: 415,
+            Am: 466,
+        };
+
+        this._setContent();
+
+        return this.DOM.container;
+    }
+
+    /**
+     * Set the content for the mouse events macro.
+     */
+    _setContent() {
+        utils.appendElements(this.DOM.content, [
+            utils.create({
+                type: 'span',
+                text: _('Play').concat(':'),
+            }),
+            (this.chord = utils.create({
+                type: 'select',
+                attributes: {
+                    type: 'select',
+                    title: _('Note'),
+                    style: `width:${this.inputWidth}px;`,
+                    value: this.value.tone.frequency,
+                },
+                children: Object.keys(this.autocompleteList).map((value) => {
+                    return utils.create({
+                        type: 'option',
+                        text: value,
+                        attributes: {
+                            value: this.autocompleteList[value],
+                        },
+                    });
+                }),
+                events: {
+                    change: (event) => {
+                        this.frequency.value = this.chord.value;
+                    },
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: '/',
+            }),
+            (this.frequency = utils.create({
+                type: 'input',
+                attributes: {
+                    type: 'number',
+                    title: _('Frequency of the tone in Hz'),
+                    style: `width:${this.frequencyinputWidth}px;`,
+                    value: this.value.tone.frequency,
+                    min: 0,
+                },
+                events: {
+                    input: (event) => {
+                        for (const option of this.chord.children) {
+                            this.chord.children[0].selected = true;
+                            if (parseInt(this.frequency.value) === parseInt(option.value)) {
+                                option.selected = true;
+                                break;
+                            }
+                        }
+                    },
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: _('Hz for').concat(' '),
+            }),
+            (this.duration = utils.create({
+                type: 'input',
+                attributes: {
+                    type: 'number',
+                    title: _('Duration of the tone in seconds'),
+                    style: `width:${this.inputWidth}px;`,
+                    value: this.value.tone.duration,
+                    min: 0,
+                    step: 0.1,
+                },
+            })),
+            utils.create({
+                type: 'span',
+                text: _('seconds'),
+            }),
+        ]);
+
+        for (const option of this.chord.children) {
+            if (this.value.tone.frequency === parseInt(option.value)) {
+                option.selected = true;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Get the value of the mouse events macro.
+     * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
+     */
+    getValue() {
+        return this.duration.value === '0'
+            ? false
+            : {
+                  midi: {
+                      frequency: parseInt(this.frequency.value),
+                      duration: parseFloat(this.duration.value),
+                  },
+              };
     }
 }
 
@@ -1332,6 +1482,8 @@ export function getMacroByType(type) {
             return new MacroTone();
         case 'file':
             return new MacroAudioFile();
+        case 'midi':
+            return new MacroMidi();
         case 'mse':
             return new MacroMouseEvents();
         case 'sys':
@@ -1362,6 +1514,8 @@ export function getMacroByValue(value) {
                     return new MacroTone(value);
                 case value.hasOwnProperty('file'):
                     return new MacroAudioFile(value);
+                case value.hasOwnProperty('midi'):
+                    return new MacroMidi(value);
                 case value.hasOwnProperty('mse'):
                     return new MacroMouseEvents(value);
                 case value.hasOwnProperty('sys'):
