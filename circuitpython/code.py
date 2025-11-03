@@ -345,6 +345,7 @@ class MacroApp():
                 key.type = key_type
                 key.label = macro_data["label"]
                 key.color = macro_data["color"]
+                key.retrigger = macro_data.get("retrigger", False)
                 key.set_func(key_funcs.get(key_type), (str(key_id), macro_data["content"]))
 
         self.group_label.text = group["label"]
@@ -494,7 +495,7 @@ class MacroApp():
         """ Start the Mainloop
         """
         self.sleep_timer = time.monotonic()
-        active_key = None
+        active_keys = dict()
         data_error = False
 
         while True:
@@ -554,31 +555,31 @@ class MacroApp():
             key_event = self.macropad.keys.events.get()
             if key_event:
                 self._display_on()
-                if key_event.pressed and not any([key.pressed for key in self.keys]):
+                if key_event.pressed and self.keys[key_event.key_number].has_func():
                     self.keys[key_event.key_number].pressed = True
-                    active_key = key_event.key_number
-                    active_key_delay = time.monotonic()
+                    if self.keys[key_event.key_number].retrigger:
+                        active_keys[key_event.key_number] = time.monotonic()
 
-                elif key_event.released and key_event.key_number == active_key:
+                elif key_event.released:
                     self.keys[key_event.key_number].pressed = False
-                    active_key = None
+                    active_keys.pop(key_event.key_number, None)
             
             # if a key is pressed continuously, the function triggers again after a short delay
-            if active_key is not None and time.monotonic() - active_key_delay > 0.75:
-                self._display_on()
-                self.keys[active_key].call_func()
+            for active_key, active_key_delay in active_keys.items(): 
+                if active_key is not None and time.monotonic() - active_key_delay > 0.75:
+                    self.keys[active_key].call_func()
 
             # encoder event handling
             if self.encoder.switch and self.encoder.on_switch:
                 self._display_on()
-                self.run_macro((self.group_stack[-1], self.encoder.on_switch))
+                self.run_macro((self.group_stack[-1], self.encoder.on_switch), just_pressed=True)
 
             if self.encoder.increased and self.encoder.on_increased:
                 self._display_on()
-                self.run_macro((self.group_stack[-1], self.encoder.on_increased))
+                self.run_macro((self.group_stack[-1], self.encoder.on_increased), just_pressed=True)
 
             if self.encoder.decreased and self.encoder.on_decreased:
                 self._display_on()
-                self.run_macro((self.group_stack[-1], self.encoder.on_decreased))
+                self.run_macro((self.group_stack[-1], self.encoder.on_decreased), just_pressed=True)
 
 MacroApp().start()

@@ -61,6 +61,7 @@ class Key():
         self._index = index
         self._pressed = False
         self._label = label
+        self._retrigger = False
 
         self.clear_props()
     
@@ -104,6 +105,16 @@ class Key():
     @color.setter
     def color(self, color:tuple) -> None:
         self._color = color
+
+    @property
+    def retrigger(self) -> tuple:
+        """ Retrigger Property
+        """
+        return self._retrigger
+    
+    @retrigger.setter
+    def retrigger(self, retrigger:bool) -> None:
+        self._retrigger = retrigger
     
     def update_colors(self) -> None:
         """ update the backgroundcolor and color based on type
@@ -134,6 +145,7 @@ class Key():
         self._label.text = ""
         self._type = None
         self._color = '000000'
+        self._retrigger = False
         self._just_pressed = False
         self._func = None
         self._func_args = None
@@ -147,6 +159,11 @@ class Key():
         """
         self._func = func
         self._func_args = args
+
+    def has_func(self) -> bool:
+        """ return True if a function is assigned to this key.
+        """
+        return self._func is not None
 
     def call_func(self) -> None:
         """ calls the function if setted with set_func
