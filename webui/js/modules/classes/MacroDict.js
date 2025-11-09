@@ -1503,6 +1503,7 @@ class MacroSystemFunctions extends MacroBase {
         this.inputWidth = 170;
 
         this.autocompleteList = [
+            '',
             'soft_reset',
             'hard_reset',
             'enable_usb',
