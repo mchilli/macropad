@@ -400,6 +400,28 @@ body {
                                 flex-grow: 1;
                                 align-items: center;
                                 text-wrap: nowrap;
+                                gap: var(--dialog-gap);
+
+                                .macro-entry-content-flex-container {
+                                    display: flex;
+                                    flex-grow: 1;
+                                    align-items: center;
+                                    gap: var(--dialog-gap);
+                                }
+
+                                // input[type=range] {
+                                //     // -webkit-appearance: none;
+                                //     // appearance: none;
+                                //     // background: transparent;
+                                //     &::-webkit-slider-thumb {
+                                //         -webkit-appearance: none;
+                                //         appearance: none;
+                                //         background: var(--color-black);
+                                //         width: 20px;
+                                //         height: 20px;
+                                //         cursor: pointer;
+                                //     }
+                                // }
                             }
 
                             .macro-entry-controls {

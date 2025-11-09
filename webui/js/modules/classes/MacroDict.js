@@ -907,33 +907,53 @@ class MacroAudioFile extends MacroBase {
  * @extends MacroBase
  */
 class MacroMidi extends MacroBase {
-    constructor(value = { tone: {} }) {
+    constructor(value = { midi: {} }) {
         super();
 
-        this.type = 'tone';
-        const defaultTone = { frequency: 0, duration: 0 };
+        this.type = 'midi';
+        const defaultConfig = {
+            ntson: '',
+            vlcty: 127,
+            durtn: 0,
+
+            ntoff: '',
+
+            ptchb: 'set',
+            pbval: 8192,
+
+            ctrch: undefined,
+            ccval: undefined,
+
+            prgch: undefined,
+        };
         this.value = {
-            tone: { ...defaultTone, ...value.tone },
+            midi: { ...defaultConfig, ...value.midi },
         };
 
-        this.inputWidth = 46;
-        this.frequencyinputWidth = 58;
+        this.midiCommandsList = [
+            [_('Note On'), 'ntson'],
+            [_('Note Off'), 'ntoff'],
+            [_('Pitch Bend'), 'ptchb'],
+            [_('Control Change'), 'ctrch'],
+            [_('Program Change'), 'prgch'],
+        ];
+        // Find and assign the matching MIDI command from the provided value
+        this.midiCommand = Object.keys(value.midi).find((key) =>
+            this.midiCommandsList.some(([_, cmd]) => cmd === key)
+        );
 
-        this.autocompleteList = {
-            '': 0,
-            C: 261,
-            D: 293,
-            E: 329,
-            G: 392,
-            A: 440,
-            B: 494,
-            Cm: 277,
-            Dm: 311,
-            Em: 349,
-            Fm: 370,
-            Gm: 415,
-            Am: 466,
-        };
+        this.pitchBendCommandsList = [
+            ['', ''],
+            [_('Set'), 'set'],
+            [_('Increase'), 'incr'],
+            [_('Decrease'), 'decr'],
+        ];
+
+        this.selectWidth = 80;
+        this.noteWidth = 100;
+        this.int127Width = 40;
+        this.noteOnDurationWidth = 35;
+        this.pitchBendValueWidth = 60;
 
         this._setContent();
 
@@ -945,85 +965,303 @@ class MacroMidi extends MacroBase {
      */
     _setContent() {
         utils.appendElements(this.DOM.content, [
-            utils.create({
-                type: 'span',
-                text: _('Play').concat(':'),
-            }),
-            (this.chord = utils.create({
+            (this.midiCommandSelect = utils.create({
                 type: 'select',
-                attributes: {
-                    type: 'select',
-                    title: _('Note'),
-                    style: `width:${this.inputWidth}px;`,
-                    value: this.value.tone.frequency,
-                },
-                children: Object.keys(this.autocompleteList).map((value) => {
+                children: this.midiCommandsList.map((value) => {
                     return utils.create({
                         type: 'option',
-                        text: value,
+                        text: value[0],
                         attributes: {
-                            value: this.autocompleteList[value],
+                            value: value[1],
                         },
                     });
                 }),
+                attributes: {
+                    style: `width:${this.selectWidth}px;`,
+                },
                 events: {
                     change: (event) => {
-                        this.frequency.value = this.chord.value;
+                        this._updateVisibility();
                     },
                 },
             })),
-            utils.create({
-                type: 'span',
-                text: '/',
-            }),
-            (this.frequency = utils.create({
-                type: 'input',
+            (this.containerNoteOn = utils.create({
                 attributes: {
-                    type: 'number',
-                    title: _('Frequency of the tone in Hz'),
-                    style: `width:${this.frequencyinputWidth}px;`,
-                    value: this.value.tone.frequency,
-                    min: 0,
+                    class: 'macro-entry-content-flex-container',
                 },
-                events: {
-                    input: (event) => {
-                        for (const option of this.chord.children) {
-                            this.chord.children[0].selected = true;
-                            if (parseInt(this.frequency.value) === parseInt(option.value)) {
-                                option.selected = true;
-                                break;
-                            }
-                        }
-                    },
-                },
+                children: [
+                    (this.noteOn = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'text',
+                            title: _('The Note as 0-127 or A4, G#2, ...'),
+                            placeholder: 'e.g. A4,C5,60',
+                            style: `width:${this.noteWidth}px;`,
+                            value: this.value.midi.ntson,
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: `${_('Vel')}:`,
+                    }),
+                    (this.noteOnVelocity = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('The strike velocity, 0-127, 0 is equivalent to a Note Off'),
+                            style: `width:${this.int127Width}px;`,
+                            value: this.value.midi.vlcty,
+                            min: 0,
+                            max: 127,
+                        },
+                        events: {
+                            input: (event) => {
+                                event.target.value = Math.max(0, Math.min(127, event.target.value));
+                            },
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: _('for'),
+                    }),
+                    (this.noteOnDuration = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _(
+                                'Duration of the tone in seconds. Set to 0 for continuous playback'
+                            ),
+                            style: `width:${this.noteOnDurationWidth}px;`,
+                            value: this.value.midi.durtn,
+                            min: 0,
+                            step: 0.1,
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: _('s'),
+                    }),
+                ],
             })),
-            utils.create({
-                type: 'span',
-                text: _('Hz for').concat(' '),
-            }),
-            (this.duration = utils.create({
-                type: 'input',
+            (this.containerNoteOff = utils.create({
                 attributes: {
-                    type: 'number',
-                    title: _('Duration of the tone in seconds'),
-                    style: `width:${this.inputWidth}px;`,
-                    value: this.value.tone.duration,
-                    min: 0,
-                    step: 0.1,
+                    class: 'macro-entry-content-flex-container',
                 },
+                children: [
+                    (this.noteOff = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'text',
+                            title: _('The Note as 0-127 or A4, G#2, ...'),
+                            placeholder: 'e.g. A4,C5,60',
+                            style: `width:${this.noteWidth}px;`,
+                            value: this.value.midi.ntoff,
+                        },
+                    })),
+                ],
             })),
-            utils.create({
-                type: 'span',
-                text: _('seconds'),
-            }),
+            (this.containerPitchBend = utils.create({
+                attributes: {
+                    class: 'macro-entry-content-flex-container',
+                },
+                children: [
+                    (this.pitchBendCommand = utils.create({
+                        type: 'select',
+                        children: this.pitchBendCommandsList.map((value) => {
+                            return utils.create({
+                                type: 'option',
+                                text: value[0],
+                                attributes: {
+                                    value: value[1],
+                                },
+                            });
+                        }),
+                        attributes: {
+                            style: `width:${this.selectWidth}px;`,
+                        },
+                        events: {
+                            change: (event) => {
+                                this._updatePitchBendVisibility();
+                            },
+                        },
+                    })),
+                    (this.pitchBendValue = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('The degree of bend from 0 through 8192 (no bend) to 16383'),
+                            style: `width:${this.pitchBendValueWidth}px;`,
+                            value: this.value.midi.pbval,
+                            min: 0,
+                            max: 16383,
+                        },
+                        events: {
+                            input: (event) => {
+                                event.target.value = Math.max(
+                                    0,
+                                    Math.min(16383, event.target.value)
+                                );
+                            },
+                        },
+                    })),
+                    // (this.pitchBendValue = utils.create({
+                    //     type: 'input',
+                    //     attributes: {
+                    //         type: 'range',
+                    //         title: _('The degree of bend from 0 through 8192 (no bend) to 16383.'),
+                    //         value: this.value.midi.pbval,
+                    //         min: 0,
+                    //         max: 16383,
+                    //         list: 'pitch-bend-values',
+                    //     },
+                    // })),
+                    // utils.create({
+                    //     type: 'datalist',
+                    //     attributes: {
+                    //         id: 'pitch-bend-values',
+                    //     },
+                    //     children: [
+                    //         utils.create({
+                    //             type: 'option',
+                    //             attributes: {
+                    //                 value: 8192,
+                    //             },
+                    //         }),
+                    //     ],
+                    // }),
+                ],
+            })),
+            (this.containerControlChange = utils.create({
+                attributes: {
+                    class: 'macro-entry-content-flex-container',
+                },
+                children: [
+                    utils.create({
+                        type: 'span',
+                        text: ` ${_('Control')}:`,
+                    }),
+                    (this.controlChangeControl = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('The control number, 0-127'),
+                            style: `width:${this.int127Width}px;`,
+                            min: 0,
+                            max: 127,
+                            value: this.value.midi.ctrch,
+                        },
+                        events: {
+                            input: (event) => {
+                                event.target.value = Math.max(0, Math.min(127, event.target.value));
+                            },
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: ` ${_('Value')}:`,
+                    }),
+                    (this.controlChangeValue = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('The 7bit value of the control, 0-127'),
+                            style: `width:${this.int127Width}px;`,
+                            min: 0,
+                            max: 127,
+                            value: this.value.midi.ccval,
+                        },
+                        events: {
+                            input: (event) => {
+                                event.target.value = Math.max(0, Math.min(127, event.target.value));
+                            },
+                        },
+                    })),
+                ],
+            })),
+            (this.containerProgrammChange = utils.create({
+                attributes: {
+                    class: 'macro-entry-content-flex-container',
+                },
+                children: [
+                    utils.create({
+                        type: 'span',
+                        text: `${_('Program')}:`,
+                    }),
+                    (this.programmChangeProgramm = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('The new program number to use, 0-127'),
+                            style: `width:${this.int127Width}px;`,
+                            min: 0,
+                            max: 127,
+                            value: this.value.midi.prgch,
+                        },
+                        events: {
+                            input: (event) => {
+                                event.target.value = Math.max(0, Math.min(127, event.target.value));
+                            },
+                        },
+                    })),
+                ],
+            })),
         ]);
 
-        for (const option of this.chord.children) {
-            if (this.value.tone.frequency === parseInt(option.value)) {
-                option.selected = true;
-                break;
-            }
-        }
+        if (this.midiCommand) this.midiCommandSelect.value = this.midiCommand;
+        this._updateVisibility();
+
+        if (this.midiCommand === 'ptchb') this.pitchBendCommand.value = this.value.midi.ptchb;
+        this._updatePitchBendVisibility();
+    }
+
+    /**
+     * Updates the visibility of the additions based on the current midi command.
+     */
+    _updateVisibility() {
+        this.containerNoteOn.classList.toggle(
+            'hidden',
+            !['ntson'].includes(this.midiCommandSelect.value)
+        );
+        this.containerNoteOff.classList.toggle(
+            'hidden',
+            !['ntoff'].includes(this.midiCommandSelect.value)
+        );
+        this.containerPitchBend.classList.toggle(
+            'hidden',
+            !['ptchb'].includes(this.midiCommandSelect.value)
+        );
+        this.containerControlChange.classList.toggle(
+            'hidden',
+            !['ctrch'].includes(this.midiCommandSelect.value)
+        );
+        this.containerProgrammChange.classList.toggle(
+            'hidden',
+            !['prgch'].includes(this.midiCommandSelect.value)
+        );
+    }
+
+    /**
+     * Updates the visibility of the pitch bend additions based on the current pitch bend command.
+     */
+    _updatePitchBendVisibility() {
+        this.pitchBendValue.classList.toggle(
+            'hidden',
+            !['set'].includes(this.pitchBendCommand.value)
+        );
+    }
+
+    /**
+     * Formats the input string by normalizing, trimming, removing empty entries.
+     * @param {string} input - The input string to format.
+     * @returns {string} The formatted and cleaned string.
+     */
+    _formateInput(input) {
+        return input
+            .replace(/\s+/g, '') // Remove whitespace
+            .toUpperCase() // Convert to uppercase
+            .split(',') // Split by comma
+            .filter(Boolean) // Remove empty entries
+            .join(','); // Join with commas
     }
 
     /**
@@ -1031,14 +1269,59 @@ class MacroMidi extends MacroBase {
      * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
      */
     getValue() {
-        return this.duration.value === '0'
-            ? false
-            : {
-                  midi: {
-                      frequency: parseInt(this.frequency.value),
-                      duration: parseFloat(this.duration.value),
-                  },
-              };
+        switch (this.midiCommandSelect.value) {
+            case 'ntson':
+                // Handle Note On command
+                if (!this.noteOn.value) return false;
+                return {
+                    midi: {
+                        ntson: this._formateInput(this.noteOn.value),
+                        vlcty: parseInt(this.noteOnVelocity.value),
+                        durtn: parseFloat(this.noteOnDuration.value),
+                    },
+                };
+            case 'ntoff':
+                // Handle Note Off command
+                if (!this.noteOff.value) return false;
+                return {
+                    midi: {
+                        ntoff: this._formateInput(this.noteOff.value),
+                    },
+                };
+            case 'ptchb':
+                // Handle Pitch Bend command
+                if (!this.pitchBendCommand.value) return false;
+                const ret = {
+                    midi: {
+                        ptchb: this.pitchBendCommand.value,
+                    },
+                };
+                if (this.pitchBendCommand.value === 'set') {
+                    if (!this.pitchBendValue.value) return false;
+                    ret.midi.pbval = parseInt(this.pitchBendValue.value);
+                }
+                return ret;
+            case 'ctrch':
+                // Handle Control Change command
+                if (!this.controlChangeControl.value || !this.controlChangeValue.value)
+                    return false;
+                return {
+                    midi: {
+                        ctrch: parseInt(this.controlChangeControl.value),
+                        ccval: parseInt(this.controlChangeValue.value),
+                    },
+                };
+            case 'prgch':
+                // Handle Program Change command
+                if (!this.programmChangeProgramm.value) return false;
+                return {
+                    midi: {
+                        prgch: parseInt(this.programmChangeProgramm.value),
+                    },
+                };
+            default:
+                return false;
+        }
     }
 }
 

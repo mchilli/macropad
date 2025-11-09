@@ -8627,6 +8627,13 @@ body {
   flex-grow: 1;
   align-items: center;
   text-wrap: nowrap;
+  gap: var(--dialog-gap);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content .macro-entry-content-flex-container {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  gap: var(--dialog-gap);
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls {
   display: flex;
