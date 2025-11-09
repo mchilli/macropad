@@ -265,7 +265,7 @@ class MacroWait extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: _('seconds'),
+                text: _('s'),
             }),
         ]);
     }
