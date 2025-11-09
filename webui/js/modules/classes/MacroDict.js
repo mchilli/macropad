@@ -505,7 +505,7 @@ class MacroKeycodes extends MacroBase {
             })),
             (this.additions = utils.create({
                 attributes: {
-                    style: 'display:flex; flex-grow:1;',
+                    class: 'macro-entry-content-flex-container',
                 },
                 children: [
                     utils.create({
@@ -558,8 +558,6 @@ class MacroKeycodes extends MacroBase {
             this.input.value = '';
         } else {
             const prefix = this.value.kc.charAt(0);
-            this.input.value = this.value.kc.slice(1);
-
             switch (prefix) {
                 case '+':
                     this.behaviour.value = 'tap';
@@ -569,9 +567,10 @@ class MacroKeycodes extends MacroBase {
                     break;
                 default:
                     this.behaviour.value = 'press';
-                    this.input.value = this.value.kc;
                     break;
             }
+
+            this.input.value = this.value.kc.replace(/^[+-]/, '');
         }
 
         this._updateVisibility();
@@ -589,6 +588,10 @@ class MacroKeycodes extends MacroBase {
      * @returns {Object|false} An object representing the keycodes or `false` if no keycodes are entered.
      */
     getValue() {
+        if (!this.input.value.trim()) {
+            return false;
+        }
+
         const prefix =
             {
                 tap: '+',
@@ -598,10 +601,6 @@ class MacroKeycodes extends MacroBase {
 
         if (this.behaviour.value === 'release_all') {
             return { kc: 'RELALL' };
-        }
-
-        if (!this.input.value.trim()) {
-            return false;
         }
 
         const formattedInput = this.input.value
