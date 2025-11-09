@@ -804,7 +804,7 @@ class MacroTone extends MacroBase {
                 }),
                 events: {
                     change: (event) => {
-                        this.frequency.value = this.chord.value;
+                        this.frequency.value = event.target.value;
                     },
                 },
             })),
@@ -841,7 +841,7 @@ class MacroTone extends MacroBase {
                 type: 'input',
                 attributes: {
                     type: 'number',
-                    title: _('Duration of the tone in seconds'),
+                    title: _('Duration of the tone in seconds. Set to 0 for continuous playback'),
                     style: `width:${this.inputWidth}px;`,
                     value: this.value.tone.duration,
                     min: 0,
@@ -850,7 +850,7 @@ class MacroTone extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: _('seconds'),
+                text: _('s'),
             }),
         ]);
 
@@ -867,14 +867,14 @@ class MacroTone extends MacroBase {
      * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
      */
     getValue() {
-        return this.duration.value === '0'
-            ? false
-            : {
-                  tone: {
-                      frequency: parseInt(this.frequency.value),
-                      duration: parseFloat(this.duration.value),
-                  },
-              };
+        if (parseInt(this.frequency.value) === 0) return false;
+
+        return {
+            tone: {
+                frequency: parseInt(this.frequency.value),
+                duration: parseFloat(this.duration.value),
+            },
+        };
     }
 }
 
