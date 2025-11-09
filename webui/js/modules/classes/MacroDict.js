@@ -620,14 +620,21 @@ class MacroKeycodes extends MacroBase {
  * @extends MacroBase
  */
 class MacroConsumerControlCodes extends MacroBase {
-    constructor(value = { ccc: '' }) {
+    constructor(value = { ccc: '+' }) {
         super();
 
         this.type = 'ccc';
         this.value = value;
         this.inputWidth = 200;
 
+        this.behaviourList = [
+            [_('Tap'), 'tap'],
+            [_('Press'), 'press'],
+            [_('Release'), 'release'],
+        ];
+
         this.autocompleteList = [
+            '',
             'MUTE',
             'VOLUME_INCREMENT',
             'VOLUME_DECREMENT',
@@ -653,6 +660,18 @@ class MacroConsumerControlCodes extends MacroBase {
      */
     _setContent() {
         utils.appendElements(this.DOM.content, [
+            (this.behaviour = utils.create({
+                type: 'select',
+                children: this.behaviourList.map((value) => {
+                    return utils.create({
+                        type: 'option',
+                        text: value[0],
+                        attributes: {
+                            value: value[1],
+                        },
+                    });
+                }),
+            })),
             utils.create({
                 type: 'span',
                 text: ':',
@@ -662,7 +681,6 @@ class MacroConsumerControlCodes extends MacroBase {
                 attributes: {
                     list: 'consumer-control-codes',
                     style: `width:${this.inputWidth}px;`,
-                    value: this.value.ccc,
                 },
                 children: this.autocompleteList.sort().map((value) => {
                     return utils.create({
@@ -675,6 +693,21 @@ class MacroConsumerControlCodes extends MacroBase {
                 }),
             })),
         ]);
+
+        const prefix = this.value.ccc.charAt(0);
+        switch (prefix) {
+            case '+':
+                this.behaviour.value = 'tap';
+                break;
+            case '-':
+                this.behaviour.value = 'release';
+                break;
+            default:
+                this.behaviour.value = 'press';
+                break;
+        }
+
+        this.input.value = this.value.ccc.replace(/^[+-]/, '');
 
         for (const option of this.input.children) {
             if (this.value.ccc === option.value) {
@@ -689,7 +722,18 @@ class MacroConsumerControlCodes extends MacroBase {
      * @returns {Object|false} An object representing the consumer control code value or `false` if no valid code is selected.
      */
     getValue() {
-        return this.input.value === '' ? false : { ccc: this.input.value };
+        if (this.input.value === '') {
+            return false;
+        }
+
+        const prefix =
+            {
+                tap: '+',
+                release: '-',
+                press: '',
+            }[this.behaviour.value] || '';
+
+        return { ccc: `${prefix}${this.input.value}` };
     }
 }
 
