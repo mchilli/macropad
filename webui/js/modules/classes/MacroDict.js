@@ -250,7 +250,7 @@ class MacroWait extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('Wait').concat(':'),
+                text: `${_('Wait')}:`,
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -303,7 +303,7 @@ class MacroString extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('String Input').concat(':'),
+                text: `${_('String Input')}:`,
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -329,232 +329,6 @@ class MacroString extends MacroBase {
  * @class
  * @extends MacroBase
  */
-class MacroKeycodesOld extends MacroBase {
-    constructor(value = { kc: '' }) {
-        super();
-
-        this.type = 'kc';
-        this.value = value;
-        this.uniqueId = utils.uniqueId();
-
-        this.autocompleteList = [
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-            'G',
-            'H',
-            'I',
-            'J',
-            'K',
-            'L',
-            'M',
-            'N',
-            'O',
-            'P',
-            'Q',
-            'R',
-            'S',
-            'T',
-            'U',
-            'V',
-            'W',
-            'X',
-            'Y',
-            'Z',
-            'ZERO',
-            'ONE',
-            'TWO',
-            'THREE',
-            'FOUR',
-            'FIVE',
-            'SIX',
-            'SEVEN',
-            'EIGHT',
-            'NINE',
-            'ENTER',
-            'RETURN',
-            'ESCAPE',
-            'BACKSPACE',
-            'TAB',
-            'SPACEBAR',
-            'SPACE',
-            'MINUS',
-            'EQUALS',
-            'LEFT_BRACKET',
-            'RIGHT_BRACKET',
-            'BACKSLASH',
-            'POUND',
-            'SEMICOLON',
-            'QUOTE',
-            'GRAVE_ACCENT',
-            'COMMA',
-            'PERIOD',
-            'FORWARD_SLASH',
-            'CAPS_LOCK',
-            'F1',
-            'F2',
-            'F3',
-            'F4',
-            'F5',
-            'F6',
-            'F7',
-            'F8',
-            'F9',
-            'F10',
-            'F11',
-            'F12',
-            'F13',
-            'F14',
-            'F15',
-            'F16',
-            'F17',
-            'F18',
-            'F19',
-            'F20',
-            'F21',
-            'F22',
-            'F23',
-            'F24',
-            'PRINT_SCREEN',
-            'SCROLL_LOCK',
-            'PAUSE',
-            'INSERT',
-            'HOME',
-            'PAGE_UP',
-            'DELETE',
-            'END',
-            'PAGE_DOWN',
-            'RIGHT_ARROW',
-            'LEFT_ARROW',
-            'DOWN_ARROW',
-            'UP_ARROW',
-            'KEYPAD_NUMLOCK',
-            'KEYPAD_FORWARD_SLASH',
-            'KEYPAD_ASTERISK',
-            'KEYPAD_MINUS',
-            'KEYPAD_PLUS',
-            'KEYPAD_ENTER',
-            'KEYPAD_ONE',
-            'KEYPAD_TWO',
-            'KEYPAD_THREE',
-            'KEYPAD_FOUR',
-            'KEYPAD_FIVE',
-            'KEYPAD_SIX',
-            'KEYPAD_SEVEN',
-            'KEYPAD_EIGHT',
-            'KEYPAD_NINE',
-            'KEYPAD_ZERO',
-            'KEYPAD_PERIOD',
-            'KEYPAD_BACKSLASH',
-            'APPLICATION',
-            'POWER',
-            'KEYPAD_EQUALS',
-            'LEFT_CONTROL',
-            'CONTROL',
-            'LEFT_SHIFT',
-            'SHIFT',
-            'LEFT_ALT',
-            'ALT',
-            'OPTION',
-            'LEFT_GUI',
-            'GUI',
-            'WINDOWS',
-            'COMMAND',
-            'RIGHT_CONTROL',
-            'RIGHT_SHIFT',
-            'RIGHT_ALT',
-            'RIGHT_GUI',
-        ];
-
-        this._setContent();
-
-        return this.DOM.container;
-    }
-
-    /**
-     * Set the content for the keycodes macro.
-     */
-    _setContent() {
-        utils.appendElements(this.DOM.content, [
-            (this.press = utils.create({
-                type: 'input',
-                attributes: {
-                    type: 'radio',
-                    name: this.uniqueId,
-                    checked: true,
-                },
-            })),
-            utils.create({
-                type: 'span',
-                text: _('Press'),
-            }),
-            (this.release = utils.create({
-                type: 'input',
-                attributes: {
-                    type: 'radio',
-                    name: this.uniqueId,
-                },
-            })),
-            utils.create({
-                type: 'span',
-                text: _('Release').concat(':'),
-            }),
-            (this.input = utils.create({
-                type: 'input',
-                attributes: {
-                    list: 'keycodes',
-                    style: 'flex-grow:1;',
-                    value:
-                        this.value.kc.slice(0, 1) === '-' ? this.value.kc.slice(1) : this.value.kc,
-                },
-            })),
-            utils.create({
-                type: 'datalist',
-                attributes: {
-                    id: 'keycodes',
-                },
-                children: this.autocompleteList.map((value) => {
-                    return utils.create({
-                        type: 'option',
-                        attributes: {
-                            value: value,
-                        },
-                    });
-                }),
-            }),
-        ]);
-
-        this.release.checked = this.value.kc.slice(0, 1) === '-';
-    }
-
-    /**
-     * Get the value of the keycodes macro.
-     * @returns {Object|false} An object representing the keycode value or `false` if no valid keycode is selected.
-     */
-    getValue() {
-        return this.input.value === ''
-            ? false
-            : { kc: `${this.release.checked ? '-' : ''}${this.input.value}` };
-    }
-
-    /**
-     * Generates a unique ID for radio buttons in the keycodes macro.
-     */
-    _makeUnique() {
-        this.uniqueId = utils.uniqueId();
-        this.press.name = this.uniqueId;
-        this.release.name = this.uniqueId;
-    }
-}
-
-/**
- * Represents a keycodes macro.
- * @class
- * @extends MacroBase
- */
 class MacroKeycodes extends MacroBase {
     constructor(value = { kc: '+' }) {
         super();
@@ -562,13 +336,14 @@ class MacroKeycodes extends MacroBase {
         this.type = 'kc';
         this.value = value;
 
-        (this.behaviourList = [
+        this.behaviourList = [
             [_('Tap'), 'tap'],
             [_('Press'), 'press'],
             [_('Release'), 'release'],
             [_('Release all'), 'release_all'],
-        ]),
-            (this.keyCodeListWidth = 18);
+        ];
+
+        this.keyCodeListWidth = 18;
         this.keyCodeList = [
             'A',
             'B',
@@ -881,7 +656,7 @@ class MacroConsumerControlCodes extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('Consumer Control Code').concat(':'),
+                text: ':',
             }),
             (this.input = utils.create({
                 type: 'select',
@@ -965,7 +740,7 @@ class MacroTone extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('Play').concat(':'),
+                text: `${_('Play')}:`,
             }),
             (this.chord = utils.create({
                 type: 'select',
@@ -1017,7 +792,7 @@ class MacroTone extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: _('Hz for').concat(' '),
+                text: `${_('Hz')} ${_('for')}`,
             }),
             (this.duration = utils.create({
                 type: 'input',
@@ -1084,7 +859,7 @@ class MacroAudioFile extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('Audio file').concat(':'),
+                text: `${_('Audio file')}`,
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -1299,7 +1074,7 @@ class MacroMouseEvents extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('X').concat(':'),
+                text: `${_('X')}:`,
             }),
             (this.x = utils.create({
                 type: 'input',
@@ -1312,7 +1087,7 @@ class MacroMouseEvents extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: _('Y').concat(':'),
+                text: `${_('Y')}:`,
             }),
             (this.y = utils.create({
                 type: 'input',
@@ -1325,7 +1100,7 @@ class MacroMouseEvents extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: _('Whl').concat(':'),
+                text: `${_('Whl')}:`,
             }),
             (this.w = utils.create({
                 type: 'input',
@@ -1338,7 +1113,7 @@ class MacroMouseEvents extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: _('Btn').concat(':'),
+                text: `${_('Btn')}:`,
             }),
             (this.b = utils.create({
                 type: 'select',
@@ -1423,7 +1198,7 @@ class MacroSystemFunctions extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: _('Device Function').concat(':'),
+                text: `${_('Device Function')}:`,
             }),
             (this.input = utils.create({
                 type: 'select',
