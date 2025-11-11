@@ -171,8 +171,8 @@ class Key():
         if not self._func:
             return
         if self._func_args:
-            return self._func(self._func_args, just_pressed=self._just_pressed)
-        return self._func(just_pressed=self._just_pressed)
+            return self._func(self._func_args, key_pressed=self._just_pressed)
+        return self._func(key_pressed=self._just_pressed)
 
     def _on_pressed(self) -> None:
         """ Action that triggered when Key is pressed

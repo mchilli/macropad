@@ -118,6 +118,8 @@ class MacroApp():
 
         self.encoder = Encoder(self.macropad)
 
+        self.pitch_bend = 8192  # MIDI Pitch Bend Center
+
         self._init_keys()
         self._init_group_label()
         
@@ -214,97 +216,197 @@ class MacroApp():
 
         gc.collect()
 
-    def run_macro(self, item: tuple[str, list], just_pressed=False, *args) -> None:
+    def run_macro_press_and_release(self, item: tuple[str, list], *args) -> None:
+        """ run the macro without checking for pressed or released state
+
+        Args:
+            item (key_id:str, content:list): the key id and content data
+        """
+        self.run_macro(item, key_pressed=True)
+        self.run_macro(item, key_pressed=False)
+
+    def run_macro(self, item: tuple[str, list], key_pressed=False, *args) -> None:
         """ run the macro, can be:
                 Int | Float (e.g. 0.25): delay in seconds
                 String (e.g. "Foo"): corresponding keys pressed & released
                 Dict {}: 
                     'kc': Keycodes (e.g. "SHIFT"): key pressed | (e.g. "-SHIFT"): key released
                     'ccc': Consumer Control codes (e.g. "MUTE")
-                    'tone': Dict {}: 
-                        'frequency': frequency of the tone in Hz (e.g. 880)
-                        'duration': duration of the tone in seconds (e.g. 0.25)
-                    'file': Dict {}: 
-                        'file': the mono audio file (e.g. audio/*.mp3|*.wav)
                     'mse': Dict {}: 
                         'x': horizontally Mouse movement (e.g. 10 | -10)
                         'y': vertically Mouse movement (e.g. 10 | -10)
                         'w': Mousewheel movement (e.g. 1 | -1)
                         'b': Buttoncodes (e.g. "LEFT")
+                    'tone': Dict {}: 
+                        'frequency': frequency of the tone in Hz (e.g. 880)
+                        'duration': duration of the tone in seconds (e.g. 0.25)
+                    'file': Dict {}: 
+                        'file': the mono audio file (e.g. audio/*.mp3|*.wav)
+                    'midi': Dict {}: 
+                        'ntson': NoteOn notes separated by comma (e.g. "60,62,64")
+                            'vlcty': velocity for NoteOn (e.g. 127)
+                            'durtn': duration of the note in seconds (e.g. 0.5)
+                        'ntoff': NoteOff notes separated by comma (e.g. "60,62,64")
+                        'ptchb': Pitch Bend command ("set" | "incr" | "decr")
+                            'pbval': Pitch Bend value (0 - 16383)
+                        'ctrch': Control Change number (e.g. 7)
+                            'ccval': Control Change value (0 - 127)
+                        'prgch': Program Change number (0 - 127)
                     'sys': System Class Methodname
 
         Args:
             item (key_id:str, content:list): the key id and content data
         """
         for key in item[1]:
-            if isinstance(key, (int, float)) and just_pressed:
+            if isinstance(key, (int, float)) and key_pressed:
                 time.sleep(key)
-            elif isinstance(key, str) and just_pressed:
+            elif isinstance(key, str) and key_pressed:
                 try:
                     self.macropad.keyboard_layout.write(key)
                 except ValueError:
                     # if any of the characters has no keycode
                     pass
             elif isinstance(key, dict):
-                if 'kc' in key and just_pressed:
+                if 'kc' in key:
                     key_codes = [
                         getattr(Keycode, key_name, None)
                         for key_name in key['kc'].lstrip('-+').upper().split(',')
                         if getattr(Keycode, key_name, None) is not None
                     ]
                     if key_codes:
-                        if key['kc'] == 'RELALL':
-                            # release all keys
-                            self.macropad.keyboard.release_all()
-                        elif key['kc'][0] == '+':
-                            # tap keys
-                            self.macropad.keyboard.press(*key_codes)
-                            self.macropad.keyboard.release(*key_codes)
-                        elif key['kc'][0] == '-':
-                            # release keys
-                            self.macropad.keyboard.release(*key_codes)
+                        if key_pressed:
+                            if key['kc'] == 'RELALL':
+                                # release all keys
+                                self.macropad.keyboard.release_all()
+                            elif key['kc'][0] == '+':
+                                # tap keys
+                                self.macropad.keyboard.press(*key_codes)
+                                self.macropad.keyboard.release(*key_codes)
+                            elif key['kc'][0] == '-':
+                                # release keys
+                                self.macropad.keyboard.release(*key_codes)
+                            else:
+                                # press keys
+                                self.macropad.keyboard.press(*key_codes)
                         else:
-                            # press keys
-                            self.macropad.keyboard.press(*key_codes)
-                if 'ccc' in key and just_pressed:
+                            # release keys after the key is released
+                            self.macropad.keyboard.release(*key_codes)
+                elif 'ccc' in key:
                     control_code = getattr(
-                        ConsumerControlCode, key['ccc'].upper(), None)
+                        ConsumerControlCode, key['ccc'].lstrip('-+').upper(), None)
                     if control_code:
-                        self.macropad.consumer_control.press(control_code)
-                        self.macropad.consumer_control.release()
-                if 'tone' in key and just_pressed:
-                    self.macropad.play_tone(
-                        key['tone']['frequency'], key['tone']['duration'])
-                if 'file' in key and just_pressed:
-                    try:
-                        self.macropad.play_file(key['file'])
-                    except Exception:
-                        pass
-                if 'mse' in key and just_pressed:
-                    if "b" in key["mse"]:
-                        btn = getattr(
-                            Mouse, f"{key['mse']['b'].upper()}_BUTTON", None)
-                        if btn:
-                            self.macropad.mouse.click(btn)
-                    self.macropad.mouse.move(
-                        key["mse"].get('x', 0),
-                        key["mse"].get('y', 0),
-                        key["mse"].get('w', 0))
-                if 'sys' in key and just_pressed:
-                    method = getattr(System, key['sys'], None)
-                    if method:
-                        method(self)
+                        if key_pressed:
+                            if key['ccc'][0] == '+':
+                                # tap key
+                                self.macropad.consumer_control.press(control_code)
+                                self.macropad.consumer_control.release()
+                            elif key['ccc'][0] == '-':
+                                # release key
+                                self.macropad.consumer_control.release()
+                            else:
+                                # press key
+                                self.macropad.consumer_control.press(control_code)
+                        else:
+                            # release key after the key is released
+                            self.macropad.consumer_control.release()
+                elif 'mse' in key:
+                    if key_pressed:
+                        if "b" in key["mse"]:
+                            btn = getattr(
+                                Mouse, f"{key['mse']['b'].upper()}_BUTTON", None)
+                            if btn:
+                                self.macropad.mouse.click(btn)
+                        self.macropad.mouse.move(
+                            key["mse"].get('x', 0),
+                            key["mse"].get('y', 0),
+                            key["mse"].get('w', 0))
+                    else:
+                        self.macropad.mouse.release_all()
+                elif 'tone' in key:
+                    if key_pressed and key['tone']['duration'] > 0:
+                        # play tone for a specific duration
+                        self.macropad.play_tone(
+                            key['tone']['frequency'], key['tone']['duration'])
+                    elif key_pressed:
+                        # start tone until stopped
+                        self.macropad.start_tone(key['tone']['frequency'])
+                    else:
+                        # stop tone
+                        self.macropad.stop_tone()
+                elif 'file' in key:
+                    if key_pressed:
+                        try:
+                            self.macropad.play_file(key['file'])
+                        except Exception:
+                            pass
+                elif 'midi' in key:
+                    if 'ntson' in key['midi']:
+                        notes = key['midi']['ntson'].upper().split(',')
+                        velocity = key['midi']['vlcty']
+                        duration = key['midi']['durtn']
+                        if key_pressed and duration > 0:
+                            self.macropad.midi.send(
+                                self._get_midi_notes(notes, 'on', velocity))
+                            time.sleep(key['midi']['durtn'])
+                            self.macropad.midi.send(
+                                self._get_midi_notes(notes, 'off', velocity))
+                        elif key_pressed:
+                            self.macropad.midi.send(
+                                self._get_midi_notes(notes, 'on',velocity))
+                        elif duration == 0:
+                            self.macropad.midi.send(
+                                self._get_midi_notes(notes, 'off', 0))
+                    elif 'ntoff' in key['midi']:
+                        notes = key['midi']['ntoff'].upper().split(',')
+                        if key_pressed:
+                            self.macropad.midi.send(
+                                self._get_midi_notes(notes, 'off', 0))
+                    elif 'ptchb' in key['midi']:
+                        if key_pressed: 
+                            if key['midi']['ptchb'] == 'set':
+                                if 0 <= key['midi']['pbval'] <= 16383:
+                                    self.pitch_bend = key['midi']['pbval']
+                                    self.macropad.midi.send(
+                                        self.macropad.PitchBend(self.pitch_bend))
+                            elif key['midi']['ptchb'] == 'incr':
+                                if self.pitch_bend + key['midi']['pbstp'] <= 16383:
+                                    self.pitch_bend += key['midi']['pbstp']
+                                else:
+                                    self.pitch_bend = 16383
+                                self.macropad.midi.send(
+                                    self.macropad.PitchBend(self.pitch_bend))
+                            elif key['midi']['ptchb'] == 'decr':
+                                if self.pitch_bend - key['midi']['pbstp'] >= 0:
+                                    self.pitch_bend -= key['midi']['pbstp']
+                                else:
+                                    self.pitch_bend = 0
+                                self.macropad.midi.send(
+                                    self.macropad.PitchBend(self.pitch_bend))
+                    elif 'ctrch' in key['midi']:
+                        if key_pressed:
+                            if 0 <= key['midi']['ccval'] <= 127:
+                                self.macropad.midi.send(
+                                    self.macropad.ControlChange(key['midi']['ctrch'], key['midi']['ccval']))
+                    elif 'prgch' in key['midi']:
+                        if key_pressed:
+                            if 0 <= key['midi']['prgch'] <= 127:
+                                self.macropad.midi.send(
+                                    self.macropad.ProgramChange(key['midi']['prgch']))
+                elif 'sys' in key:
+                    if key_pressed:
+                        method = getattr(System, key['sys'], None)
+                        if method:
+                            method(self)
+                else:
+                    print("unkown macro:", key)
 
-        self.macropad.keyboard.release_all()
-        self.macropad.mouse.release_all()
-
-    def open_group(self, item: tuple[str, list], just_pressed=False, *args) -> None:
+    def open_group(self, item: tuple[str, list], key_pressed=False, *args) -> None:
         """ open a group
 
         Args:
             item (key_id:str, content:list): the key id and content data
         """
-        if just_pressed:
+        if key_pressed:
             self.group_stack.append(item[0])
             self._init_group()
 
@@ -440,7 +542,7 @@ class MacroApp():
             else:
                 self.macro_store[payload['id']] = content
                 return
-
+            
             response['ACK'] = 'Macros received'
             response['CONTENT'] = len(self.macro_store) - 1
             return response
@@ -483,6 +585,30 @@ class MacroApp():
         """
         json.dump(payload, self.serial_data, separators=(',', ':'))
         self.serial_data.write(b'\n')
+
+    def _get_midi_notes(self, notes: list, state: str, velocity: int) -> list:
+        """  prepare MIDI NoteOn and NoteOff messages
+
+        Args:
+            notes (list): list of note names or numbers
+            state (str): 'on' or 'off'
+            velocity (int): strike velocity for NoteOn messages
+
+        Returns:
+            list: list of MIDI messages
+        """
+        midi_notes = []
+        for note in notes:
+            try:
+                if note.isdigit() and 0 <= int(note) <= 127:
+                    note = int(note)
+                if velocity > 0 and state == 'on':
+                    midi_notes.append(self.macropad.NoteOn(note, velocity))
+                else:
+                    midi_notes.append(self.macropad.NoteOff(note, 0))
+            except Exception:
+                pass
+        return midi_notes
 
     def _display_on(self) -> None:
         """ Turn on the display if it's in sleep mode and reset the sleep timer.
@@ -572,14 +698,14 @@ class MacroApp():
             # encoder event handling
             if self.encoder.switch and self.encoder.on_switch:
                 self._display_on()
-                self.run_macro((self.group_stack[-1], self.encoder.on_switch), just_pressed=True)
+                self.run_macro_press_and_release((self.group_stack[-1], self.encoder.on_switch))
 
             if self.encoder.increased and self.encoder.on_increased:
                 self._display_on()
-                self.run_macro((self.group_stack[-1], self.encoder.on_increased), just_pressed=True)
+                self.run_macro_press_and_release((self.group_stack[-1], self.encoder.on_increased))
 
             if self.encoder.decreased and self.encoder.on_decreased:
                 self._display_on()
-                self.run_macro((self.group_stack[-1], self.encoder.on_decreased), just_pressed=True)
+                self.run_macro_press_and_release((self.group_stack[-1], self.encoder.on_decreased))
 
 MacroApp().start()
