@@ -963,6 +963,7 @@ class MacroMidi extends MacroBase {
 
             ptchb: 'set',
             pbval: 8192,
+            pbstp: 100,
 
             ctrch: undefined,
             ccval: undefined,
@@ -1128,30 +1129,75 @@ class MacroMidi extends MacroBase {
                             },
                         },
                     })),
-                    (this.pitchBendValue = utils.create({
-                        type: 'input',
+                    (this.containerPitchBendValue = utils.create({
                         attributes: {
-                            type: 'number',
-                            title: _('The degree of bend from 0 through 8192 (no bend) to 16383'),
-                            style: `width:${this.pitchBendValueWidth}px;`,
-                            value: this.value.midi.pbval,
-                            min: 0,
-                            max: 16383,
+                            class: 'macro-entry-content-flex-container',
                         },
-                        events: {
-                            input: (event) => {
-                                event.target.value = Math.max(
-                                    0,
-                                    Math.min(16383, event.target.value)
-                                );
-                            },
+                        children: [
+                            utils.create({
+                                type: 'span',
+                                text: `${_('Value')}:`,
+                            }),
+                            (this.pitchBendValue = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    type: 'number',
+                                    title: _(
+                                        'The degree of bend from 0 through 8192 (no bend) to 16383'
+                                    ),
+                                    style: `width:${this.pitchBendValueWidth}px;`,
+                                    value: this.value.midi.pbval,
+                                    min: 0,
+                                    max: 16383,
+                                },
+                                events: {
+                                    input: (event) => {
+                                        event.target.value = Math.max(
+                                            0,
+                                            Math.min(16383, event.target.value)
+                                        );
+                                    },
+                                },
+                            })),
+                        ],
+                    })),
+                    (this.containerPitchBendStep = utils.create({
+                        attributes: {
+                            class: 'macro-entry-content-flex-container',
                         },
+                        children: [
+                            utils.create({
+                                type: 'span',
+                                text: `${_('Step')}:`,
+                            }),
+                            (this.pitchBendStep = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    type: 'number',
+                                    title: _(
+                                        'The step size for increasing or decreasing the pitch bend'
+                                    ),
+                                    style: `width:${this.pitchBendValueWidth}px;`,
+                                    value: this.value.midi.pbstp,
+                                    min: 1,
+                                    max: 16383,
+                                },
+                                events: {
+                                    input: (event) => {
+                                        event.target.value = Math.max(
+                                            1,
+                                            Math.min(16383, event.target.value)
+                                        );
+                                    },
+                                },
+                            })),
+                        ],
                     })),
                     // (this.pitchBendValue = utils.create({
                     //     type: 'input',
                     //     attributes: {
                     //         type: 'range',
-                    //         title: _('The degree of bend from 0 through 8192 (no bend) to 16383.'),
+                    //         title: _('The degree of bend from 0 through 8192 (no bend) to 16383'),
                     //         value: this.value.midi.pbval,
                     //         min: 0,
                     //         max: 16383,
@@ -1287,9 +1333,13 @@ class MacroMidi extends MacroBase {
      * Updates the visibility of the pitch bend additions based on the current pitch bend command.
      */
     _updatePitchBendVisibility() {
-        this.pitchBendValue.classList.toggle(
+        this.containerPitchBendValue.classList.toggle(
             'hidden',
             !['set'].includes(this.pitchBendCommand.value)
+        );
+        this.containerPitchBendStep.classList.toggle(
+            'hidden',
+            !['incr', 'decr'].includes(this.pitchBendCommand.value)
         );
     }
 
@@ -1339,9 +1389,13 @@ class MacroMidi extends MacroBase {
                         ptchb: this.pitchBendCommand.value,
                     },
                 };
-                if (this.pitchBendCommand.value === 'set') {
+                if (['set'].includes(this.pitchBendCommand.value)) {
                     if (!this.pitchBendValue.value) return false;
                     ret.midi.pbval = parseInt(this.pitchBendValue.value);
+                }
+                if (['incr', 'decr'].includes(this.pitchBendCommand.value)) {
+                    if (!this.pitchBendStep.value) return false;
+                    ret.midi.pbstp = parseInt(this.pitchBendStep.value);
                 }
                 return ret;
             case 'ctrch':
