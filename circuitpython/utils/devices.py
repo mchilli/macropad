@@ -116,15 +116,20 @@ class Key():
     def retrigger(self, retrigger:bool) -> None:
         self._retrigger = retrigger
     
-    def update_colors(self) -> None:
+    def update_colors(self, invertcolors:bool = False) -> None:
         """ update the backgroundcolor and color based on type
+
+        Args:
+            invertcolors (bool, optional): Invert the colors. Defaults to False.
         """
-        if self.type in [None, "group"]:
-            self._label.background_color = 0x000000
-            self._label.color = 0xffffff
-        else:
-            self._label.background_color = 0xffffff
-            self._label.color = 0x000000
+
+        bg, fg = (0xFFFFFF, 0x000000) if invertcolors else (0x000000, 0xFFFFFF)
+
+        if self.type not in [None, "group"]:
+            bg, fg = fg, bg
+
+        self._label.background_color = bg
+        self._label.color = fg
 
         self._set_led(self.color)
 

@@ -62,6 +62,7 @@
   "If enabled, the macro will be retriggered when holding the key": "Wenn aktiviert, wird das Makro erneut ausgelöst, wenn die Taste gehalten wird",
   "Import configuration": "Konfiguration importieren",
   "Increase": "Erhöhen",
+  "Invert LCD colors": "LCD-Farben invertieren",
   "Italian": "Italienisch",
   "Keyboard Layout": "Tastaturlayout",
   "Keycode": "Tastencode",

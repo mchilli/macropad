@@ -1500,6 +1500,22 @@ export class SettingsDialog extends BaseDialog {
                             })),
                         ],
                     }),
+                    utils.create({
+                        attributes: {
+                            class: 'dialog-input-shorten',
+                        },
+                        children: [
+                            utils.create({
+                                text: _('Invert LCD colors').concat(':'),
+                            }),
+                            (this.inputs.invertcolors = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    type: 'checkbox',
+                                },
+                            })),
+                        ],
+                    }),
                 ],
             }),
         ]);
@@ -1526,6 +1542,7 @@ export class SettingsDialog extends BaseDialog {
         this.inputs.fliprotation.checked = this.settings.fliprotation;
         this.inputs.brightness.value = this.settings.brightness;
         this.inputs.brightness.title = this.settings.brightness;
+        this.inputs.invertcolors.checked = this.settings.invertcolors;
     }
 
     /**
@@ -1537,6 +1554,7 @@ export class SettingsDialog extends BaseDialog {
         this.settings.useunicodefont = this.inputs.useunicodefont.checked;
         this.settings.fliprotation = this.inputs.fliprotation.checked;
         this.settings.brightness = parseFloat(this.inputs.brightness.value);
+        this.settings.invertcolors = this.inputs.invertcolors.checked;
 
         this.resolve({ dialogInstance: this, settings: this.settings });
         this._removeFromParent(this.DOM.container);

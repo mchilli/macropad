@@ -47,7 +47,9 @@ SETTINGS = {
     # Flips the rotation of the device by 180 degrees
     "fliprotation": False,
     # Set the LCD and LED Brightness
-    "brightness": 0.1
+    "brightness": 0.1,
+    # Invert the LCD colors (white on black)
+    "invertcolors": False
 }
 
 try:
@@ -453,7 +455,7 @@ class MacroApp():
         self.group_label.text = group["label"]
 
         for key in self.keys:
-            key.update_colors()
+            key.update_colors(SETTINGS["invertcolors"])
 
     def _update_encoder_macros(self) -> None:
         """ update the rotary encoder macros defined for opened group
