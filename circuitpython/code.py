@@ -120,6 +120,8 @@ class MacroApp():
 
         self.encoder = Encoder(self.macropad)
 
+        self.delayed_macros = []
+
         self.pitch_bend = 8192  # MIDI Pitch Bend Center
 
         self._init_keys()
@@ -218,7 +220,19 @@ class MacroApp():
 
         gc.collect()
 
-    def run_macro_press_and_release(self, item: tuple[str, list], *args) -> None:
+    def _add_delayed_macro(self, key_id:str, start_index:int, key_pressed:bool, delay:float) -> None:
+        """ add a macro to the sleep stack for delayed execution and keep it sorted by execution time
+
+        Args:
+            key_id (str): the key id
+            start_index (int): the index to start the macro from
+            key_pressed (bool): True if the key is pressed, False if released
+            delay (float): delay in seconds
+        """
+        self.delayed_macros.append((key_id, start_index, key_pressed, time.monotonic() + delay))
+        self.delayed_macros.sort(key=lambda x: x[3])
+
+    def run_macro_press_and_release(self, item:tuple[str, list], *args) -> None:
         """ run the macro without checking for pressed or released state
 
         Args:
@@ -227,7 +241,7 @@ class MacroApp():
         self.run_macro(item, key_pressed=True)
         self.run_macro(item, key_pressed=False)
 
-    def run_macro(self, item: tuple[str, list], key_pressed=False, *args) -> None:
+    def run_macro(self, item:tuple[str, list], start_index:int = 0, key_pressed:bool = False, *args) -> None:
         """ run the macro, can be:
                 Int | Float (e.g. 0.25): delay in seconds
                 String (e.g. "Foo"): corresponding keys pressed & released
@@ -259,9 +273,12 @@ class MacroApp():
         Args:
             item (key_id:str, content:list): the key id and content data
         """
-        for key in item[1]:
+        for index, key in enumerate(item[1]):
+            if index < start_index:
+                continue
             if isinstance(key, (int, float)) and key_pressed:
-                time.sleep(key)
+                self._add_delayed_macro(item[0], index + 1, key_pressed, key)
+                break
             elif isinstance(key, str) and key_pressed:
                 try:
                     self.macropad.keyboard_layout.write(key)
@@ -402,7 +419,7 @@ class MacroApp():
                 else:
                     print("unkown macro:", key)
 
-    def open_group(self, item: tuple[str, list], key_pressed=False, *args) -> None:
+    def open_group(self, item:tuple[str, list], key_pressed:bool = False, *args) -> None:
         """ open a group
 
         Args:
@@ -679,6 +696,16 @@ class MacroApp():
                 # self.macropad.keys.events.get()
                 # continue
             
+            # handle delayed macro execution
+            if self.delayed_macros:
+                if time.monotonic() >= self.delayed_macros[0][3]:
+                    item = self.delayed_macros.pop(0)
+                    self.run_macro(
+                        (item[0], json.loads(self.macro_store[item[0]])["content"]), 
+                        start_index=item[1],
+                        key_pressed=item[2]
+                    )
+
             # key event handling
             key_event = self.macropad.keys.events.get()
             if key_event:
