@@ -271,7 +271,7 @@ class MacroWait extends MacroBase {
                         },
                         events: {
                             input: (event) => {
-                                if (event.target.value < 0) event.target.value = 0;
+                                if (event.target.value < 0) event.target.value = '';
                             },
                         },
                     })),
@@ -777,13 +777,20 @@ class MacroTone extends MacroBase {
         super();
 
         this.type = 'tone';
-        const defaultTone = { frequency: 0, duration: 0 };
+        const defaultTone = { frequency: undefined, duration: 0 };
         this.value = {
             tone: { ...defaultTone, ...value.tone },
         };
 
-        this.inputWidth = 40;
-        this.frequencyinputWidth = 58;
+        this.toneCommandsList = [
+            [_('Tone On'), 'toneon'],
+            [_('Tone Off'), 'toneoff'],
+        ];
+
+        this.selectWidth = 80;
+        this.chordWidth = 45;
+        this.durationWidth = 40;
+        this.frequencyWidth = 58;
 
         this.autocompleteList = {
             '': 0,
@@ -811,78 +818,113 @@ class MacroTone extends MacroBase {
      */
     _setContent() {
         utils.appendElements(this.DOM.content, [
-            utils.create({
-                type: 'span',
-                text: `${_('Play')}`,
-            }),
-            (this.chord = utils.create({
+            (this.toneCommandSelect = utils.create({
                 type: 'select',
-                attributes: {
-                    type: 'select',
-                    title: _('Chord of the tone'),
-                    style: `width:${this.inputWidth}px;`,
-                    value: this.value.tone.frequency,
-                },
-                children: Object.keys(this.autocompleteList).map((value) => {
+                children: this.toneCommandsList.map((value) => {
                     return utils.create({
                         type: 'option',
-                        text: value,
+                        text: value[0],
                         attributes: {
-                            value: this.autocompleteList[value],
+                            value: value[1],
                         },
                     });
                 }),
+                attributes: {
+                    style: `width:${this.selectWidth}px;`,
+                },
                 events: {
                     change: (event) => {
-                        this.frequency.value = event.target.value;
+                        this._updateVisibility();
                     },
                 },
             })),
-            utils.create({
-                type: 'span',
-                text: '/',
-            }),
-            (this.frequency = utils.create({
-                type: 'input',
+            (this.containerToneOn = utils.create({
                 attributes: {
-                    type: 'number',
-                    title: _('Frequency of the tone in Hz'),
-                    style: `width:${this.frequencyinputWidth}px;`,
-                    value: this.value.tone.frequency,
-                    min: 0,
+                    class: 'macro-entry-content-flex-container gapped',
                 },
-                events: {
-                    input: (event) => {
-                        for (const option of this.chord.children) {
-                            this.chord.children[0].selected = true;
-                            if (parseInt(this.frequency.value) === parseInt(option.value)) {
-                                option.selected = true;
-                                break;
-                            }
-                        }
-                    },
-                },
+                children: [
+                    (this.chord = utils.create({
+                        type: 'select',
+                        attributes: {
+                            type: 'select',
+                            title: _('Chord of the tone'),
+                            style: `width:${this.chordWidth}px;`,
+                            value: this.value.tone.frequency,
+                        },
+                        children: Object.keys(this.autocompleteList).map((value) => {
+                            return utils.create({
+                                type: 'option',
+                                text: value,
+                                attributes: {
+                                    value: this.autocompleteList[value],
+                                },
+                            });
+                        }),
+                        events: {
+                            change: (event) => {
+                                this.frequency.value = event.target.value;
+                            },
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: '/',
+                    }),
+                    (this.frequency = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('Frequency of the tone in Hz'),
+                            style: `width:${this.frequencyWidth}px;`,
+                            value: this.value.tone.frequency,
+                            min: 0,
+                        },
+                        events: {
+                            input: (event) => {
+                                if (event.target.value < 0) event.target.value = '';
+
+                                for (const option of this.chord.children) {
+                                    this.chord.children[0].selected = true;
+                                    if (parseInt(this.frequency.value) === parseInt(option.value)) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            },
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: `${_('Hz')} ${_('for')}`,
+                    }),
+                    (this.duration = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _(
+                                'Duration of the tone in seconds. Set to 0 for continuous playback'
+                            ),
+                            style: `width:${this.durationWidth}px;`,
+                            value: this.value.tone.duration,
+                            min: 0,
+                            step: 0.1,
+                        },
+                        events: {
+                            input: (event) => {
+                                if (event.target.value < 0) event.target.value = '';
+                            },
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: _('s'),
+                    }),
+                ],
             })),
-            utils.create({
-                type: 'span',
-                text: `${_('Hz')} ${_('for')}`,
-            }),
-            (this.duration = utils.create({
-                type: 'input',
-                attributes: {
-                    type: 'number',
-                    title: _('Duration of the tone in seconds. Set to 0 for continuous playback'),
-                    style: `width:${this.inputWidth}px;`,
-                    value: this.value.tone.duration,
-                    min: 0,
-                    step: 0.1,
-                },
-            })),
-            utils.create({
-                type: 'span',
-                text: _('s'),
-            }),
         ]);
+
+        if (this.value.tone.frequency === 0) this.toneCommandSelect.value = 'toneoff';
+        this._updateVisibility();
 
         for (const option of this.chord.children) {
             if (this.value.tone.frequency === parseInt(option.value)) {
@@ -893,11 +935,28 @@ class MacroTone extends MacroBase {
     }
 
     /**
-     * Get the value of the mouse events macro.
-     * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
+     * Updates the visibility of the additions based on the current tone command.
+     */
+    _updateVisibility() {
+        this.containerToneOn.classList.toggle(
+            'hidden',
+            !['toneon'].includes(this.toneCommandSelect.value)
+        );
+    }
+
+    /**
+     * Get the value of the tone events macro.
+     * @returns {Object|false} An object representing the tone event value or `false` if no valid event is specified.
      */
     getValue() {
-        if (parseInt(this.frequency.value) === 0) return false;
+        const freq = parseInt(this.frequency.value);
+        if (this.toneCommandSelect.value === 'toneon' && (!Number.isFinite(freq) || freq === 0)) {
+            return false;
+        }
+
+        if (this.toneCommandSelect.value === 'toneoff') {
+            return { tone: { frequency: 0 } };
+        }
 
         return {
             tone: {
@@ -975,7 +1034,7 @@ class MacroAudioFile extends MacroBase {
 }
 
 /**
- * Represents a tone macro.
+ * Represents a midi macro.
  * @class
  * @extends MacroBase
  */
@@ -1388,8 +1447,8 @@ class MacroMidi extends MacroBase {
     }
 
     /**
-     * Get the value of the mouse events macro.
-     * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
+     * Get the value of the midi events macro.
+     * @returns {Object|false} An object representing the midi event value or `false` if no valid event is specified.
      */
     getValue() {
         switch (this.midiCommandSelect.value) {
