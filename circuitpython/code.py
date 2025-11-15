@@ -345,16 +345,17 @@ class MacroApp():
                     else:
                         self.macropad.mouse.release_all()
                 elif 'tone' in key:
-                    if key_pressed and key['tone']['duration'] > 0:
-                        # play tone for a specific duration
-                        self.macropad.play_tone(
-                            key['tone']['frequency'], key['tone']['duration'])
-                    elif key_pressed:
-                        # start tone until stopped
-                        self.macropad.start_tone(key['tone']['frequency'])
-                    else:
-                        # stop tone
-                        self.macropad.stop_tone()
+                    # stop tone
+                    self.macropad.stop_tone()
+
+                    if key_pressed and key['tone']['frequency'] > 0:
+                        if key['tone'].get("duration", 0) > 0:
+                            # play tone for a specific duration
+                            self.macropad.play_tone(
+                                key['tone']['frequency'], key['tone']['duration'])
+                        else:
+                            # start tone until stopped
+                            self.macropad.start_tone(key['tone']['frequency'])
                 elif 'file' in key:
                     if key_pressed:
                         try:
