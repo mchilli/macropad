@@ -1,7 +1,6 @@
 {
   "%s has no configured navigation key!": "%s hat keine konfigurierte Navigationstaste!",
   "%s macros sended to macropad": "%s Makros an das Macropad gesendet",
-  "Attention, it blocks the device for given seconds!": "Achtung, es blockiert das Gerät für die angegebene Zeit!",
   "Audio file": "Audiodatei",
   "Back": "Zurück",
   "Blank": "Leer",
@@ -104,6 +103,7 @@
   "s": "s",
   "Save": "Speichern",
   "Select a macro type": "Wähle einen Makrotyp",
+  "Select for non-blocking behavior": "Auswählen für nicht blockierendes Verhalten",
   "Set": "Setzen",
   "Settings": "Einstellungen",
   "Settings set on macropad": "Einstellungen auf dem Macropad festgelegt",
@@ -128,6 +128,7 @@
   "The settings can only be changed if the USB storage is disabled": "Die Einstellungen können nur geändert werden, wenn der USB-Speicher deaktiviert ist",
   "The step size for increasing or decreasing the pitch bend": "Die Schrittweite zum Erhöhen oder Verringern des Bendings",
   "The strike velocity, 0-127, 0 is equivalent to a Note Off": "Die Anschlaggeschwindigkeit 0-127, wobei 0 einem Note Off entspricht",
+  "The time the macro should wait before executing the next macro": "Die Zeit, die das Makro warten soll, bevor es das nächste Makro ausführt",
   "This slightly increases the initial loading time!": "Dies erhöht leicht die anfängliche Ladezeit!",
   "Tone": "Ton",
   "Turkish": "Türkisch",

@@ -252,22 +252,47 @@ class MacroWait extends MacroBase {
                 type: 'span',
                 text: `${_('Wait')}:`,
             }),
-            (this.input = utils.create({
-                type: 'input',
+            utils.create({
                 attributes: {
-                    title: _('Attention, it blocks the device for given seconds!'),
-                    style: `width:${this.inputWidth}px;`,
-                    type: 'number',
-                    value: this.value,
-                    min: 0,
-                    step: 0.1,
+                    class: 'macro-entry-content-flex-container',
                 },
-            })),
+                children: [
+                    (this.input = utils.create({
+                        type: 'input',
+                        attributes: {
+                            title: _(
+                                'The time the macro should wait before executing the next macro'
+                            ),
+                            style: `width:${this.inputWidth}px;`,
+                            type: 'number',
+                            value: Math.abs(this.value),
+                            min: 0,
+                            step: 0.1,
+                        },
+                        events: {
+                            input: (event) => {
+                                if (event.target.value < 0) event.target.value = 0;
+                            },
+                        },
+                    })),
+                    (this.nonblocking = utils.create({
+                        type: 'input',
+                        attributes: {
+                            title: _('Select for non-blocking behavior'),
+                            type: 'checkbox',
+                        },
+                    })),
+                ],
+            }),
             utils.create({
                 type: 'span',
                 text: _('s'),
             }),
         ]);
+
+        if (this.value < 0) {
+            this.nonblocking.checked = true;
+        }
     }
 
     /**
@@ -275,7 +300,12 @@ class MacroWait extends MacroBase {
      * @returns {number|false} The wait time in seconds or `false` if the value is 0.
      */
     getValue() {
-        return this.input.value === '0' ? false : parseFloat(Math.abs(this.input.value));
+        if (this.input.value === '0') return false;
+
+        if (this.nonblocking.checked) {
+            return parseFloat(-Math.abs(this.input.value));
+        }
+        return parseFloat(Math.abs(this.input.value));
     }
 }
 

@@ -277,8 +277,11 @@ class MacroApp():
             if index < start_index:
                 continue
             if isinstance(key, (int, float)) and key_pressed:
-                self._add_delayed_macro(item[0], index + 1, key_pressed, key)
-                break
+                if key < 0:
+                    self._add_delayed_macro(item[0], index + 1, key_pressed, abs(key))
+                    break
+                else:
+                    time.sleep(key)
             elif isinstance(key, str) and key_pressed:
                 try:
                     self.macropad.keyboard_layout.write(key)

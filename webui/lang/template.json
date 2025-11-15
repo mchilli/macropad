@@ -1,7 +1,6 @@
 {
   "%s has no configured navigation key!": "",
   "%s macros sended to macropad": "",
-  "Attention, it blocks the device for given seconds!": "",
   "Audio file": "",
   "Back": "",
   "Blank": "",
@@ -104,6 +103,7 @@
   "s": "",
   "Save": "",
   "Select a macro type": "",
+  "Select for non-blocking behavior": "",
   "Set": "",
   "Settings": "",
   "Settings set on macropad": "",
@@ -128,6 +128,7 @@
   "The settings can only be changed if the USB storage is disabled": "",
   "The step size for increasing or decreasing the pitch bend": "",
   "The strike velocity, 0-127, 0 is equivalent to a Note Off": "",
+  "The time the macro should wait before executing the next macro": "",
   "This slightly increases the initial loading time!": "",
   "Tone": "",
   "Turkish": "",
