@@ -1098,6 +1098,8 @@ class App {
     ) {
         this._clearAllKeyEntries();
 
+        this.keyEntriesControls.back.classList.add('hidden');
+
         this.macroStack = [entries];
 
         this._initializeKeys();
