@@ -236,7 +236,7 @@ class MacroWait extends MacroBase {
 
         this.type = 'wait';
         this.value = value;
-        this.inputWidth = 40;
+        this.inputWidth = 45;
 
         this._setContent();
 
@@ -789,7 +789,7 @@ class MacroTone extends MacroBase {
 
         this.selectWidth = 80;
         this.chordWidth = 45;
-        this.durationWidth = 40;
+        this.durationWidth = 45;
         this.frequencyWidth = 58;
 
         this.autocompleteList = {
@@ -1085,7 +1085,7 @@ class MacroMidi extends MacroBase {
         this.selectWidth = 80;
         this.noteWidth = 100;
         this.int127Width = 42;
-        this.noteOnDurationWidth = 40;
+        this.noteOnDurationWidth = 45;
         this.pitchBendValueWidth = 60;
 
         this._setContent();
