@@ -51,6 +51,14 @@ body {
     visibility: hidden !important;
 }
 
+.gapped {
+    gap: var(--dialog-gap);
+}
+
+.flex-growed {
+    flex-grow: 1;
+}
+
 .button {
     cursor: pointer;
 }
@@ -404,9 +412,7 @@ body {
 
                                 .macro-entry-content-flex-container {
                                     display: flex;
-                                    flex-grow: 1;
                                     align-items: center;
-                                    gap: var(--dialog-gap);
                                 }
 
                                 // input[type=range] {
@@ -422,6 +428,18 @@ body {
                                 //         cursor: pointer;
                                 //     }
                                 // }
+
+                                input,
+                                select {
+                                    height: calc(var(--dialog-button-size) / 2);
+                                    padding: 0;
+                                    margin: 0;
+                                    box-sizing: border-box;
+                                }
+
+                                input[type=checkbox] {
+                                    width: calc(var(--dialog-button-size) / 2);
+                                }
                             }
 
                             .macro-entry-controls {

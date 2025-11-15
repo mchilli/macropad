@@ -250,7 +250,7 @@ class MacroWait extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: `${_('Wait')}:`,
+                text: `${_('Wait')}`,
             }),
             utils.create({
                 attributes: {
@@ -333,7 +333,7 @@ class MacroString extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: `${_('String Input')}:`,
+                text: `${_('String Input')}`,
             }),
             (this.input = utils.create({
                 type: 'input',
@@ -366,6 +366,7 @@ class MacroKeycodes extends MacroBase {
         this.type = 'kc';
         this.value = value;
 
+        this.selectWidth = 80;
         this.behaviourList = [
             [_('Tap'), 'tap'],
             [_('Press'), 'press'],
@@ -518,6 +519,9 @@ class MacroKeycodes extends MacroBase {
         utils.appendElements(this.DOM.content, [
             (this.behaviour = utils.create({
                 type: 'select',
+                attributes: {
+                    style: `width:${this.selectWidth}px;`,
+                },
                 children: this.behaviourList.map((value) => {
                     return utils.create({
                         type: 'option',
@@ -535,13 +539,9 @@ class MacroKeycodes extends MacroBase {
             })),
             (this.additions = utils.create({
                 attributes: {
-                    class: 'macro-entry-content-flex-container',
+                    class: 'macro-entry-content-flex-container flex-growed',
                 },
                 children: [
-                    utils.create({
-                        type: 'span',
-                        text: ':',
-                    }),
                     (this.input = utils.create({
                         type: 'input',
                         attributes: {
@@ -655,6 +655,7 @@ class MacroConsumerControlCodes extends MacroBase {
 
         this.type = 'ccc';
         this.value = value;
+        this.selectWidth = 80;
         this.inputWidth = 200;
 
         this.behaviourList = [
@@ -692,6 +693,9 @@ class MacroConsumerControlCodes extends MacroBase {
         utils.appendElements(this.DOM.content, [
             (this.behaviour = utils.create({
                 type: 'select',
+                attributes: {
+                    style: `width:${this.selectWidth}px;`,
+                },
                 children: this.behaviourList.map((value) => {
                     return utils.create({
                         type: 'option',
@@ -702,15 +706,11 @@ class MacroConsumerControlCodes extends MacroBase {
                     });
                 }),
             })),
-            utils.create({
-                type: 'span',
-                text: ':',
-            }),
             (this.input = utils.create({
                 type: 'select',
                 attributes: {
                     list: 'consumer-control-codes',
-                    style: `width:${this.inputWidth}px;`,
+                    style: `width:${this.inputWidth}px; flex-grow:1;`,
                 },
                 children: this.autocompleteList.sort().map((value) => {
                     return utils.create({
@@ -782,7 +782,7 @@ class MacroTone extends MacroBase {
             tone: { ...defaultTone, ...value.tone },
         };
 
-        this.inputWidth = 46;
+        this.inputWidth = 40;
         this.frequencyinputWidth = 58;
 
         this.autocompleteList = {
@@ -813,7 +813,7 @@ class MacroTone extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: `${_('Play')}:`,
+                text: `${_('Play')}`,
             }),
             (this.chord = utils.create({
                 type: 'select',
@@ -1025,8 +1025,8 @@ class MacroMidi extends MacroBase {
 
         this.selectWidth = 80;
         this.noteWidth = 100;
-        this.int127Width = 40;
-        this.noteOnDurationWidth = 35;
+        this.int127Width = 42;
+        this.noteOnDurationWidth = 40;
         this.pitchBendValueWidth = 60;
 
         this._setContent();
@@ -1061,7 +1061,7 @@ class MacroMidi extends MacroBase {
             })),
             (this.containerNoteOn = utils.create({
                 attributes: {
-                    class: 'macro-entry-content-flex-container',
+                    class: 'macro-entry-content-flex-container gapped',
                 },
                 children: [
                     (this.noteOn = utils.create({
@@ -1076,7 +1076,7 @@ class MacroMidi extends MacroBase {
                     })),
                     utils.create({
                         type: 'span',
-                        text: `${_('Vel')}:`,
+                        text: `${_('Vel')}`,
                     }),
                     (this.noteOnVelocity = utils.create({
                         type: 'input',
@@ -1119,7 +1119,7 @@ class MacroMidi extends MacroBase {
             })),
             (this.containerNoteOff = utils.create({
                 attributes: {
-                    class: 'macro-entry-content-flex-container',
+                    class: 'macro-entry-content-flex-container gapped',
                 },
                 children: [
                     (this.noteOff = utils.create({
@@ -1136,7 +1136,7 @@ class MacroMidi extends MacroBase {
             })),
             (this.containerPitchBend = utils.create({
                 attributes: {
-                    class: 'macro-entry-content-flex-container',
+                    class: 'macro-entry-content-flex-container gapped',
                 },
                 children: [
                     (this.pitchBendCommand = utils.create({
@@ -1161,12 +1161,12 @@ class MacroMidi extends MacroBase {
                     })),
                     (this.containerPitchBendValue = utils.create({
                         attributes: {
-                            class: 'macro-entry-content-flex-container',
+                            class: 'macro-entry-content-flex-container gapped',
                         },
                         children: [
                             utils.create({
                                 type: 'span',
-                                text: `${_('Value')}:`,
+                                text: `${_('Value')}`,
                             }),
                             (this.pitchBendValue = utils.create({
                                 type: 'input',
@@ -1193,12 +1193,12 @@ class MacroMidi extends MacroBase {
                     })),
                     (this.containerPitchBendStep = utils.create({
                         attributes: {
-                            class: 'macro-entry-content-flex-container',
+                            class: 'macro-entry-content-flex-container gapped',
                         },
                         children: [
                             utils.create({
                                 type: 'span',
-                                text: `${_('Step')}:`,
+                                text: `${_('Step')}`,
                             }),
                             (this.pitchBendStep = utils.create({
                                 type: 'input',
@@ -1252,12 +1252,12 @@ class MacroMidi extends MacroBase {
             })),
             (this.containerControlChange = utils.create({
                 attributes: {
-                    class: 'macro-entry-content-flex-container',
+                    class: 'macro-entry-content-flex-container gapped',
                 },
                 children: [
                     utils.create({
                         type: 'span',
-                        text: ` ${_('Control')}:`,
+                        text: ` ${_('Control')}`,
                     }),
                     (this.controlChangeControl = utils.create({
                         type: 'input',
@@ -1277,7 +1277,7 @@ class MacroMidi extends MacroBase {
                     })),
                     utils.create({
                         type: 'span',
-                        text: ` ${_('Value')}:`,
+                        text: ` ${_('Value')}`,
                     }),
                     (this.controlChangeValue = utils.create({
                         type: 'input',
@@ -1299,12 +1299,12 @@ class MacroMidi extends MacroBase {
             })),
             (this.containerProgrammChange = utils.create({
                 attributes: {
-                    class: 'macro-entry-content-flex-container',
+                    class: 'macro-entry-content-flex-container gapped',
                 },
                 children: [
                     utils.create({
                         type: 'span',
-                        text: `${_('Program')}:`,
+                        text: `${_('Program')}`,
                     }),
                     (this.programmChangeProgramm = utils.create({
                         type: 'input',
@@ -1484,7 +1484,7 @@ class MacroMouseEvents extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: `${_('X')}:`,
+                text: `${_('X')}`,
             }),
             (this.x = utils.create({
                 type: 'input',
@@ -1497,7 +1497,7 @@ class MacroMouseEvents extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: `${_('Y')}:`,
+                text: `${_('Y')}`,
             }),
             (this.y = utils.create({
                 type: 'input',
@@ -1510,7 +1510,7 @@ class MacroMouseEvents extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: `${_('Whl')}:`,
+                text: `${_('Wheel')}`,
             }),
             (this.w = utils.create({
                 type: 'input',
@@ -1523,7 +1523,7 @@ class MacroMouseEvents extends MacroBase {
             })),
             utils.create({
                 type: 'span',
-                text: `${_('Btn')}:`,
+                text: `${_('Button')}`,
             }),
             (this.b = utils.create({
                 type: 'select',
@@ -1609,13 +1609,13 @@ class MacroSystemFunctions extends MacroBase {
         utils.appendElements(this.DOM.content, [
             utils.create({
                 type: 'span',
-                text: `${_('Device Function')}:`,
+                text: `${_('Device Function')}`,
             }),
             (this.input = utils.create({
                 type: 'select',
                 attributes: {
                     list: 'system-functions',
-                    style: `width:${this.inputWidth}px;`,
+                    style: `width:${this.inputWidth}px; flex-grow:1;`,
                     value: this.value.sys,
                 },
                 children: this.autocompleteList.map((value) => {

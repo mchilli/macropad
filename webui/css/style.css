@@ -8291,6 +8291,14 @@ body {
   visibility: hidden !important;
 }
 
+.gapped {
+  gap: var(--dialog-gap);
+}
+
+.flex-growed {
+  flex-grow: 1;
+}
+
 .button {
   cursor: pointer;
 }
@@ -8631,9 +8639,17 @@ body {
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content .macro-entry-content-flex-container {
   display: flex;
-  flex-grow: 1;
   align-items: center;
-  gap: var(--dialog-gap);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content input,
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content select {
+  height: calc(var(--dialog-button-size) / 2);
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-content input[type=checkbox] {
+  width: calc(var(--dialog-button-size) / 2);
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls {
   display: flex;
