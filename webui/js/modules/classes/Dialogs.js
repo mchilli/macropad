@@ -1444,6 +1444,20 @@ export class SettingsDialog extends BaseDialog {
                         },
                     })),
                     utils.create({
+                        text: _('Retrigger delay').concat(':'),
+                    }),
+                    (this.inputs.retriggerdelay = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _(
+                                'The delay in milliseconds after which the macro is retriggered when the button is held down'
+                            ),
+                            class: 'dialog-input-shorten',
+                            min: 0,
+                        },
+                    })),
+                    utils.create({
                         attributes: {
                             class: 'dialog-input-shorten',
                         },
@@ -1538,6 +1552,7 @@ export class SettingsDialog extends BaseDialog {
         }
 
         this.inputs.sleeptime.value = this.settings.sleeptime;
+        this.inputs.retriggerdelay.value = this.settings.retriggerdelay;
         this.inputs.useunicodefont.checked = this.settings.useunicodefont;
         this.inputs.fliprotation.checked = this.settings.fliprotation;
         this.inputs.brightness.value = this.settings.brightness;
@@ -1551,6 +1566,7 @@ export class SettingsDialog extends BaseDialog {
     _onOK() {
         this.settings.keyboardlayout = this.inputs.keyboardlayout.value;
         this.settings.sleeptime = parseInt(this.inputs.sleeptime.value);
+        this.settings.retriggerdelay = parseInt(this.inputs.retriggerdelay.value);
         this.settings.useunicodefont = this.inputs.useunicodefont.checked;
         this.settings.fliprotation = this.inputs.fliprotation.checked;
         this.settings.brightness = parseFloat(this.inputs.brightness.value);

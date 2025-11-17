@@ -37,6 +37,7 @@ MEMORYLIMIT = 18000
 # The byte size to read out the serial data after a transfer error
 READOUTSIZE = 64
 
+# The default settings, which can be changed in the WebUI
 SETTINGS = {
     # Time in seconds until the display turns off
     "sleeptime": 2,
@@ -49,7 +50,9 @@ SETTINGS = {
     # Set the LCD and LED Brightness
     "brightness": 0.1,
     # Invert the LCD colors (white on black)
-    "invertcolors": False
+    "invertcolors": False,
+    # The delay in milliseconds after which the macro is retriggered when the button is held down
+    "retriggerdelay": 750
 }
 
 try:
@@ -725,7 +728,7 @@ class MacroApp():
             
             # if a key is pressed continuously, the function triggers again after a short delay
             for active_key, active_key_delay in active_keys.items(): 
-                if active_key is not None and time.monotonic() - active_key_delay > 0.75:
+                if active_key is not None and time.monotonic() - active_key_delay > SETTINGS['retriggerdelay']:
                     self.keys[active_key].call_func()
 
             # encoder event handling
