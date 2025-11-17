@@ -290,9 +290,7 @@ class MacroWait extends MacroBase {
             }),
         ]);
 
-        if (this.value < 0) {
-            this.nonblocking.checked = true;
-        }
+        if (this.value < 0) this.nonblocking.checked = true;
     }
 
     /**
@@ -897,24 +895,38 @@ class MacroTone extends MacroBase {
                         type: 'span',
                         text: `${_('Hz')} ${_('for')}`,
                     }),
-                    (this.duration = utils.create({
-                        type: 'input',
+                    utils.create({
                         attributes: {
-                            type: 'number',
-                            title: _(
-                                'Duration of the tone in seconds. Set to 0 for continuous playback'
-                            ),
-                            style: `width:${this.durationWidth}px;`,
-                            value: this.value.tone.duration,
-                            min: 0,
-                            step: 0.1,
+                            class: 'macro-entry-content-flex-container',
                         },
-                        events: {
-                            input: (event) => {
-                                if (event.target.value < 0) event.target.value = '';
-                            },
-                        },
-                    })),
+                        children: [
+                            (this.duration = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    type: 'number',
+                                    title: _(
+                                        'Duration of the tone in seconds. Set to 0 for continuous playback'
+                                    ),
+                                    style: `width:${this.durationWidth}px;`,
+                                    value: Math.abs(this.value.tone.duration),
+                                    min: 0,
+                                    step: 0.1,
+                                },
+                                events: {
+                                    input: (event) => {
+                                        if (event.target.value < 0) event.target.value = '';
+                                    },
+                                },
+                            })),
+                            (this.nonblocking = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    title: _('Select for non-blocking behavior'),
+                                    type: 'checkbox',
+                                },
+                            })),
+                        ],
+                    }),
                     utils.create({
                         type: 'span',
                         text: _('s'),
@@ -922,6 +934,8 @@ class MacroTone extends MacroBase {
                 ],
             })),
         ]);
+
+        if (this.value.tone.duration < 0) this.nonblocking.checked = true;
 
         if (this.value.tone.frequency === 0) this.toneCommandSelect.value = 'toneoff';
         this._updateVisibility();
@@ -958,10 +972,17 @@ class MacroTone extends MacroBase {
             return { tone: { frequency: 0 } };
         }
 
+        let duration;
+        if (this.nonblocking.checked) {
+            duration = parseFloat(-Math.abs(this.duration.value));
+        } else {
+            duration = parseFloat(Math.abs(this.duration.value));
+        }
+
         return {
             tone: {
                 frequency: parseInt(this.frequency.value),
-                duration: parseFloat(this.duration.value),
+                duration: duration,
             },
         };
     }
@@ -1157,19 +1178,33 @@ class MacroMidi extends MacroBase {
                         type: 'span',
                         text: _('for'),
                     }),
-                    (this.noteOnDuration = utils.create({
-                        type: 'input',
+                    utils.create({
                         attributes: {
-                            type: 'number',
-                            title: _(
-                                'Duration of the tone in seconds. Set to 0 for continuous playback'
-                            ),
-                            style: `width:${this.noteOnDurationWidth}px;`,
-                            value: this.value.midi.durtn,
-                            min: 0,
-                            step: 0.1,
+                            class: 'macro-entry-content-flex-container',
                         },
-                    })),
+                        children: [
+                            (this.noteOnDuration = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    type: 'number',
+                                    title: _(
+                                        'Duration of the tone in seconds. Set to 0 for continuous playback'
+                                    ),
+                                    style: `width:${this.noteOnDurationWidth}px;`,
+                                    value: Math.abs(this.value.midi.durtn),
+                                    min: 0,
+                                    step: 0.1,
+                                },
+                            })),
+                            (this.nonblocking = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    title: _('Select for non-blocking behavior'),
+                                    type: 'checkbox',
+                                },
+                            })),
+                        ],
+                    }),
                     utils.create({
                         type: 'span',
                         text: _('s'),
@@ -1385,6 +1420,8 @@ class MacroMidi extends MacroBase {
             })),
         ]);
 
+        if (this.value.midi.durtn < 0) this.nonblocking.checked = true;
+
         if (this.midiCommand) this.midiCommandSelect.value = this.midiCommand;
         this._updateVisibility();
 
@@ -1455,11 +1492,19 @@ class MacroMidi extends MacroBase {
             case 'ntson':
                 // Handle Note On command
                 if (!this.noteOn.value) return false;
+
+                let duration;
+                if (this.nonblocking.checked) {
+                    duration = parseFloat(-Math.abs(this.noteOnDuration.value));
+                } else {
+                    duration = parseFloat(Math.abs(this.noteOnDuration.value));
+                }
+
                 return {
                     midi: {
                         ntson: this._formateInput(this.noteOn.value),
                         vlcty: parseInt(this.noteOnVelocity.value),
-                        durtn: parseFloat(this.noteOnDuration.value),
+                        durtn: duration,
                     },
                 };
             case 'ntoff':

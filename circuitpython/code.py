@@ -20,7 +20,7 @@ from adafruit_hid.mouse import Mouse
 
 from utils.devices import Encoder, Key
 from utils.system import System
-from utils.utils import get_audio_files
+from utils.utils import time_ms, get_audio_files
 
 gc.enable()
 supervisor.runtime.autoreload = False
@@ -123,7 +123,7 @@ class MacroApp():
 
         self.encoder = Encoder(self.macropad)
 
-        self.delayed_macros = []
+        self.delayed_exec = {}
 
         self.pitch_bend = 8192  # MIDI Pitch Bend Center
 
@@ -223,17 +223,17 @@ class MacroApp():
 
         gc.collect()
 
-    def _add_delayed_macro(self, key_id:str, start_index:int, key_pressed:bool, delay:float) -> None:
-        """ add a macro to the sleep stack for delayed execution and keep it sorted by execution time
+    def _add_delayed_exec(self, macro_type:str, key_id:str, index:int, key_pressed:bool, delay:float) -> None:
+        """ add a macro to a stack for delayed execution
 
         Args:
+            macro_type (str): the type of macro that call this function
             key_id (str): the key id
-            start_index (int): the index to start the macro from
+            index (int): the index from the last macro
             key_pressed (bool): True if the key is pressed, False if released
             delay (float): delay in seconds
         """
-        self.delayed_macros.append((key_id, start_index, key_pressed, time.monotonic() + delay))
-        self.delayed_macros.sort(key=lambda x: x[3])
+        self.delayed_exec[int(time_ms() + delay * 1000)] = (macro_type, key_id, index, key_pressed)
 
     def run_macro_press_and_release(self, item:tuple[str, list], *args) -> None:
         """ run the macro without checking for pressed or released state
@@ -246,7 +246,7 @@ class MacroApp():
 
     def run_macro(self, item:tuple[str, list], start_index:int = 0, key_pressed:bool = False, *args) -> None:
         """ run the macro, can be:
-                Int | Float (e.g. 0.25): delay in seconds
+                Int | Float (e.g. 0.25): delay in seconds, negative for non-blocking
                 String (e.g. "Foo"): corresponding keys pressed & released
                 Dict {}: 
                     'kc': Keycodes (e.g. "SHIFT"): key pressed | (e.g. "-SHIFT"): key released
@@ -258,13 +258,13 @@ class MacroApp():
                         'b': Buttoncodes (e.g. "LEFT")
                     'tone': Dict {}: 
                         'frequency': frequency of the tone in Hz (e.g. 880)
-                        'duration': duration of the tone in seconds (e.g. 0.25)
+                        'duration': duration of the tone in seconds (e.g. 0.25), negative for non-blocking
                     'file': Dict {}: 
                         'file': the mono audio file (e.g. audio/*.mp3|*.wav)
                     'midi': Dict {}: 
                         'ntson': NoteOn notes separated by comma (e.g. "60,62,64")
                             'vlcty': velocity for NoteOn (e.g. 127)
-                            'durtn': duration of the note in seconds (e.g. 0.5)
+                            'durtn': duration of the note in seconds (e.g. 0.5), negative for non-blocking
                         'ntoff': NoteOff notes separated by comma (e.g. "60,62,64")
                         'ptchb': Pitch Bend command ("set" | "incr" | "decr")
                             'pbval': Pitch Bend value (0 - 16383)
@@ -281,7 +281,7 @@ class MacroApp():
                 continue
             if isinstance(key, (int, float)) and key_pressed:
                 if key < 0:
-                    self._add_delayed_macro(item[0], index + 1, key_pressed, abs(key))
+                    self._add_delayed_exec('wait', item[0], index, key_pressed, abs(key))
                     break
                 else:
                     time.sleep(key)
@@ -352,6 +352,11 @@ class MacroApp():
                     self.macropad.stop_tone()
 
                     if key_pressed and key['tone']['frequency'] > 0:
+                        if key['tone'].get("duration", 0) < 0:
+                            # play tone for a specific duration, non-blocking
+                            self.macropad.start_tone(key['tone']['frequency'])
+                            self._add_delayed_exec('tone', item[0], index, key_pressed, abs(key['tone']['duration']))
+                            break
                         if key['tone'].get("duration", 0) > 0:
                             # play tone for a specific duration
                             self.macropad.play_tone(
@@ -370,16 +375,25 @@ class MacroApp():
                         notes = key['midi']['ntson'].upper().split(',')
                         velocity = key['midi']['vlcty']
                         duration = key['midi']['durtn']
+                        if key_pressed and duration < 0:
+                            # play tone for a specific duration, non-blocking
+                            self.macropad.midi.send(
+                                self._get_midi_notes(notes, 'on', velocity))
+                            self._add_delayed_exec('ntson', item[0], index, key_pressed, abs(key['midi']['durtn']))
+                            break
                         if key_pressed and duration > 0:
+                            # play note for a specific duration
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'on', velocity))
                             time.sleep(key['midi']['durtn'])
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'off', velocity))
                         elif key_pressed:
+                            # start note until stopped
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'on',velocity))
                         elif duration == 0:
+                            # stop note
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'off', 0))
                     elif 'ntoff' in key['midi']:
@@ -556,6 +570,8 @@ class MacroApp():
             if content == "start":
                 # prepare transfer
                 self.macro_store = {}
+                # clear delayed exec stack
+                self.delayed_exec = {}
 
                 gc.collect()
                 return
@@ -641,18 +657,18 @@ class MacroApp():
         """
         if self.macropad.display_sleep:
             self.macropad.display_sleep = False
-        self.sleep_timer = time.monotonic()
+        self.sleep_timer = time_ms()
 
     def start(self) -> None:
         """ Start the Mainloop
         """
-        self.sleep_timer = time.monotonic()
-        active_keys = dict()
+        self.sleep_timer = time_ms()
+        active_keys = {}
         data_error = False
 
         while True:
             # display timeout
-            if not self.macropad.display_sleep and time.monotonic() - self.sleep_timer > SETTINGS["sleeptime"]:
+            if not self.macropad.display_sleep and time_ms() - self.sleep_timer > SETTINGS["sleeptime"] * 1000:
                 self.macropad.display_sleep = True
 
             self.macropad.display.refresh()
@@ -702,16 +718,27 @@ class MacroApp():
                 # get key events, so no inputs will be stored during connection
                 # self.macropad.keys.events.get()
                 # continue
-            
+
             # handle delayed macro execution
-            if self.delayed_macros:
-                if time.monotonic() >= self.delayed_macros[0][3]:
-                    item = self.delayed_macros.pop(0)
-                    self.run_macro(
-                        (item[0], json.loads(self.macro_store[item[0]])["content"]), 
-                        start_index=item[1],
-                        key_pressed=item[2]
-                    )
+            if self.delayed_exec:
+                next_ts = min(self.delayed_exec)
+                if time_ms() >= next_ts:
+                    item = self.delayed_exec.pop(next_ts)
+                    content = json.loads(self.macro_store[item[1]])["content"]
+                    if item[0] == 'tone':
+                        # stop the tone before jump to the next macro
+                        self.macropad.stop_tone()
+                    elif item[0] == 'ntson':
+                        # stop the note before jump to the next macro
+                        self.macropad.midi.send(
+                            self._get_midi_notes(
+                                content[item[2]]['midi']['ntson'].upper().split(','),
+                                'off',
+                                content[item[2]]['midi']['vlcty']
+                                )
+                            )
+                    # execute the macro, started with next index
+                    self.run_macro((item[1], content), start_index=item[2] + 1,key_pressed=item[3])
 
             # key event handling
             key_event = self.macropad.keys.events.get()
@@ -720,15 +747,15 @@ class MacroApp():
                 if key_event.pressed and self.keys[key_event.key_number].has_func():
                     self.keys[key_event.key_number].pressed = True
                     if self.keys[key_event.key_number].retrigger:
-                        active_keys[key_event.key_number] = time.monotonic()
+                        active_keys[key_event.key_number] = time_ms()
 
                 elif key_event.released:
                     self.keys[key_event.key_number].pressed = False
                     active_keys.pop(key_event.key_number, None)
             
             # if a key is pressed continuously, the function triggers again after a short delay
-            for active_key, active_key_delay in active_keys.items(): 
-                if active_key is not None and time.monotonic() - active_key_delay > SETTINGS['retriggerdelay']:
+            for active_key, active_key_delay in active_keys.items():
+                if active_key is not None and time_ms() - active_key_delay > SETTINGS['retriggerdelay']:
                     self.keys[active_key].call_func()
 
             # encoder event handling
