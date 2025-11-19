@@ -24,6 +24,12 @@ export default class KeyContainer {
         color = [255, 255, 255],
         content = [],
         retrigger = false,
+
+        toggle = false,
+        label2 = '',
+        color2 = [255, 255, 255],
+        content2 = [],
+
         encoder = {},
         onButtonPressed = () => {},
     } = {}) {
@@ -32,6 +38,11 @@ export default class KeyContainer {
         this.color = color;
         this.content = content;
         this.retrigger = retrigger;
+
+        this.toggle = toggle;
+        this.label2 = label2;
+        this.color2 = color2;
+        this.content2 = content2;
 
         const defaultEncoder = {
             switch: [],
@@ -189,11 +200,19 @@ export default class KeyContainer {
         this.setLabel();
         this.setColor();
         this.setContent();
+        this.setRetrigger();
+
+        this.setToggle();
+        this.setLabel2();
+        this.setColor2();
+        this.setContent2();
+
         this.setEncoder();
     }
 
     /**
      * Retrieves the data associated with the KeyContainer.
+     * Currently only used to save all macros in local storage.
      * @returns {Object} - The data associated with the KeyContainer.
      */
     getData() {
@@ -203,18 +222,28 @@ export default class KeyContainer {
                     type: this.type,
                 };
             case 'macro':
-                return {
+                const result = {
                     type: this.type,
-                    color: this.color,
                     label: this.label,
+                    color: this.color,
                     content: this.content,
                     retrigger: this.retrigger,
                 };
+
+                // add extended fields only when toggle mode is enabled
+                if (this.toggle) {
+                    result.toggle = true;
+                    result.label2 = this.label2;
+                    result.color2 = this.color2;
+                    result.content2 = this.content2;
+                }
+
+                return result;
             case 'group':
                 return {
                     type: this.type,
-                    color: this.color,
                     label: this.label,
+                    color: this.color,
                     content: this.content,
                     encoder: this.encoder,
                 };
@@ -228,10 +257,16 @@ export default class KeyContainer {
     getAllData() {
         return {
             type: this.type,
-            color: this.color,
             label: this.label,
+            color: this.color,
             content: this.content,
             retrigger: this.retrigger,
+
+            toggle: this.toggle,
+            label2: this.label2,
+            color2: this.color2,
+            content2: this.content2,
+
             encoder: this.encoder,
         };
     }
@@ -301,11 +336,43 @@ export default class KeyContainer {
     }
 
     /**
-     * Sets the content for the KeyContainer.
-     * @param {Array} [content=[]] - The content to set for the KeyContainer.
+     * Sets the retrigger flag for the KeyContainer.
+     * @param {boolean} [retrigger=false] - The retrigger flag to set for the KeyContainer.
      */
     setRetrigger(retrigger = false) {
         this.retrigger = retrigger;
+    }
+
+    /**
+     * Sets the toggle flag for the KeyContainer.
+     * @param {boolean} [toggle=false] - The toggle flag to set for the KeyContainer.
+     */
+    setToggle(toggle = false) {
+        this.toggle = toggle;
+    }
+
+    /**
+     * Sets the label2 for the KeyContainer.
+     * @param {string} [label=''] - The label2 to set for the KeyContainer.
+     */
+    setLabel2(label = '') {
+        this.label2 = label;
+    }
+
+    /**
+     * Sets the color2 for the KeyContainer.
+     * @param {string} [color='ffffff'] - The color2 to set for the KeyContainer.
+     */
+    setColor2(color = 'ffffff') {
+        this.color2 = utils.validateHex(color);
+    }
+
+    /**
+     * Sets the content2 for the KeyContainer.
+     * @param {Array} [content=[]] - The content2 to set for the KeyContainer.
+     */
+    setContent2(content = []) {
+        this.content2 = content;
     }
 
     /**

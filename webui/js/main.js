@@ -941,6 +941,20 @@ class App {
                     case 'retrigger':
                         keyInstance.setRetrigger(value);
                         break;
+
+                    case 'toggle':
+                        keyInstance.setToggle(value);
+                        break;
+                    case 'label2':
+                        keyInstance.setLabel2(value);
+                        break;
+                    case 'color2':
+                        keyInstance.setColor2(value);
+                        break;
+                    case 'content2':
+                        keyInstance.setContent2(value);
+                        break;
+
                     case 'encoder':
                         keyInstance.setEncoder(value);
                         break;

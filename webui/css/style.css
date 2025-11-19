@@ -8592,10 +8592,12 @@ body {
 .dialog-container .dialog .dialog-content .dialog-inputs .dialog-input-shorten {
   margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-color div {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color div,
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color2 div {
   display: flex;
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-color div input {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color div input,
+.dialog-container .dialog .dialog-content .dialog-inputs .input-color2 div input {
   width: 100%;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs summary {
@@ -8665,17 +8667,23 @@ body {
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i.fa-trash:hover {
   color: var(--color-red);
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-retrigger-container {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-additionals {
   display: flex;
   align-items: center;
+  justify-content: space-around;
   gap: var(--dialog-gap);
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-retrigger-container .input-retrigger {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-additionals div {
+  display: inherit;
+  align-items: inherit;
+  gap: inherit;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-additionals input[type=checkbox] {
   width: calc(var(--dialog-button-size) / 2);
   height: calc(var(--dialog-button-size) / 2);
   margin: 0;
 }
-.dialog-container .dialog .dialog-content .dialog-inputs.blank .input-label, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-color, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-encoder, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.macro .input-encoder {
+.dialog-container .dialog .dialog-content .dialog-inputs.blank .input-label, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-label2, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-color, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-color2, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-content2, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-encoder, .dialog-container .dialog .dialog-content .dialog-inputs.blank .input-additionals, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-label2, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-color2, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-content, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-content2, .dialog-container .dialog .dialog-content .dialog-inputs.group .input-additionals, .dialog-container .dialog .dialog-content .dialog-inputs.macro .input-encoder, .dialog-container .dialog .dialog-content .dialog-inputs.macro.untoggled .input-label2, .dialog-container .dialog .dialog-content .dialog-inputs.macro.untoggled .input-color2, .dialog-container .dialog .dialog-content .dialog-inputs.macro.untoggled .input-content2 {
   display: none;
 }
 .dialog-container .dialog .dialog-content .dialog-reboot-buttons {

@@ -220,6 +220,11 @@ export function convertJsonToFileIds(baseData) {
                 if (item.retrigger) {
                     dataStore[fileId].retrigger = item.retrigger;
                 }
+                if (item.toggle) {
+                    dataStore[fileId].label2 = item.label2;
+                    dataStore[fileId].color2 = item.color2;
+                    dataStore[fileId].content2 = item.content2;
+                }
                 processedContent.push(fileId);
             } else {
                 processedContent.push(false);
@@ -276,6 +281,11 @@ export function restoreJsonFromFileIds(dataStore) {
                         color: validateHex(data.color),
                         content: data.content,
                         retrigger: data.retrigger || false,
+
+                        toggle: data.label2 !== '',
+                        label2: data.label2 || '',
+                        color2: validateHex(data.color2) || defaultKeys.macro.color,
+                        content2: data.content2 || [],
                     };
                     content.push(macroData);
                 }

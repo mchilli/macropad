@@ -361,7 +361,8 @@ body {
                     margin-right: calc(var(--dialog-button-size) + var(--dialog-gap));
                 }
 
-                .input-color div {
+                .input-color div,
+                .input-color2 div {
                     display: flex;
 
                     input {
@@ -462,12 +463,19 @@ body {
                     }
                 }
 
-                .input-retrigger-container {
+                .input-additionals {
                     display: flex;
                     align-items: center;
+                    justify-content: space-around;
                     gap: var(--dialog-gap);
 
-                    .input-retrigger {
+                    div {
+                        display: inherit;
+                        align-items: inherit;
+                        gap: inherit;
+                    }
+
+                    input[type=checkbox] {
                         width: calc(var(--dialog-button-size) / 2);
                         height: calc(var(--dialog-button-size) / 2);
                         margin: 0;
@@ -475,11 +483,22 @@ body {
                 }
 
                 &.blank .input-label,
+                &.blank .input-label2,
                 &.blank .input-color,
+                &.blank .input-color2,
                 &.blank .input-content,
+                &.blank .input-content2,
                 &.blank .input-encoder,
+                &.blank .input-additionals,
+                &.group .input-label2,
+                &.group .input-color2,
                 &.group .input-content,
-                &.macro .input-encoder {
+                &.group .input-content2,
+                &.group .input-additionals,
+                &.macro .input-encoder,
+                &.macro.untoggled .input-label2,
+                &.macro.untoggled .input-color2,
+                &.macro.untoggled .input-content2 {
                     display: none;
                 }
             }
