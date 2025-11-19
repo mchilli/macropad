@@ -460,7 +460,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Type').concat(':'),
+                                text: `${_('Type')}:`,
                             }),
                             (this.inputs.type = utils.create({
                                 type: 'select',
@@ -499,7 +499,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Label').concat(':'),
+                                text: `${_('Label')}:`,
                             }),
                             (this.inputs.label = utils.create({
                                 type: 'input',
@@ -519,7 +519,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('LED Color').concat(':'),
+                                text: `${_('LED Color')}:`,
                             }),
                             utils.create({
                                 children: [
@@ -548,7 +548,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Content').concat(':'),
+                                text: `${_('Content')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -608,7 +608,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: _('Encoder switch').concat(':'),
+                                        text: `${_('Encoder switch')}:`,
                                     }),
                                     utils.create({
                                         attributes: {
@@ -645,7 +645,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: _('Encoder increase').concat(':'),
+                                        text: `${_('Encoder increase')}:`,
                                     }),
                                     utils.create({
                                         attributes: {
@@ -682,7 +682,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: _('Encoder decrease').concat(':'),
+                                        text: `${_('Encoder decrease')}:`,
                                     }),
                                     utils.create({
                                         attributes: {
@@ -1062,7 +1062,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: _('Encoder switch').concat(':'),
+                                text: `${_('Encoder switch')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -1098,7 +1098,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: _('Encoder increase').concat(':'),
+                                text: `${_('Encoder increase')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -1134,7 +1134,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: _('Encoder decrease').concat(':'),
+                                text: `${_('Encoder decrease')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -1414,7 +1414,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                     }),
                     utils.create({
-                        text: _('Keyboard Layout').concat(':'),
+                        text: `${_('Keyboard Layout')}:`,
                     }),
                     (this.inputs.keyboardlayout = utils.create({
                         type: 'select',
@@ -1432,7 +1432,7 @@ export class SettingsDialog extends BaseDialog {
                         }),
                     })),
                     utils.create({
-                        text: _('Display Timeout').concat(':'),
+                        text: `${_('Display Timeout')}:`,
                     }),
                     (this.inputs.sleeptime = utils.create({
                         type: 'input',
@@ -1444,7 +1444,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                     })),
                     utils.create({
-                        text: _('Retrigger delay').concat(':'),
+                        text: `${_('Retrigger delay')}:`,
                     }),
                     (this.inputs.retriggerdelay = utils.create({
                         type: 'input',
@@ -1463,7 +1463,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Unicode Font').concat(':'),
+                                text: `${_('Unicode Font')}:`,
                             }),
                             (this.inputs.useunicodefont = utils.create({
                                 type: 'input',
@@ -1480,7 +1480,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Flip Rotation').concat(':'),
+                                text: `${_('Flip Rotation')}:`,
                             }),
                             (this.inputs.fliprotation = utils.create({
                                 type: 'input',
@@ -1496,7 +1496,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('LCD/LED Brightness').concat(':'),
+                                text: `${_('LCD/LED Brightness')}:`,
                             }),
                             (this.inputs.brightness = utils.create({
                                 type: 'input',
@@ -1520,7 +1520,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Invert LCD colors').concat(':'),
+                                text: `${_('Invert LCD colors')}:`,
                             }),
                             (this.inputs.invertcolors = utils.create({
                                 type: 'input',
