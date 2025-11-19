@@ -62,59 +62,131 @@ class Key():
         self._pressed = False
         self._label = label
         self._retrigger = False
+        self._toggled = False
 
         self.clear_props()
-    
+
     @property
     def pressed(self) -> bool:
         """ Status Property
         """
         return self._pressed
-    
+
     @pressed.setter
     def pressed(self, pressed:bool) -> None:
         self._pressed = pressed
         self._on_pressed() if self.pressed else self._on_released()
 
+
     @property
-    def label(self) -> str:
-        """ Label Property
+    def id(self) -> str:
+        """ ID Property
         """
-        return self._label.text
-    
-    @label.setter
-    def label(self, label:str) -> None:
-        self._label.text = center(label, 6, ' ') if len(label) <= 6 else label[:6]
+        return self._id
+
+    @id.setter
+    def id(self, id:str) -> None:
+        self._id = id
+
 
     @property
     def type(self) -> str:
         """ Type Property
         """
         return self._type
-    
+
     @type.setter
     def type(self, type:str) -> None:
         self._type = type
+
+
+    @property
+    def label(self) -> str:
+        """ Label Property
+        """
+        return self._label.text
+
+    @label.setter
+    def label(self, label:str) -> None:
+        self._label.text = center(label, 6, ' ') if len(label) <= 6 else label[:6]
+
 
     @property
     def color(self) -> tuple:
         """ Color Property
         """
         return self._color
-    
+
     @color.setter
     def color(self, color:tuple) -> None:
         self._color = color
 
+
     @property
-    def retrigger(self) -> tuple:
+    def content(self) -> list:
+        """ Content Property
+        """
+        return self._content
+
+    @content.setter
+    def content(self, content:list) -> None:
+        self._content = content
+
+
+    @property
+    def func(self) -> function:
+        """ Function Property
+        """
+        return self._func
+
+    @func.setter
+    def func(self, func:function) -> None:
+        self._func = func
+
+
+    @property
+    def retrigger(self) -> bool:
         """ Retrigger Property
         """
         return self._retrigger
-    
+
     @retrigger.setter
     def retrigger(self, retrigger:bool) -> None:
         self._retrigger = retrigger
+
+
+    @property
+    def label2(self) -> str:
+        """ Label2 Property
+        """
+        return self._label2
+
+    @label2.setter
+    def label2(self, label:str) -> None:
+        self._label2 = center(label, 6, ' ') if len(label) <= 6 else label[:6]
+
+
+    @property
+    def color2(self) -> tuple:
+        """ Color2 Property
+        """
+        return self._color2
+
+
+    @color2.setter
+    def color2(self, color:tuple) -> None:
+        self._color2 = color
+
+
+    @property
+    def content2(self) -> list:
+        """ Content2 Property
+        """
+        return self._content2
+
+    @content2.setter
+    def content2(self, content:list) -> None:
+        self._content2 = content
     
     def update_colors(self, invertcolors:bool = False) -> None:
         """ update the backgroundcolor and color based on type
@@ -144,39 +216,56 @@ class Key():
         self._macropad.pixels[self._index] = color
         self._macropad.pixels.show()
 
+    def toggle(self, force_state:bool = None) -> bool:
+        """ toggle between first and second set of properties
+
+        Args:
+            force_state (bool, optional): force to a specific state. Defaults to None.
+
+        Returns:
+            bool: the current toggled state
+        """
+        self.label, self.label2 = self.label2, self.label
+        self.color, self.color2 = self.color2, self.color
+        self.content, self.content2 = self.content2, self.content
+        if force_state:
+            self._toggled = force_state
+        else:
+            self._toggled = not self._toggled
+        return self._toggled
+
     def clear_props(self) -> None:
         """ clear all properties so the key is off
         """
-        self._label.text = ""
         self._type = None
+        self._label.text = ""
         self._color = '000000'
+        self._content = None
         self._retrigger = False
+
+        self._label2 = None
+        self._color2 = None
+        self._content2 = None
+
         self._just_pressed = False
         self._func = None
         self._func_args = None
 
-    def set_func(self, func:function, args:dict = None) -> None:
-        """ set the function which called when the key is pressed
-
-        Args:
-            func (function): the function which called on key press
-            args (dict, optional): optionally arguments passed to func. Defaults to None.
-        """
-        self._func = func
-        self._func_args = args
-
     def has_func(self) -> bool:
         """ return True if a function is assigned to this key.
+        
+        Returns:
+            bool: True if function is assigned
         """
         return self._func is not None
 
     def call_func(self) -> None:
-        """ calls the function if setted with set_func
+        """ calls the function if setted as func
         """
         if not self._func:
             return
-        if self._func_args:
-            return self._func(self._func_args, key_pressed=self._just_pressed)
+        if self._content:
+            return self._func((self.id, self.content), key_pressed=self._just_pressed)
         return self._func(key_pressed=self._just_pressed)
 
     def _on_pressed(self) -> None:

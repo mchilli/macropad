@@ -123,6 +123,7 @@ class MacroApp():
 
         self.encoder = Encoder(self.macropad)
 
+        self.toggled_ids = set()
         self.delayed_exec = {}
 
         self.pitch_bend = 8192  # MIDI Pitch Bend Center
@@ -228,7 +229,7 @@ class MacroApp():
 
         Args:
             macro_type (str): the type of macro that call this function
-            key_id (str): the key id
+            key_id (str): the key id of the macrostack
             index (int): the index from the last macro
             key_pressed (bool): True if the key is pressed, False if released
             delay (float): delay in seconds
@@ -485,10 +486,20 @@ class MacroApp():
 
                 key = self.keys[i]
                 key.type = key_type
+                key.id = str(key_id)
                 key.label = macro_data["label"]
                 key.color = macro_data["color"]
+                key.func = key_funcs.get(key_type)
+                key.content = macro_data["content"]
                 key.retrigger = macro_data.get("retrigger", False)
-                key.set_func(key_funcs.get(key_type), (str(key_id), macro_data["content"]))
+
+                if macro_data.get("label2", None):
+                    key.label2 = macro_data["label2"]
+                    key.color2 = macro_data["color2"]
+                    key.content2 = macro_data["content2"]
+
+                    if str(key_id) in self.toggled_ids:
+                        key.toggle(True)
 
         self.group_label.text = group["label"]
 
@@ -743,14 +754,25 @@ class MacroApp():
             # key event handling
             key_event = self.macropad.keys.events.get()
             if key_event:
+                key = self.keys[key_event.key_number]
                 self._display_on()
-                if key_event.pressed and self.keys[key_event.key_number].has_func():
-                    self.keys[key_event.key_number].pressed = True
-                    if self.keys[key_event.key_number].retrigger:
+                if key_event.pressed and key.has_func():
+                    key.pressed = True
+
+                    # retrigger macro after a short delay if the key is held down
+                    if key.retrigger:
                         active_keys[key_event.key_number] = time_ms()
 
                 elif key_event.released:
-                    self.keys[key_event.key_number].pressed = False
+                    # toggle the macro if a second macro is defined
+                    if key.label2:
+                        if key.toggle():
+                            self.toggled_ids.add(key.id)
+                        else:
+                            self.toggled_ids.discard(key.id)
+
+                    key.pressed = False
+
                     active_keys.pop(key_event.key_number, None)
             
             # if a key is pressed continuously, the function triggers again after a short delay
