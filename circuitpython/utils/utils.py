@@ -1,4 +1,8 @@
 import os
+import time
+
+def time_ms():
+    return time.monotonic_ns() // 1_000_000
 
 def to_chunks(lst, n):
     for i in range(0, len(lst), n):

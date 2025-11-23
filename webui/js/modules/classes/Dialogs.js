@@ -73,7 +73,7 @@ class BaseDialog {
                                             attributes: {
                                                 class: 'fa-solid fa-file-export',
                                             },
-                                        })
+                                        }),
                                     ],
                                     events: {
                                         click: (event) => {
@@ -92,7 +92,7 @@ class BaseDialog {
                                             attributes: {
                                                 class: 'fa-solid fa-file-import',
                                             },
-                                        })
+                                        }),
                                     ],
                                     events: {
                                         click: (event) => {
@@ -124,14 +124,15 @@ class BaseDialog {
                                     ],
                                     events: {
                                         click: (event) => {
-                                            const button = this.DOM.buttons.copy;
-                                            button.children[1].style.opacity = 1;
-                                            button.children[0].style.display = 'none';
-                                            setTimeout(() => {
-                                                button.children[1].style.opacity = 0;
-                                                button.children[0].style.display = 'block';
-                                            }, this.fadeOutTime);
-                                            this._onCopy(event);
+                                            if (this._onCopy(event)) {
+                                                const button = this.DOM.buttons.copy;
+                                                button.children[1].style.opacity = 1;
+                                                button.children[0].style.display = 'none';
+                                                setTimeout(() => {
+                                                    button.children[1].style.opacity = 0;
+                                                    button.children[0].style.display = 'block';
+                                                }, this.fadeOutTime);
+                                            }
                                         },
                                     },
                                 })),
@@ -393,8 +394,11 @@ class BaseDialog {
      * Placeholder function for handling the 'Copy' button click event.
      * This function should be overridden with specific functionality.
      * @param {Event} event - The event triggering the copy action.
+     * @returns {boolean} Returns true if the copy action was successful, false otherwise.
      */
-    _onCopy(event) {}
+    _onCopy(event) {
+        return false;
+    }
 
     /**
      * Placeholder function for handling the 'Paste' button click event.
@@ -437,6 +441,7 @@ export class EditDialog extends BaseDialog {
         this._setHeaderLabel(this.keyInstance.label || _('New'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues(this.keyInstance.getAllData());
+        this._onChangeToggle();
         this._setPosition(this.DOM.dialog, position);
 
         return this.promise;
@@ -460,7 +465,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Type').concat(':'),
+                                text: `${_('Type')}:`,
                             }),
                             (this.inputs.type = utils.create({
                                 type: 'select',
@@ -499,7 +504,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Label').concat(':'),
+                                text: `${_('Label')}:`,
                             }),
                             (this.inputs.label = utils.create({
                                 type: 'input',
@@ -515,11 +520,28 @@ export class EditDialog extends BaseDialog {
                     }),
                     utils.create({
                         attributes: {
+                            class: 'dialog-input dialog-input-shorten input-label2',
+                        },
+                        children: [
+                            utils.create({
+                                text: `${_('Label')} 2:`,
+                            }),
+                            (this.inputs.label2 = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    title: _('The label cannot be longer than 6 characters'),
+                                    maxlength: 6,
+                                },
+                            })),
+                        ],
+                    }),
+                    utils.create({
+                        attributes: {
                             class: 'dialog-input dialog-input-shorten input-color',
                         },
                         children: [
                             utils.create({
-                                text: _('LED Color').concat(':'),
+                                text: `${_('LED Color')}:`,
                             }),
                             utils.create({
                                 children: [
@@ -529,13 +551,62 @@ export class EditDialog extends BaseDialog {
                                             type: 'color',
                                         },
                                         events: {
-                                            input: (event) => this._onChangeColor(event),
+                                            input: (event) =>
+                                                this._onChangeColor(
+                                                    event,
+                                                    this.inputs.colorPicker,
+                                                    this.inputs.colorText
+                                                ),
                                         },
                                     })),
                                     (this.inputs.colorText = utils.create({
                                         type: 'input',
                                         events: {
-                                            input: (event) => this._onChangeColor(event),
+                                            input: (event) =>
+                                                this._onChangeColor(
+                                                    event,
+                                                    this.inputs.colorPicker,
+                                                    this.inputs.colorText
+                                                ),
+                                        },
+                                    })),
+                                ],
+                            }),
+                        ],
+                    }),
+                    utils.create({
+                        attributes: {
+                            class: 'dialog-input dialog-input-shorten input-color2',
+                        },
+                        children: [
+                            utils.create({
+                                text: `${_('LED Color')} 2:`,
+                            }),
+                            utils.create({
+                                children: [
+                                    (this.inputs.colorPicker2 = utils.create({
+                                        type: 'input',
+                                        attributes: {
+                                            type: 'color',
+                                        },
+                                        events: {
+                                            input: (event) =>
+                                                this._onChangeColor(
+                                                    event,
+                                                    this.inputs.colorPicker2,
+                                                    this.inputs.colorText2
+                                                ),
+                                        },
+                                    })),
+                                    (this.inputs.colorText2 = utils.create({
+                                        type: 'input',
+                                        events: {
+                                            input: (event) =>
+                                                this._onChangeColor(
+                                                    event,
+                                                    this.inputs.colorPicker2,
+                                                    this.inputs.colorText2
+                                                ),
                                         },
                                     })),
                                 ],
@@ -548,7 +619,7 @@ export class EditDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Content').concat(':'),
+                                text: `${_('Content')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -577,6 +648,81 @@ export class EditDialog extends BaseDialog {
                     }),
                     utils.create({
                         attributes: {
+                            class: 'dialog-input input-content2',
+                        },
+                        children: [
+                            utils.create({
+                                text: `${_('Content')} 2:`,
+                            }),
+                            utils.create({
+                                attributes: {
+                                    class: 'input-macros',
+                                },
+                                children: [
+                                    (this.inputs.content2 = utils.create({
+                                        type: 'div',
+                                        attributes: {
+                                            class: 'input-sortable',
+                                        },
+                                    })),
+                                    utils.create({
+                                        type: 'i',
+                                        attributes: {
+                                            class: 'dialog-button add fa-solid fa-plus',
+                                        },
+                                        events: {
+                                            click: (event) =>
+                                                this._appendMacroSelector(this.inputs.content2),
+                                        },
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    utils.create({
+                        attributes: {
+                            class: 'dialog-input-shorten input-additionals',
+                        },
+                        children: [
+                            utils.create({
+                                children: [
+                                    (this.inputs.retrigger = utils.create({
+                                        type: 'input',
+                                        attributes: {
+                                            type: 'checkbox',
+                                            title: _(
+                                                'If enabled, the macro will be retriggered when holding the key'
+                                            ),
+                                        },
+                                    })),
+                                    utils.create({
+                                        text: _('retrigger'),
+                                    }),
+                                ],
+                            }),
+                            utils.create({
+                                children: [
+                                    (this.inputs.toggle = utils.create({
+                                        type: 'input',
+                                        attributes: {
+                                            type: 'checkbox',
+                                            title: _(
+                                                'If enabled, the macro can be toggled on every press'
+                                            ),
+                                        },
+                                        events: {
+                                            change: (event) => this._onChangeToggle(event),
+                                        },
+                                    })),
+                                    utils.create({
+                                        text: _('toggle'),
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    utils.create({
+                        attributes: {
                             class: 'dialog-input input-encoder',
                         },
                         children: [
@@ -588,7 +734,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: _('Encoder switch').concat(':'),
+                                        text: `${_('Encoder switch')}:`,
                                     }),
                                     utils.create({
                                         attributes: {
@@ -625,7 +771,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: _('Encoder increase').concat(':'),
+                                        text: `${_('Encoder increase')}:`,
                                     }),
                                     utils.create({
                                         attributes: {
@@ -662,7 +808,7 @@ export class EditDialog extends BaseDialog {
                                 children: [
                                     utils.create({
                                         type: 'summary',
-                                        text: _('Encoder decrease').concat(':'),
+                                        text: `${_('Encoder decrease')}:`,
                                     }),
                                     utils.create({
                                         attributes: {
@@ -698,6 +844,7 @@ export class EditDialog extends BaseDialog {
         ]);
 
         this._initSortableMacroLists(this.inputs.content, 'content');
+        this._initSortableMacroLists(this.inputs.content2, 'content');
         this._initSortableMacroLists(this.inputs.switch, 'encoder');
         this._initSortableMacroLists(this.inputs.decreased, 'encoder');
         this._initSortableMacroLists(this.inputs.increased, 'encoder');
@@ -723,15 +870,26 @@ export class EditDialog extends BaseDialog {
     /**
      * Updates the selected color in the DOM elements.
      * @param {Event} event - The input event that triggered the color change.
+     * @param {HTMLElement} picker - The color picker input element.
+     * @param {HTMLElement} text - The text input element for the color.
      */
-    _onChangeColor(event) {
+    _onChangeColor(event, picker, text) {
         const color = event.target.value;
         const isColorHexRegex = /^#[0-9A-Fa-f]{6}$/;
 
         if (isColorHexRegex.test(color)) {
-            this.inputs.colorPicker.value = color;
-            this.inputs.colorText.value = color.toUpperCase();
+            picker.value = color;
+            text.value = color.toUpperCase();
         }
+    }
+
+    /**
+     * Handles the change event of the toggle checkbox.
+     * Updates the dialog's visual style based on the toggle state.
+     * @param {Event} event - The change event that triggered.
+     */
+    _onChangeToggle(event) {
+        this.inputs.container.classList.toggle('untoggled', !this.inputs.toggle.checked);
     }
 
     /**
@@ -739,8 +897,17 @@ export class EditDialog extends BaseDialog {
      * @param {MouseEvent} event - The mouse event that triggered.
      */
     _onOK(event) {
-        if (this.inputs.type.value !== 'blank' && this.inputs.label.value === '') {
+        if (this.inputs.type.value !== 'blank' && this.inputs.label.value.trim() === '') {
             this.inputs.label.placeholder = _('You have to enter a label!');
+            return;
+        }
+
+        if (
+            this.inputs.type.value === 'macro' &&
+            this.inputs.toggle.checked &&
+            this.inputs.label2.value.trim() === ''
+        ) {
+            this.inputs.label2.placeholder = _('You have to enter a label!');
             return;
         }
 
@@ -774,7 +941,10 @@ export class EditDialog extends BaseDialog {
      */
     _onExport(event) {
         if (this.inputs.type.value !== 'blank') {
-            utils.downloadObjectAsJson(this.keyInstance.getAllData(), `${this.inputs.label.value}.json`)
+            utils.downloadObjectAsJson(
+                this.keyInstance.getAllData(),
+                `${this.inputs.label.value}.json`
+            );
         }
     }
 
@@ -787,8 +957,8 @@ export class EditDialog extends BaseDialog {
             try {
                 const content = await utils.openFile('.json');
                 const keyConfiguration = JSON.parse(content);
-                
-                this.clipboard.key = {...utils.defaultKeys.group, ...keyConfiguration};
+
+                this.clipboard.key = { ...utils.defaultKeys.group, ...keyConfiguration };
 
                 this._pasteConfiguration();
             } catch (error) {
@@ -815,13 +985,42 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
+     * Retrieves the current input values from the dialog.
+     * @returns {Object} An object containing the current input values.
+     */
+    _getCurrentInputValues() {
+        return {
+            type: this.inputs.type.value,
+            label: this.inputs.label.value,
+            label2: this.inputs.label2.value,
+            color: this.inputs.colorPicker.value.slice(1),
+            color2: this.inputs.colorPicker2.value.slice(1),
+            content: this._getMacroEntryValues(this.inputs.content),
+            content2: this._getMacroEntryValues(this.inputs.content2),
+            retrigger: this.inputs.retrigger.checked,
+            toggle: this.inputs.toggle.checked,
+            encoder: {
+                switch: this._getMacroEntryValues(this.inputs.switch),
+                increased: this._getMacroEntryValues(this.inputs.increased),
+                decreased: this._getMacroEntryValues(this.inputs.decreased),
+            },
+        };
+    }
+
+    /**
      * Handles copying key configuration.
      * @param {Event} event - The event triggering the copy action.
+     * @returns {boolean} Returns true if the copy action was successful, false otherwise.
      */
     _onCopy(event) {
-        if (this.inputs.type.value !== 'blank') {
+        if (this.inputs.type.value === 'macro') {
+            this.clipboard.key = this._getCurrentInputValues();
+            return true;
+        } else if (this.inputs.type.value === 'group') {
             this.clipboard.key = this.keyInstance.getAllData();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -857,10 +1056,11 @@ export class EditDialog extends BaseDialog {
         this._setInitialValues(this.clipboard.key);
         this._onChangeType();
         this._onInputLabel();
+        this._onChangeToggle();
 
         this.initType = this.clipboard.key.type;
         this.pasted = true;
-    };
+    }
 
     /**
      * Initializes a sortable macro list for a given container.
@@ -920,13 +1120,20 @@ export class EditDialog extends BaseDialog {
         if (values.type !== 'blank') {
             values.label = this.inputs.label.value;
             values.color = this.inputs.colorPicker.value.slice(1);
-            values.content = this.keyInstance.content.length === 0 ? undefined : this.keyInstance.content;
+            values.content =
+                this.keyInstance.content.length === 0 ? undefined : this.keyInstance.content;
         }
 
         if (this.pasted && values.type === 'group' && this.initType === 'group') {
             values.content = JSON.parse(JSON.stringify(this.clipboard.key.content));
         } else if (values.type === 'macro') {
             values.content = this._getMacroEntryValues(this.inputs.content);
+            values.retrigger = this.inputs.retrigger.checked;
+            values.toggle = this.inputs.toggle.checked;
+
+            values.label2 = this.inputs.label2.value;
+            values.color2 = this.inputs.colorPicker2.value.slice(1);
+            values.content2 = this._getMacroEntryValues(this.inputs.content2);
         }
 
         if (values.type === 'group') {
@@ -956,13 +1163,20 @@ export class EditDialog extends BaseDialog {
         this.inputs.container.classList.add(key.type);
 
         this.inputs.label.value = key.label;
-        
+
         this.inputs.colorPicker.value = `#${utils.validateHex(key.color)}`;
         this.inputs.colorText.value = `#${utils.validateHex(key.color).toUpperCase()}`;
+
+        this.inputs.toggle.checked = key.toggle;
+        this.inputs.label2.value = key.label2;
+        this.inputs.colorPicker2.value = `#${utils.validateHex(key.color2)}`;
+        this.inputs.colorText2.value = `#${utils.validateHex(key.color2).toUpperCase()}`;
 
         switch (key.type) {
             case 'macro':
                 this._appendMultipleMacros(this.inputs.content, key.content);
+                this._appendMultipleMacros(this.inputs.content2, key.content2);
+                this.inputs.retrigger.checked = key.retrigger || false;
                 break;
             case 'group':
                 this._appendMultipleMacros(this.inputs.switch, key.encoder.switch);
@@ -1036,7 +1250,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: _('Encoder switch').concat(':'),
+                                text: `${_('Encoder switch')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -1072,7 +1286,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: _('Encoder increase').concat(':'),
+                                text: `${_('Encoder increase')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -1108,7 +1322,7 @@ export class EncoderDialog extends BaseDialog {
                         children: [
                             utils.create({
                                 type: 'summary',
-                                text: _('Encoder decrease').concat(':'),
+                                text: `${_('Encoder decrease')}:`,
                             }),
                             utils.create({
                                 attributes: {
@@ -1166,11 +1380,14 @@ export class EncoderDialog extends BaseDialog {
     /**
      * Handles copying key configuration.
      * @param {Event} event - The event triggering the copy action.
+     * @returns {boolean} Returns true if the copy action was successful, false otherwise.
      */
     _onCopy(event) {
         if (!this._allEncoderMacrosEmpty()) {
             this.clipboard.encoderConfig = this.groupObject;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -1388,7 +1605,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                     }),
                     utils.create({
-                        text: _('Keyboard Layout').concat(':'),
+                        text: `${_('Keyboard Layout')}:`,
                     }),
                     (this.inputs.keyboardlayout = utils.create({
                         type: 'select',
@@ -1406,7 +1623,7 @@ export class SettingsDialog extends BaseDialog {
                         }),
                     })),
                     utils.create({
-                        text: _('Display Timeout').concat(':'),
+                        text: `${_('Display Timeout')}:`,
                     }),
                     (this.inputs.sleeptime = utils.create({
                         type: 'input',
@@ -1418,12 +1635,26 @@ export class SettingsDialog extends BaseDialog {
                         },
                     })),
                     utils.create({
+                        text: `${_('Retrigger delay')}:`,
+                    }),
+                    (this.inputs.retriggerdelay = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _(
+                                'The delay in milliseconds after which the macro is retriggered when the button is held down'
+                            ),
+                            class: 'dialog-input-shorten',
+                            min: 0,
+                        },
+                    })),
+                    utils.create({
                         attributes: {
                             class: 'dialog-input-shorten',
                         },
                         children: [
                             utils.create({
-                                text: _('Unicode Font').concat(':'),
+                                text: `${_('Unicode Font')}:`,
                             }),
                             (this.inputs.useunicodefont = utils.create({
                                 type: 'input',
@@ -1440,7 +1671,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('Flip Rotation').concat(':'),
+                                text: `${_('Flip Rotation')}:`,
                             }),
                             (this.inputs.fliprotation = utils.create({
                                 type: 'input',
@@ -1456,7 +1687,7 @@ export class SettingsDialog extends BaseDialog {
                         },
                         children: [
                             utils.create({
-                                text: _('LCD/LED Brightness').concat(':'),
+                                text: `${_('LCD/LED Brightness')}:`,
                             }),
                             (this.inputs.brightness = utils.create({
                                 type: 'input',
@@ -1470,6 +1701,22 @@ export class SettingsDialog extends BaseDialog {
                                     input: (event) => {
                                         event.target.title = event.target.value;
                                     },
+                                },
+                            })),
+                        ],
+                    }),
+                    utils.create({
+                        attributes: {
+                            class: 'dialog-input-shorten',
+                        },
+                        children: [
+                            utils.create({
+                                text: `${_('Invert LCD colors')}:`,
+                            }),
+                            (this.inputs.invertcolors = utils.create({
+                                type: 'input',
+                                attributes: {
+                                    type: 'checkbox',
                                 },
                             })),
                         ],
@@ -1496,10 +1743,12 @@ export class SettingsDialog extends BaseDialog {
         }
 
         this.inputs.sleeptime.value = this.settings.sleeptime;
+        this.inputs.retriggerdelay.value = this.settings.retriggerdelay;
         this.inputs.useunicodefont.checked = this.settings.useunicodefont;
         this.inputs.fliprotation.checked = this.settings.fliprotation;
         this.inputs.brightness.value = this.settings.brightness;
         this.inputs.brightness.title = this.settings.brightness;
+        this.inputs.invertcolors.checked = this.settings.invertcolors;
     }
 
     /**
@@ -1508,9 +1757,11 @@ export class SettingsDialog extends BaseDialog {
     _onOK() {
         this.settings.keyboardlayout = this.inputs.keyboardlayout.value;
         this.settings.sleeptime = parseInt(this.inputs.sleeptime.value);
+        this.settings.retriggerdelay = parseInt(this.inputs.retriggerdelay.value);
         this.settings.useunicodefont = this.inputs.useunicodefont.checked;
         this.settings.fliprotation = this.inputs.fliprotation.checked;
         this.settings.brightness = parseFloat(this.inputs.brightness.value);
+        this.settings.invertcolors = this.inputs.invertcolors.checked;
 
         this.resolve({ dialogInstance: this, settings: this.settings });
         this._removeFromParent(this.DOM.container);
