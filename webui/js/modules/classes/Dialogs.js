@@ -972,6 +972,30 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
+     * Handle close events and prompt the user if there are unsaved changes.
+     * @param {MouseEvent} event - The mouse event that triggered.
+     */
+    _onClose(event) {
+        if (this._isModified()) {
+            new ConfirmationDialog({
+                position: {
+                    anchor: 'center',
+                    top: event.y,
+                    left: event.x,
+                },
+                title: _('Warning'),
+                prompt: _('Really want to discard your changes?'),
+            })
+                .then((response) => {
+                    super._onClose();
+                })
+                .catch((error) => {});
+        } else {
+            super._onClose();
+        }
+    }
+
+    /**
      * Handles exporting key configuration.
      * @param {Event} event - The event triggering the export action.
      */
@@ -1227,6 +1251,19 @@ export class EditDialog extends BaseDialog {
                 break;
         }
     }
+
+    /**
+     * Check whether the current configuration differs from the original one.
+     * @returns {boolean} True if at least one config entry has been modified.
+     */
+    _isModified() {
+        const newConfig = this._prepareResponse();
+        const oriConfig = this.keyInstance.getAllData();
+
+        return Object.entries(newConfig).some(
+            ([key, config]) => JSON.stringify(config) !== JSON.stringify(oriConfig[key]),
+        );
+    }
 }
 
 /**
@@ -1407,6 +1444,30 @@ export class EncoderDialog extends BaseDialog {
     }
 
     /**
+     * Handle close events and prompt the user if there are unsaved changes.
+     * @param {MouseEvent} event - The mouse event that triggered.
+     */
+    _onClose(event) {
+        if (this._isModified()) {
+            new ConfirmationDialog({
+                position: {
+                    anchor: 'center',
+                    top: event.y,
+                    left: event.x,
+                },
+                title: _('Warning'),
+                prompt: _('Really want to discard your changes?'),
+            })
+                .then((response) => {
+                    super._onClose();
+                })
+                .catch((error) => {});
+        } else {
+            super._onClose();
+        }
+    }
+
+    /**
      * Checks if all encoder macros are empty.
      * @returns {boolean} Returns true if all encoder macros are empty, false otherwise.
      */
@@ -1530,6 +1591,19 @@ export class EncoderDialog extends BaseDialog {
             this._appendMultipleMacros(this.inputs.decreased, key.encoder.decreased);
             this._appendMultipleMacros(this.inputs.increased, key.encoder.increased);
         }
+    }
+
+    /**
+     * Check whether the current configuration differs from the original one.
+     * @returns {boolean} True if at least one config entry has been modified.
+     */
+    _isModified() {
+        const newConfig = this._prepareResponse();
+        const oriConfig = this.groupObject;
+
+        return Object.entries(newConfig).some(
+            ([key, config]) => JSON.stringify(config) !== JSON.stringify(oriConfig[key]),
+        );
     }
 }
 
