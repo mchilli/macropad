@@ -27,7 +27,7 @@ from utils.utils import time_ms, get_audio_files
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = "1.5.0"
+VERSION = "1.5.1"
 # The file in which the settings are saved
 SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
@@ -605,9 +605,9 @@ class MacroApp():
 
             if content == "start":
                 # prepare transfer
-                self.macro_store = {}
+                self.macro_store.clear()
                 # clear delayed exec stack
-                self.delayed_exec = {}
+                self.delayed_exec.clear()
 
                 gc.collect()
                 return
@@ -699,7 +699,6 @@ class MacroApp():
         """ Start the Mainloop
         """
         self.sleep_timer = time_ms()
-        active_keys = {}
         data_error = False
         active_keys = {}
         previous_type = None

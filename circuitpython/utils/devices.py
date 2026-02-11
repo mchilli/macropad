@@ -59,10 +59,7 @@ class Key():
     def __init__(self, macropad:MacroPad, index:int, label:Label) -> None:
         self._macropad = macropad
         self._index = index
-        self._pressed = False
         self._label = label
-        self._retrigger = False
-        self._toggled = False
 
         self.clear_props()
 
@@ -183,7 +180,6 @@ class Key():
         """
         return self._color2
 
-
     @color2.setter
     def color2(self, color:tuple) -> None:
         self._color2 = color
@@ -252,6 +248,7 @@ class Key():
     def clear_props(self) -> None:
         """ clear all properties so the key is off
         """
+        self._id = None
         self._type = None
         self._label.text = ""
         self._color = '000000'
@@ -262,7 +259,9 @@ class Key():
         self._label2 = None
         self._color2 = None
         self._content2 = None
+        self._toggled = False
 
+        self._pressed = False
         self._just_pressed = False
         self._func = None
         self._func_args = None
@@ -280,9 +279,9 @@ class Key():
         """
         if not self._func:
             return
-        if self._content:
-            return self._func((self.id, self.content), key_pressed=self._just_pressed)
-        return self._func(key_pressed=self._just_pressed)
+        if not self._content:
+            return
+        return self._func((self.id, self.content), key_pressed=self._just_pressed)
 
     def _on_pressed(self) -> None:
         """ Action that triggered when Key is pressed
