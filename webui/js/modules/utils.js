@@ -145,7 +145,7 @@ export function downloadObjectAsJson(obj, filename = 'data.json') {
             view: window,
             bubbles: true,
             cancelable: false,
-        })
+        }),
     );
 }
 
@@ -220,6 +220,9 @@ export function convertJsonToFileIds(baseData) {
                 if (item.retrigger) {
                     dataStore[fileId].retrigger = item.retrigger;
                 }
+                if (item.hold) {
+                    dataStore[fileId].hold = item.hold;
+                }
                 if (item.toggle) {
                     dataStore[fileId].label2 = item.label2;
                     dataStore[fileId].color2 = item.color2;
@@ -281,8 +284,9 @@ export function restoreJsonFromFileIds(dataStore) {
                         color: validateHex(data.color),
                         content: data.content,
                         retrigger: data.retrigger || false,
+                        hold: data.hold || false,
 
-                        toggle: data.label2 !== '',
+                        toggle: Boolean(data.label2),
                         label2: data.label2 || '',
                         color2: validateHex(data.color2) || defaultKeys.macro.color,
                         content2: data.content2 || [],

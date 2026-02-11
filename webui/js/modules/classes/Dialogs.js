@@ -290,14 +290,14 @@ class BaseDialog {
                 case 'center':
                     return Math.max(
                         Math.min(position - elementSize / 2, window.innerWidth - elementWidth),
-                        0
+                        0,
                     );
                 case 'bottom':
                 case 'right':
                 case 'end':
                     return Math.max(
                         Math.min(position - elementSize, window.innerWidth - elementWidth),
-                        0
+                        0,
                     );
             }
         };
@@ -343,7 +343,7 @@ class BaseDialog {
             const offsetTop = Math.max(element.offsetTop - pos2, 0);
             const offsetLeft = Math.max(
                 Math.min(element.offsetLeft - pos1, window.innerWidth - element.offsetWidth),
-                0
+                0,
             );
 
             utils.style(element, {
@@ -441,7 +441,7 @@ export class EditDialog extends BaseDialog {
         this._setHeaderLabel(this.keyInstance.label || _('New'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues(this.keyInstance.getAllData());
-        this._onChangeToggle();
+        this._updateToggle();
         this._setPosition(this.DOM.dialog, position);
 
         return this.promise;
@@ -555,7 +555,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker,
-                                                    this.inputs.colorText
+                                                    this.inputs.colorText,
                                                 ),
                                         },
                                     })),
@@ -566,7 +566,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker,
-                                                    this.inputs.colorText
+                                                    this.inputs.colorText,
                                                 ),
                                         },
                                     })),
@@ -594,7 +594,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker2,
-                                                    this.inputs.colorText2
+                                                    this.inputs.colorText2,
                                                 ),
                                         },
                                     })),
@@ -605,7 +605,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker2,
-                                                    this.inputs.colorText2
+                                                    this.inputs.colorText2,
                                                 ),
                                         },
                                     })),
@@ -691,12 +691,34 @@ export class EditDialog extends BaseDialog {
                                         attributes: {
                                             type: 'checkbox',
                                             title: _(
-                                                'If enabled, the macro will be retriggered when holding the key'
+                                                'If enabled, the macro will be retriggered when holding the key',
                                             ),
+                                        },
+                                        events: {
+                                            change: (event) => this._onChangeCharacteristic(event),
                                         },
                                     })),
                                     utils.create({
                                         text: _('retrigger'),
+                                    }),
+                                ],
+                            }),
+                            utils.create({
+                                children: [
+                                    (this.inputs.hold = utils.create({
+                                        type: 'input',
+                                        attributes: {
+                                            type: 'checkbox',
+                                            title: _(
+                                                'If enabled, the macro will be triggered until the key is pressed again',
+                                            ),
+                                        },
+                                        events: {
+                                            change: (event) => this._onChangeCharacteristic(event),
+                                        },
+                                    })),
+                                    utils.create({
+                                        text: _('hold'),
                                     }),
                                 ],
                             }),
@@ -707,11 +729,11 @@ export class EditDialog extends BaseDialog {
                                         attributes: {
                                             type: 'checkbox',
                                             title: _(
-                                                'If enabled, the macro can be toggled on every press'
+                                                'If enabled, the macro can be toggled on every press',
                                             ),
                                         },
                                         events: {
-                                            change: (event) => this._onChangeToggle(event),
+                                            change: (event) => this._onChangeCharacteristic(event),
                                         },
                                     })),
                                     utils.create({
@@ -755,7 +777,7 @@ export class EditDialog extends BaseDialog {
                                                 events: {
                                                     click: (event) =>
                                                         this._appendMacroSelector(
-                                                            this.inputs.switch
+                                                            this.inputs.switch,
                                                         ),
                                                 },
                                             }),
@@ -792,7 +814,7 @@ export class EditDialog extends BaseDialog {
                                                 events: {
                                                     click: (event) =>
                                                         this._appendMacroSelector(
-                                                            this.inputs.increased
+                                                            this.inputs.increased,
                                                         ),
                                                 },
                                             }),
@@ -829,7 +851,7 @@ export class EditDialog extends BaseDialog {
                                                 events: {
                                                     click: (event) =>
                                                         this._appendMacroSelector(
-                                                            this.inputs.decreased
+                                                            this.inputs.decreased,
                                                         ),
                                                 },
                                             }),
@@ -884,11 +906,25 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
-     * Handles the change event of the toggle checkbox.
+     * Handles the change event of the characteristic checkboxes.
      * Updates the dialog's visual style based on the toggle state.
      * @param {Event} event - The change event that triggered.
      */
-    _onChangeToggle(event) {
+    _onChangeCharacteristic(event) {
+        const inputs = [this.inputs.retrigger, this.inputs.hold, this.inputs.toggle];
+        inputs.forEach((input) => {
+            if (input !== event.target) {
+                input.checked = false;
+            }
+        });
+
+        this._updateToggle(event);
+    }
+
+    /**
+     * Updates the dialog's visual style based on the toggle state.
+     */
+    _updateToggle() {
         this.inputs.container.classList.toggle('untoggled', !this.inputs.toggle.checked);
     }
 
@@ -924,7 +960,7 @@ export class EditDialog extends BaseDialog {
                     left: event.x,
                 },
                 title: _('Warning'),
-                prompt: _('Do you really want to change the type and lost your configuration?'),
+                prompt: _('Really want to change the type and lost your configuration?'),
             })
                 .then((response) => {
                     resolveAndRemove();
@@ -936,6 +972,30 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
+     * Handle close events and prompt the user if there are unsaved changes.
+     * @param {MouseEvent} event - The mouse event that triggered.
+     */
+    _onClose(event) {
+        if (this._isModified()) {
+            new ConfirmationDialog({
+                position: {
+                    anchor: 'center',
+                    top: event.y,
+                    left: event.x,
+                },
+                title: _('Warning'),
+                prompt: _('Really want to discard your changes?'),
+            })
+                .then((response) => {
+                    super._onClose();
+                })
+                .catch((error) => {});
+        } else {
+            super._onClose();
+        }
+    }
+
+    /**
      * Handles exporting key configuration.
      * @param {Event} event - The event triggering the export action.
      */
@@ -943,7 +1003,7 @@ export class EditDialog extends BaseDialog {
         if (this.inputs.type.value !== 'blank') {
             utils.downloadObjectAsJson(
                 this.keyInstance.getAllData(),
-                `${this.inputs.label.value}.json`
+                `${this.inputs.label.value}.json`,
             );
         }
     }
@@ -973,7 +1033,7 @@ export class EditDialog extends BaseDialog {
                     left: event.x,
                 },
                 title: _('Warning'),
-                prompt: _('Do you really want to replace this configuration?'),
+                prompt: _('Really want to replace this configuration?'),
             })
                 .then((response) => {
                     importConfiguration();
@@ -998,6 +1058,7 @@ export class EditDialog extends BaseDialog {
             content: this._getMacroEntryValues(this.inputs.content),
             content2: this._getMacroEntryValues(this.inputs.content2),
             retrigger: this.inputs.retrigger.checked,
+            hold: this.inputs.hold.checked,
             toggle: this.inputs.toggle.checked,
             encoder: {
                 switch: this._getMacroEntryValues(this.inputs.switch),
@@ -1037,7 +1098,7 @@ export class EditDialog extends BaseDialog {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to replace this configuration?'),
+                    prompt: _('Really want to replace this configuration?'),
                 })
                     .then((response) => {
                         this._pasteConfiguration();
@@ -1056,7 +1117,7 @@ export class EditDialog extends BaseDialog {
         this._setInitialValues(this.clipboard.key);
         this._onChangeType();
         this._onInputLabel();
-        this._onChangeToggle();
+        this._updateToggle();
 
         this.initType = this.clipboard.key.type;
         this.pasted = true;
@@ -1129,6 +1190,7 @@ export class EditDialog extends BaseDialog {
         } else if (values.type === 'macro') {
             values.content = this._getMacroEntryValues(this.inputs.content);
             values.retrigger = this.inputs.retrigger.checked;
+            values.hold = this.inputs.hold.checked;
             values.toggle = this.inputs.toggle.checked;
 
             values.label2 = this.inputs.label2.value;
@@ -1177,6 +1239,7 @@ export class EditDialog extends BaseDialog {
                 this._appendMultipleMacros(this.inputs.content, key.content);
                 this._appendMultipleMacros(this.inputs.content2, key.content2);
                 this.inputs.retrigger.checked = key.retrigger || false;
+                this.inputs.hold.checked = key.hold || false;
                 break;
             case 'group':
                 this._appendMultipleMacros(this.inputs.switch, key.encoder.switch);
@@ -1187,6 +1250,19 @@ export class EditDialog extends BaseDialog {
             default:
                 break;
         }
+    }
+
+    /**
+     * Check whether the current configuration differs from the original one.
+     * @returns {boolean} True if at least one config entry has been modified.
+     */
+    _isModified() {
+        const newConfig = this._prepareResponse();
+        const oriConfig = this.keyInstance.getAllData();
+
+        return Object.entries(newConfig).some(
+            ([key, config]) => JSON.stringify(config) !== JSON.stringify(oriConfig[key]),
+        );
     }
 }
 
@@ -1368,6 +1444,30 @@ export class EncoderDialog extends BaseDialog {
     }
 
     /**
+     * Handle close events and prompt the user if there are unsaved changes.
+     * @param {MouseEvent} event - The mouse event that triggered.
+     */
+    _onClose(event) {
+        if (this._isModified()) {
+            new ConfirmationDialog({
+                position: {
+                    anchor: 'center',
+                    top: event.y,
+                    left: event.x,
+                },
+                title: _('Warning'),
+                prompt: _('Really want to discard your changes?'),
+            })
+                .then((response) => {
+                    super._onClose();
+                })
+                .catch((error) => {});
+        } else {
+            super._onClose();
+        }
+    }
+
+    /**
      * Checks if all encoder macros are empty.
      * @returns {boolean} Returns true if all encoder macros are empty, false otherwise.
      */
@@ -1408,7 +1508,7 @@ export class EncoderDialog extends BaseDialog {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to replace this configuration?'),
+                    prompt: _('Really want to replace this configuration?'),
                 })
                     .then((response) => {
                         pasteConfiguration();
@@ -1491,6 +1591,19 @@ export class EncoderDialog extends BaseDialog {
             this._appendMultipleMacros(this.inputs.decreased, key.encoder.decreased);
             this._appendMultipleMacros(this.inputs.increased, key.encoder.increased);
         }
+    }
+
+    /**
+     * Check whether the current configuration differs from the original one.
+     * @returns {boolean} True if at least one config entry has been modified.
+     */
+    _isModified() {
+        const newConfig = this._prepareResponse();
+        const oriConfig = this.groupObject;
+
+        return Object.entries(newConfig).some(
+            ([key, config]) => JSON.stringify(config) !== JSON.stringify(oriConfig[key]),
+        );
     }
 }
 
@@ -1642,7 +1755,7 @@ export class SettingsDialog extends BaseDialog {
                         attributes: {
                             type: 'number',
                             title: _(
-                                'The delay in milliseconds after which the macro is retriggered when the button is held down'
+                                'The delay in milliseconds after which the macro is retriggered when the button is held down',
                             ),
                             class: 'dialog-input-shorten',
                             min: 0,
@@ -1849,7 +1962,7 @@ export class ResetDialog extends BaseDialog {
                     utils.create({
                         attributes: {
                             title: _(
-                                'Enable USB storage (you cannot store on the device when USB is enabled)'
+                                'Enable USB storage (you cannot store on the device when USB is enabled)',
                             ),
                             class: 'button',
                         },
@@ -1878,9 +1991,9 @@ export class ResetDialog extends BaseDialog {
      */
     _onButton(event, command) {
         const PROMPTS = {
-            softReset: _('Do you really want to reset the script?'),
-            hardReset: _('Do you really want to reboot the macropad?'),
-            enableUSB: _('Do you really want to reboot the macropad to enable USB storage?'),
+            softReset: _('Really want to reset the script?'),
+            hardReset: _('Really want to reboot the macropad?'),
+            enableUSB: _('Really want to reboot the macropad to enable USB storage?'),
         };
 
         new ConfirmationDialog({

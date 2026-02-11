@@ -12,6 +12,8 @@ import storage
 import supervisor
 import usb_cdc
 
+from rainbowio import colorwheel
+
 from adafruit_bitmap_font.bitmap_font import load_font
 from adafruit_display_text.bitmap_label import Label
 from adafruit_macropad import MacroPad
@@ -25,7 +27,7 @@ from utils.utils import time_ms, get_audio_files
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = "1.5.0"
+VERSION = "1.5.1"
 # The file in which the settings are saved
 SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
@@ -124,6 +126,7 @@ class MacroApp():
         self.encoder = Encoder(self.macropad)
 
         self.toggled_ids = set()
+        self.held_macro_ids = {}
         self.delayed_exec = {}
 
         self.pitch_bend = 8192  # MIDI Pitch Bend Center
@@ -466,6 +469,27 @@ class MacroApp():
         
         self._init_group()
 
+    def clear_held_macros(self, *args) -> None:
+        """ clear all currently held macros and reset LED colors
+        """
+        if not self.held_macro_ids:
+            return
+        
+        # remove delayed executions associated with held macros
+        held_ids = set(self.held_macro_ids)
+        for ts, item in list(self.delayed_exec.items()):
+            if item[1] in held_ids:
+                self.delayed_exec.pop(ts)
+
+        # reset LEDs for held keys
+        for key in self.keys:
+            if key.id in self.held_macro_ids:
+                key.set_led(key.color, False)
+            
+            self.macropad.pixels.show()
+
+        self.held_macro_ids.clear()
+
     def _update_tab(self) -> None:
         """ update the current displayed group tab 
         """
@@ -492,6 +516,7 @@ class MacroApp():
                 key.func = key_funcs.get(key_type)
                 key.content = macro_data["content"]
                 key.retrigger = macro_data.get("retrigger", False)
+                key.hold = macro_data.get("hold", False)
 
                 if macro_data.get("label2", None):
                     key.label2 = macro_data["label2"]
@@ -580,9 +605,9 @@ class MacroApp():
 
             if content == "start":
                 # prepare transfer
-                self.macro_store = {}
+                self.macro_store.clear()
                 # clear delayed exec stack
-                self.delayed_exec = {}
+                self.delayed_exec.clear()
 
                 gc.collect()
                 return
@@ -674,8 +699,10 @@ class MacroApp():
         """ Start the Mainloop
         """
         self.sleep_timer = time_ms()
-        active_keys = {}
         data_error = False
+        active_keys = {}
+        previous_type = None
+        color_cycle = 0
 
         while True:
             # display timeout
@@ -683,6 +710,9 @@ class MacroApp():
                 self.macropad.display_sleep = True
 
             self.macropad.display.refresh()
+
+            # cycle from 0 to 255. Used to indicate the held macros
+            color_cycle = (color_cycle + 8) % 256
 
             # garbage collection
             if gc.mem_free() < MEMORYLIMIT:
@@ -756,20 +786,44 @@ class MacroApp():
             if key_event:
                 key = self.keys[key_event.key_number]
                 self._display_on()
-                if key_event.pressed and key.has_func():
-                    key.pressed = True
 
-                    # retrigger macro after a short delay if the key is held down
-                    if key.retrigger:
-                        active_keys[key_event.key_number] = time_ms()
+                # --- key pressed ---------------------------------------------
+                if key_event.pressed:
+                    # store the current macro type so that no macro can be triggered after changing the group
+                    previous_type = key.type
 
-                elif key_event.released:
-                    # toggle the macro if a second macro is defined
+                    # register a new valid key press
+                    if key.has_func() and not key.id in self.held_macro_ids:
+                        key.pressed = True
+
+                        # retrigger macro after a short delay if the key is held down
+                        if key.retrigger:
+                            active_keys[key_event.key_number] = time_ms()
+
+                # --- key released --------------------------------------------
+                elif key_event.released and previous_type == "macro":
+                    # toggle secondary macro state if available
                     if key.label2:
                         if key.toggle():
                             self.toggled_ids.add(key.id)
                         else:
                             self.toggled_ids.discard(key.id)
+                    
+                    # trigger macro continuously until the key is pressed again
+                    if key.hold:
+                        if key.id in self.held_macro_ids:
+                            # release held key
+                            self.held_macro_ids.pop(key.id)
+
+                            # remove matching delayed execution
+                            for ts, item in list(self.delayed_exec.items()):
+                                if item[1] == key.id:
+                                    self.delayed_exec.pop(ts)
+                                    break
+
+                        else:
+                            # register key as held
+                            self.held_macro_ids[key.id] = key.content
 
                     key.pressed = False
 
@@ -779,6 +833,20 @@ class MacroApp():
             for active_key, active_key_delay in active_keys.items():
                 if active_key is not None and time_ms() - active_key_delay > SETTINGS['retriggerdelay']:
                     self.keys[active_key].call_func()
+
+            # if a macro id is held, it will continuously trigger until the key is pressed again
+            if self.held_macro_ids:
+                # execute macros if there is no delayed execution
+                for macro_id, content in self.held_macro_ids.items():
+                    if not any(item[1] == macro_id for item in self.delayed_exec.values()):
+                        self.run_macro_press_and_release((macro_id, content))
+
+                # update LEDs for held keys
+                for key in self.keys:
+                    if key.id in self.held_macro_ids and not key.pressed:
+                        key.set_led(colorwheel(color_cycle), False)
+
+                self.macropad.pixels.show()
 
             # encoder event handling
             if self.encoder.switch and self.encoder.on_switch:

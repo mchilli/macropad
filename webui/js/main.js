@@ -147,7 +147,7 @@ class App {
 
                             case 'end':
                                 const importedMacros = utils.restoreJsonFromFileIds(
-                                    this.macroBuffer
+                                    this.macroBuffer,
                                 );
                                 this._newKeyEntries(this._convertMacroStack(importedMacros));
                                 this._notify('info', _('Received from macropad'));
@@ -191,7 +191,7 @@ class App {
                                 this._notify(
                                     'info',
                                     _('Changed settings only take effect after a soft reset'),
-                                    true
+                                    true,
                                 );
                             }
                         })
@@ -209,7 +209,7 @@ class App {
                         this._notify(
                             'warning',
                             _('The macros can only be stored if the USB storage is disabled'),
-                            true
+                            true,
                         );
                     } else {
                         this.deviceControls.save.classList.remove('deactivated');
@@ -217,7 +217,7 @@ class App {
 
                     this._notify(
                         'success',
-                        `${_('Connected to macropad')} | Version: ${this.version}`
+                        `${_('Connected to macropad')} | Version: ${this.version}`,
                     );
                     this._updateInformation();
                     this._checkVersion();
@@ -228,7 +228,7 @@ class App {
                 case 'Macros received':
                     this._notify(
                         'success',
-                        _('%s macros sended to macropad').replace('%s', payload.CONTENT || '')
+                        _('%s macros sended to macropad').replace('%s', payload.CONTENT || ''),
                     );
                     this._transferActive(false);
                     break;
@@ -399,7 +399,7 @@ class App {
                             left: event.x,
                         },
                         title: _('Warning'),
-                        prompt: _('Do you really want to disconnect?'),
+                        prompt: _('Really want to disconnect?'),
                     })
                         .then(async (response) => {
                             this.serialConnection.close();
@@ -420,7 +420,7 @@ class App {
                             left: event.x,
                         },
                         title: _('Warning'),
-                        prompt: _('Do you really want to delete the current macros?'),
+                        prompt: _('Really want to delete the current macros?'),
                     })
                         .then((response) => {
                             this._newKeyEntries();
@@ -446,7 +446,7 @@ class App {
                             left: event.x,
                         },
                         title: _('Warning'),
-                        prompt: _('Do you really want to replace the current macros?'),
+                        prompt: _('Really want to replace the current macros?'),
                     })
                         .then((response) => {
                             openFile();
@@ -616,7 +616,7 @@ class App {
                         },
                         title: _('Warning'),
                         prompt: _(
-                            'Do you really want to replace the current macros and load it from the macropad?'
+                            'Really want to replace the current macros and load it from the macropad?',
                         ),
                     })
                         .then(async (response) => {
@@ -658,7 +658,7 @@ class App {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to send the current macros to the macropad?'),
+                    prompt: _('Really want to send the current macros to the macropad?'),
                 })
                     .then(async () => {
                         this._transferActive(true);
@@ -681,7 +681,7 @@ class App {
                                                     command: COMMANDS[command],
                                                     id: id,
                                                     content: JSON.stringify(macro),
-                                                })
+                                                }),
                                             );
                                         }
                                     }
@@ -862,7 +862,10 @@ class App {
                         if (this._hasNoNavigationKeys(group)) {
                             this._notify(
                                 'warning',
-                                _('%s has no configured navigation key!').replace('%s', group.label)
+                                _('%s has no configured navigation key!').replace(
+                                    '%s',
+                                    group.label,
+                                ),
                             );
                         }
                         this.macroStack.push(this._fillUpKeysEntries(group));
@@ -883,7 +886,7 @@ class App {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to delete this key configuration?'),
+                    prompt: _('Really want to delete this key configuration?'),
                 })
                     .then((response) => {
                         keyInstance.clearData();
@@ -935,11 +938,14 @@ class App {
                         break;
                     case 'content':
                         keyInstance.setContent(
-                            value ? value : this._fillUpKeysEntries([utils.defaultKeys.close])
+                            value ? value : this._fillUpKeysEntries([utils.defaultKeys.close]),
                         );
                         break;
                     case 'retrigger':
                         keyInstance.setRetrigger(value);
+                        break;
+                    case 'hold':
+                        keyInstance.setHold(value);
                         break;
 
                     case 'toggle':
@@ -1028,7 +1034,7 @@ class App {
         this.macroStack[lastIndex].content.splice(
             0,
             this.macroStack[lastIndex].content.length,
-            ...macros
+            ...macros,
         );
 
         localStorage.setItem('macros', JSON.stringify(this.macroStack[0]));
@@ -1041,7 +1047,7 @@ class App {
     _initializeKeys() {
         for (const key of this.macroStack[this.macroStack.length - 1].content.slice(
             0,
-            this.keyChunkSize
+            this.keyChunkSize,
         )) {
             this._appendKeysToContainer(key);
         }
@@ -1068,7 +1074,7 @@ class App {
             ...group.encoder.switch,
         ];
         return macros.every(
-            (macro) => !macro.sys || !['close_group', 'go_to_root'].includes(macro.sys)
+            (macro) => !macro.sys || !['close_group', 'go_to_root'].includes(macro.sys),
         );
     }
 
@@ -1108,7 +1114,7 @@ class App {
                 increased: [],
                 decreased: [],
             },
-        }
+        },
     ) {
         this._clearAllKeyEntries();
 
@@ -1145,7 +1151,7 @@ class App {
             new KeyContainer({
                 ...key,
                 onButtonPressed: this.keyControlsHandler.bind(this),
-            })
+            }),
         );
     }
 
@@ -1190,9 +1196,9 @@ class App {
                     this._notify(
                         'error',
                         `<a href=${filesURL} target="_blank">${_(
-                            'New circuitpython files available'
+                            'New circuitpython files available',
                         )}</a>`,
-                        true
+                        true,
                     );
                 }
             });
@@ -1205,7 +1211,7 @@ class App {
     _updateInformation() {
         let infos = [];
         infos.push(
-            `Keys: ${Object.keys(utils.convertJsonToFileIds(this.macroStack[0])).length - 1}`
+            `Keys: ${Object.keys(utils.convertJsonToFileIds(this.macroStack[0])).length - 1}`,
         );
         if (this.deviceConnected) {
             infos.push(`Version: ${this.version}`);

@@ -261,7 +261,7 @@ class MacroWait extends MacroBase {
                         type: 'input',
                         attributes: {
                             title: _(
-                                'The time the macro should wait before executing the next macro'
+                                'The time the macro should wait before executing the next macro',
                             ),
                             style: `width:${this.inputWidth}px;`,
                             type: 'number',
@@ -905,7 +905,7 @@ class MacroTone extends MacroBase {
                                 attributes: {
                                     type: 'number',
                                     title: _(
-                                        'Duration of the tone in seconds. Set to 0 for continuous playback'
+                                        'Duration of the tone in seconds. Set to 0 for continuous playback',
                                     ),
                                     style: `width:${this.durationWidth}px;`,
                                     value: Math.abs(this.value.tone.duration),
@@ -954,7 +954,7 @@ class MacroTone extends MacroBase {
     _updateVisibility() {
         this.containerToneOn.classList.toggle(
             'hidden',
-            !['toneon'].includes(this.toneCommandSelect.value)
+            !['toneon'].includes(this.toneCommandSelect.value),
         );
     }
 
@@ -1093,7 +1093,7 @@ class MacroMidi extends MacroBase {
         ];
         // Find and assign the matching MIDI command from the provided value
         this.midiCommand = Object.keys(value.midi).find((key) =>
-            this.midiCommandsList.some(([_, cmd]) => cmd === key)
+            this.midiCommandsList.some(([_, cmd]) => cmd === key),
         );
 
         this.pitchBendCommandsList = [
@@ -1188,7 +1188,7 @@ class MacroMidi extends MacroBase {
                                 attributes: {
                                     type: 'number',
                                     title: _(
-                                        'Duration of the tone in seconds. Set to 0 for continuous playback'
+                                        'Duration of the tone in seconds. Set to 0 for continuous playback',
                                     ),
                                     style: `width:${this.noteOnDurationWidth}px;`,
                                     value: Math.abs(this.value.midi.durtn),
@@ -1267,7 +1267,7 @@ class MacroMidi extends MacroBase {
                                 attributes: {
                                     type: 'number',
                                     title: _(
-                                        'The degree of bend from 0 through 8192 (no bend) to 16383'
+                                        'The degree of bend from 0 through 8192 (no bend) to 16383',
                                     ),
                                     style: `width:${this.pitchBendValueWidth}px;`,
                                     value: this.value.midi.pbval,
@@ -1278,7 +1278,7 @@ class MacroMidi extends MacroBase {
                                     input: (event) => {
                                         event.target.value = Math.max(
                                             0,
-                                            Math.min(16383, event.target.value)
+                                            Math.min(16383, event.target.value),
                                         );
                                     },
                                 },
@@ -1299,7 +1299,7 @@ class MacroMidi extends MacroBase {
                                 attributes: {
                                     type: 'number',
                                     title: _(
-                                        'The step size for increasing or decreasing the pitch bend'
+                                        'The step size for increasing or decreasing the pitch bend',
                                     ),
                                     style: `width:${this.pitchBendValueWidth}px;`,
                                     value: this.value.midi.pbstp,
@@ -1310,7 +1310,7 @@ class MacroMidi extends MacroBase {
                                     input: (event) => {
                                         event.target.value = Math.max(
                                             1,
-                                            Math.min(16383, event.target.value)
+                                            Math.min(16383, event.target.value),
                                         );
                                     },
                                 },
@@ -1435,23 +1435,23 @@ class MacroMidi extends MacroBase {
     _updateVisibility() {
         this.containerNoteOn.classList.toggle(
             'hidden',
-            !['ntson'].includes(this.midiCommandSelect.value)
+            !['ntson'].includes(this.midiCommandSelect.value),
         );
         this.containerNoteOff.classList.toggle(
             'hidden',
-            !['ntoff'].includes(this.midiCommandSelect.value)
+            !['ntoff'].includes(this.midiCommandSelect.value),
         );
         this.containerPitchBend.classList.toggle(
             'hidden',
-            !['ptchb'].includes(this.midiCommandSelect.value)
+            !['ptchb'].includes(this.midiCommandSelect.value),
         );
         this.containerControlChange.classList.toggle(
             'hidden',
-            !['ctrch'].includes(this.midiCommandSelect.value)
+            !['ctrch'].includes(this.midiCommandSelect.value),
         );
         this.containerProgrammChange.classList.toggle(
             'hidden',
-            !['prgch'].includes(this.midiCommandSelect.value)
+            !['prgch'].includes(this.midiCommandSelect.value),
         );
     }
 
@@ -1461,11 +1461,11 @@ class MacroMidi extends MacroBase {
     _updatePitchBendVisibility() {
         this.containerPitchBendValue.classList.toggle(
             'hidden',
-            !['set'].includes(this.pitchBendCommand.value)
+            !['set'].includes(this.pitchBendCommand.value),
         );
         this.containerPitchBendStep.classList.toggle(
             'hidden',
-            !['incr', 'decr'].includes(this.pitchBendCommand.value)
+            !['incr', 'decr'].includes(this.pitchBendCommand.value),
         );
     }
 
@@ -1697,6 +1697,7 @@ class MacroSystemFunctions extends MacroBase {
             'enable_usb',
             'close_group',
             'go_to_root',
+            'clear_held_macros',
             'increase_brightness',
             'decrease_brightness',
         ];
@@ -1725,7 +1726,7 @@ class MacroSystemFunctions extends MacroBase {
                 children: this.autocompleteList.map((value) => {
                     return utils.create({
                         type: 'option',
-                        text: value,
+                        text: value.replaceAll('_', ' ').toUpperCase(),
                         attributes: {
                             value: value,
                         },
