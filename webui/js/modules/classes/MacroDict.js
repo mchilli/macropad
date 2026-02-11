@@ -1697,6 +1697,7 @@ class MacroSystemFunctions extends MacroBase {
             'enable_usb',
             'close_group',
             'go_to_root',
+            'clear_held_macros',
             'increase_brightness',
             'decrease_brightness',
         ];

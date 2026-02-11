@@ -441,7 +441,7 @@ export class EditDialog extends BaseDialog {
         this._setHeaderLabel(this.keyInstance.label || _('New'));
         this._appendToParent(this.parent, this.DOM.container);
         this._setInitialValues(this.keyInstance.getAllData());
-        this._onChangeToggle();
+        this._updateToggle();
         this._setPosition(this.DOM.dialog, position);
 
         return this.promise;
@@ -694,9 +694,31 @@ export class EditDialog extends BaseDialog {
                                                 'If enabled, the macro will be retriggered when holding the key'
                                             ),
                                         },
+                                        events: {
+                                            change: (event) => this._onChangeCharacteristic(event),
+                                        },
                                     })),
                                     utils.create({
                                         text: _('retrigger'),
+                                    }),
+                                ],
+                            }),
+                            utils.create({
+                                children: [
+                                    (this.inputs.hold = utils.create({
+                                        type: 'input',
+                                        attributes: {
+                                            type: 'checkbox',
+                                            title: _(
+                                                'If enabled, the macro will be triggered until the key is pressed again',
+                                            ),
+                                        },
+                                        events: {
+                                            change: (event) => this._onChangeCharacteristic(event),
+                                        },
+                                    })),
+                                    utils.create({
+                                        text: _('hold'),
                                     }),
                                 ],
                             }),
@@ -711,7 +733,7 @@ export class EditDialog extends BaseDialog {
                                             ),
                                         },
                                         events: {
-                                            change: (event) => this._onChangeToggle(event),
+                                            change: (event) => this._onChangeCharacteristic(event),
                                         },
                                     })),
                                     utils.create({
@@ -884,11 +906,25 @@ export class EditDialog extends BaseDialog {
     }
 
     /**
-     * Handles the change event of the toggle checkbox.
+     * Handles the change event of the characteristic checkboxes.
      * Updates the dialog's visual style based on the toggle state.
      * @param {Event} event - The change event that triggered.
      */
-    _onChangeToggle(event) {
+    _onChangeCharacteristic(event) {
+        const inputs = [this.inputs.retrigger, this.inputs.hold, this.inputs.toggle];
+        inputs.forEach((input) => {
+            if (input !== event.target) {
+                input.checked = false;
+            }
+        });
+
+        this._updateToggle(event);
+    }
+
+    /**
+     * Updates the dialog's visual style based on the toggle state.
+     */
+    _updateToggle() {
         this.inputs.container.classList.toggle('untoggled', !this.inputs.toggle.checked);
     }
 
@@ -998,6 +1034,7 @@ export class EditDialog extends BaseDialog {
             content: this._getMacroEntryValues(this.inputs.content),
             content2: this._getMacroEntryValues(this.inputs.content2),
             retrigger: this.inputs.retrigger.checked,
+            hold: this.inputs.hold.checked,
             toggle: this.inputs.toggle.checked,
             encoder: {
                 switch: this._getMacroEntryValues(this.inputs.switch),
@@ -1056,7 +1093,7 @@ export class EditDialog extends BaseDialog {
         this._setInitialValues(this.clipboard.key);
         this._onChangeType();
         this._onInputLabel();
-        this._onChangeToggle();
+        this._updateToggle();
 
         this.initType = this.clipboard.key.type;
         this.pasted = true;
@@ -1129,6 +1166,7 @@ export class EditDialog extends BaseDialog {
         } else if (values.type === 'macro') {
             values.content = this._getMacroEntryValues(this.inputs.content);
             values.retrigger = this.inputs.retrigger.checked;
+            values.hold = this.inputs.hold.checked;
             values.toggle = this.inputs.toggle.checked;
 
             values.label2 = this.inputs.label2.value;
@@ -1177,6 +1215,7 @@ export class EditDialog extends BaseDialog {
                 this._appendMultipleMacros(this.inputs.content, key.content);
                 this._appendMultipleMacros(this.inputs.content2, key.content2);
                 this.inputs.retrigger.checked = key.retrigger || false;
+                this.inputs.hold.checked = key.hold || false;
                 break;
             case 'group':
                 this._appendMultipleMacros(this.inputs.switch, key.encoder.switch);

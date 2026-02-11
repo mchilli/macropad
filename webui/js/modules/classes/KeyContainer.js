@@ -38,6 +38,7 @@ export default class KeyContainer {
         this.color = color;
         this.content = content;
         this.retrigger = retrigger;
+        this.hold = hold;
 
         this.toggle = toggle;
         this.label2 = label2;
@@ -201,6 +202,7 @@ export default class KeyContainer {
         this.setColor();
         this.setContent();
         this.setRetrigger();
+        this.setHold();
 
         this.setToggle();
         this.setLabel2();
@@ -227,11 +229,14 @@ export default class KeyContainer {
                     label: this.label,
                     color: this.color,
                     content: this.content,
-                    retrigger: this.retrigger,
                 };
 
-                // add extended fields only when toggle mode is enabled
+                if (this.retrigger) result.retrigger = true;
+
+                if (this.hold) result.hold = true;
+
                 if (this.toggle) {
+                    // add extended fields only when toggle mode is enabled
                     result.toggle = true;
                     result.label2 = this.label2;
                     result.color2 = this.color2;
@@ -261,6 +266,7 @@ export default class KeyContainer {
             color: this.color,
             content: this.content,
             retrigger: this.retrigger,
+            hold: this.hold,
 
             toggle: this.toggle,
             label2: this.label2,
@@ -341,6 +347,14 @@ export default class KeyContainer {
      */
     setRetrigger(retrigger = false) {
         this.retrigger = retrigger;
+    }
+
+    /**
+     * Sets the hold flag for the KeyContainer.
+     * @param {boolean} [hold=false] - The hold flag to set for the KeyContainer.
+     */
+    setHold(hold = false) {
+        this.hold = hold;
     }
 
     /**

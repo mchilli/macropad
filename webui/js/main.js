@@ -941,6 +941,9 @@ class App {
                     case 'retrigger':
                         keyInstance.setRetrigger(value);
                         break;
+                    case 'hold':
+                        keyInstance.setHold(value);
+                        break;
 
                     case 'toggle':
                         keyInstance.setToggle(value);
