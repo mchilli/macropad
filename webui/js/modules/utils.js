@@ -286,7 +286,7 @@ export function restoreJsonFromFileIds(dataStore) {
                         retrigger: data.retrigger || false,
                         hold: data.hold || false,
 
-                        toggle: data.label2 !== '',
+                        toggle: Boolean(data.label2),
                         label2: data.label2 || '',
                         color2: validateHex(data.color2) || defaultKeys.macro.color,
                         content2: data.content2 || [],
