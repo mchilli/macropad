@@ -23,6 +23,9 @@ class System():
     def go_to_root(app=None) -> None:
         app.go_to_root()
 
+    def clear_held_macros(app=None) -> None:
+        app.clear_held_macros()
+
     def decrease_brightness(app=None) -> None:
         if app.macropad.display.brightness > 0:
             brightness = (round(app.macropad.display.brightness * 10) - 1) / 10

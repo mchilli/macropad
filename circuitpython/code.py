@@ -469,6 +469,27 @@ class MacroApp():
         
         self._init_group()
 
+    def clear_held_macros(self, *args) -> None:
+        """ clear all currently held macros and reset LED colors
+        """
+        if not self.held_macro_ids:
+            return
+        
+        # remove delayed executions associated with held macros
+        held_ids = set(self.held_macro_ids)
+        for ts, item in list(self.delayed_exec.items()):
+            if item[1] in held_ids:
+                self.delayed_exec.pop(ts)
+
+        # reset LEDs for held keys
+        for key in self.keys:
+            if key.id in self.held_macro_ids:
+                key.set_led(key.color, False)
+            
+            self.macropad.pixels.show()
+
+        self.held_macro_ids.clear()
+
     def _update_tab(self) -> None:
         """ update the current displayed group tab 
         """
