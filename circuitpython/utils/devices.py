@@ -156,6 +156,17 @@ class Key():
 
 
     @property
+    def hold(self) -> bool:
+        """ Hold Property
+        """
+        return self._hold
+
+    @hold.setter
+    def hold(self, hold:bool) -> None:
+        self._hold = hold
+
+
+    @property
     def label2(self) -> str:
         """ Label2 Property
         """
@@ -203,18 +214,22 @@ class Key():
         self._label.background_color = bg
         self._label.color = fg
 
-        self._set_led(self.color)
+        self.set_led(self.color)
 
-    def _set_led(self, color:list[int, int, int] | str) -> None:
+    def set_led(self, color:list[int, int, int] | str, update:bool = True) -> None:
         """ set and update the led color
 
         Args:
-            color (list | string): the led color (R, G, B) | rrggbb
+            color (list[int, int, int] | string): the led color (R, G, B) | rrggbb
+            update (bool, optional): Whether to immediately update the LED. Defaults to True.
         """
         if isinstance(color, str): 
             color = (int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16))
+        
         self._macropad.pixels[self._index] = color
-        self._macropad.pixels.show()
+
+        if update:
+            self._macropad.pixels.show()
 
     def toggle(self, force_state:bool = None) -> bool:
         """ toggle between first and second set of properties
@@ -242,6 +257,7 @@ class Key():
         self._color = '000000'
         self._content = None
         self._retrigger = False
+        self._hold = False
 
         self._label2 = None
         self._color2 = None
@@ -273,7 +289,7 @@ class Key():
         """
         if self._func:
             self._just_pressed = True
-            self._set_led('ffffff')
+            self.set_led('ffffff')
             self.call_func()
     
     def _on_released(self) -> None:
@@ -283,5 +299,5 @@ class Key():
             self._just_pressed = False
             self.call_func()
 
-        self._set_led(self.color)
+        self.set_led(self.color)
     
