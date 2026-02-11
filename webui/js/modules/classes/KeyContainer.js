@@ -11,23 +11,30 @@ export default class KeyContainer {
      * Creates an instance of KeyContainer.
      * @constructor
      * @param {Object} options - The options for initializing the KeyContainer.
-     * @param {string} [options.type='blank'] - The type of the key container.
-     * @param {string} [options.label=''] - The label for the key container.
-     * @param {number[]} [options.color=[255, 255, 255]] - The color of the key container.
-     * @param {Array} [options.content=[]] - The content of the key container.
+     * @param {string} [options.type='blank'] - The type
+     * @param {string} [options.label=''] - The label
+     * @param {number[]} [options.color='ffffff'] - The color
+     * @param {Array} [options.content=[]] - The content
+     * @param {boolean} [options.retrigger=[]] - The retrigger flag, to retrigger if the key is held down
+     * @param {boolean} [options.hold=[]] - The hold flag, to trigger the macro until the key is pressed again
+     * @param {boolean} [options.toggle=[]] - The toggle flag, to switch between two macros
+     * @param {string} [options.label2=''] - The second label, if toggle is enabled
+     * @param {number[]} [options.color2='ffffff'] - The second color, if toggle is enabled
+     * @param {Array} [options.content2=[]] - The second content, if toggle is enabled
      * @param {Object} [options.encoder={}] - The encoder configuration.
      * @param {Function} [options.onButtonPressed=()=>{}] - The callback function for button presses.
      */
     constructor({
         type = 'blank',
         label = '',
-        color = [255, 255, 255],
+        color = 'ffffff',
         content = [],
         retrigger = false,
+        hold = false,
 
         toggle = false,
         label2 = '',
-        color2 = [255, 255, 255],
+        color2 = 'ffffff',
         content2 = [],
 
         encoder = {},
