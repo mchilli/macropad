@@ -405,7 +405,7 @@ export default class KeyContainer {
             switch: [],
             increased: [],
             decreased: [],
-        }
+        },
     ) {
         this.encoder = encoder;
     }

@@ -145,7 +145,7 @@ export function downloadObjectAsJson(obj, filename = 'data.json') {
             view: window,
             bubbles: true,
             cancelable: false,
-        })
+        }),
     );
 }
 

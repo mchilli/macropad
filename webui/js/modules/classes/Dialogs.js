@@ -290,14 +290,14 @@ class BaseDialog {
                 case 'center':
                     return Math.max(
                         Math.min(position - elementSize / 2, window.innerWidth - elementWidth),
-                        0
+                        0,
                     );
                 case 'bottom':
                 case 'right':
                 case 'end':
                     return Math.max(
                         Math.min(position - elementSize, window.innerWidth - elementWidth),
-                        0
+                        0,
                     );
             }
         };
@@ -343,7 +343,7 @@ class BaseDialog {
             const offsetTop = Math.max(element.offsetTop - pos2, 0);
             const offsetLeft = Math.max(
                 Math.min(element.offsetLeft - pos1, window.innerWidth - element.offsetWidth),
-                0
+                0,
             );
 
             utils.style(element, {
@@ -555,7 +555,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker,
-                                                    this.inputs.colorText
+                                                    this.inputs.colorText,
                                                 ),
                                         },
                                     })),
@@ -566,7 +566,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker,
-                                                    this.inputs.colorText
+                                                    this.inputs.colorText,
                                                 ),
                                         },
                                     })),
@@ -594,7 +594,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker2,
-                                                    this.inputs.colorText2
+                                                    this.inputs.colorText2,
                                                 ),
                                         },
                                     })),
@@ -605,7 +605,7 @@ export class EditDialog extends BaseDialog {
                                                 this._onChangeColor(
                                                     event,
                                                     this.inputs.colorPicker2,
-                                                    this.inputs.colorText2
+                                                    this.inputs.colorText2,
                                                 ),
                                         },
                                     })),
@@ -691,7 +691,7 @@ export class EditDialog extends BaseDialog {
                                         attributes: {
                                             type: 'checkbox',
                                             title: _(
-                                                'If enabled, the macro will be retriggered when holding the key'
+                                                'If enabled, the macro will be retriggered when holding the key',
                                             ),
                                         },
                                         events: {
@@ -729,7 +729,7 @@ export class EditDialog extends BaseDialog {
                                         attributes: {
                                             type: 'checkbox',
                                             title: _(
-                                                'If enabled, the macro can be toggled on every press'
+                                                'If enabled, the macro can be toggled on every press',
                                             ),
                                         },
                                         events: {
@@ -777,7 +777,7 @@ export class EditDialog extends BaseDialog {
                                                 events: {
                                                     click: (event) =>
                                                         this._appendMacroSelector(
-                                                            this.inputs.switch
+                                                            this.inputs.switch,
                                                         ),
                                                 },
                                             }),
@@ -814,7 +814,7 @@ export class EditDialog extends BaseDialog {
                                                 events: {
                                                     click: (event) =>
                                                         this._appendMacroSelector(
-                                                            this.inputs.increased
+                                                            this.inputs.increased,
                                                         ),
                                                 },
                                             }),
@@ -851,7 +851,7 @@ export class EditDialog extends BaseDialog {
                                                 events: {
                                                     click: (event) =>
                                                         this._appendMacroSelector(
-                                                            this.inputs.decreased
+                                                            this.inputs.decreased,
                                                         ),
                                                 },
                                             }),
@@ -1003,7 +1003,7 @@ export class EditDialog extends BaseDialog {
         if (this.inputs.type.value !== 'blank') {
             utils.downloadObjectAsJson(
                 this.keyInstance.getAllData(),
-                `${this.inputs.label.value}.json`
+                `${this.inputs.label.value}.json`,
             );
         }
     }
@@ -1755,7 +1755,7 @@ export class SettingsDialog extends BaseDialog {
                         attributes: {
                             type: 'number',
                             title: _(
-                                'The delay in milliseconds after which the macro is retriggered when the button is held down'
+                                'The delay in milliseconds after which the macro is retriggered when the button is held down',
                             ),
                             class: 'dialog-input-shorten',
                             min: 0,
@@ -1962,7 +1962,7 @@ export class ResetDialog extends BaseDialog {
                     utils.create({
                         attributes: {
                             title: _(
-                                'Enable USB storage (you cannot store on the device when USB is enabled)'
+                                'Enable USB storage (you cannot store on the device when USB is enabled)',
                             ),
                             class: 'button',
                         },
