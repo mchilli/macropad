@@ -960,7 +960,7 @@ export class EditDialog extends BaseDialog {
                     left: event.x,
                 },
                 title: _('Warning'),
-                prompt: _('Do you really want to change the type and lost your configuration?'),
+                prompt: _('Really want to change the type and lost your configuration?'),
             })
                 .then((response) => {
                     resolveAndRemove();
@@ -1033,7 +1033,7 @@ export class EditDialog extends BaseDialog {
                     left: event.x,
                 },
                 title: _('Warning'),
-                prompt: _('Do you really want to replace this configuration?'),
+                prompt: _('Really want to replace this configuration?'),
             })
                 .then((response) => {
                     importConfiguration();
@@ -1098,7 +1098,7 @@ export class EditDialog extends BaseDialog {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to replace this configuration?'),
+                    prompt: _('Really want to replace this configuration?'),
                 })
                     .then((response) => {
                         this._pasteConfiguration();
@@ -1508,7 +1508,7 @@ export class EncoderDialog extends BaseDialog {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to replace this configuration?'),
+                    prompt: _('Really want to replace this configuration?'),
                 })
                     .then((response) => {
                         pasteConfiguration();
@@ -1991,9 +1991,9 @@ export class ResetDialog extends BaseDialog {
      */
     _onButton(event, command) {
         const PROMPTS = {
-            softReset: _('Do you really want to reset the script?'),
-            hardReset: _('Do you really want to reboot the macropad?'),
-            enableUSB: _('Do you really want to reboot the macropad to enable USB storage?'),
+            softReset: _('Really want to reset the script?'),
+            hardReset: _('Really want to reboot the macropad?'),
+            enableUSB: _('Really want to reboot the macropad to enable USB storage?'),
         };
 
         new ConfirmationDialog({

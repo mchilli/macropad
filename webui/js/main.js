@@ -399,7 +399,7 @@ class App {
                             left: event.x,
                         },
                         title: _('Warning'),
-                        prompt: _('Do you really want to disconnect?'),
+                        prompt: _('Really want to disconnect?'),
                     })
                         .then(async (response) => {
                             this.serialConnection.close();
@@ -420,7 +420,7 @@ class App {
                             left: event.x,
                         },
                         title: _('Warning'),
-                        prompt: _('Do you really want to delete the current macros?'),
+                        prompt: _('Really want to delete the current macros?'),
                     })
                         .then((response) => {
                             this._newKeyEntries();
@@ -446,7 +446,7 @@ class App {
                             left: event.x,
                         },
                         title: _('Warning'),
-                        prompt: _('Do you really want to replace the current macros?'),
+                        prompt: _('Really want to replace the current macros?'),
                     })
                         .then((response) => {
                             openFile();
@@ -616,7 +616,7 @@ class App {
                         },
                         title: _('Warning'),
                         prompt: _(
-                            'Do you really want to replace the current macros and load it from the macropad?'
+                            'Really want to replace the current macros and load it from the macropad?',
                         ),
                     })
                         .then(async (response) => {
@@ -658,7 +658,7 @@ class App {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to send the current macros to the macropad?'),
+                    prompt: _('Really want to send the current macros to the macropad?'),
                 })
                     .then(async () => {
                         this._transferActive(true);
@@ -883,7 +883,7 @@ class App {
                         left: event.x,
                     },
                     title: _('Warning'),
-                    prompt: _('Do you really want to delete this key configuration?'),
+                    prompt: _('Really want to delete this key configuration?'),
                 })
                     .then((response) => {
                         keyInstance.clearData();
