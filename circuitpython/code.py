@@ -380,7 +380,7 @@ class MacroApp():
                                 content["mse"].get('y', 0),
                                 content["mse"].get('w', 0))
                     else:
-                        if content['mse']['b'][0] != '*':
+                        if 'b' in content['mse'] and content['mse']['b'][0] != '*':
                             # release button after the key is released
                             self.macropad.mouse.release_all()
                 elif 'tone' in content:
