@@ -542,6 +542,13 @@ class MacroKeycodes extends MacroBase {
                     },
                 },
             })),
+            (this.noAutorelease = utils.create({
+                type: 'input',
+                attributes: {
+                    title: _('Caution: If selected, the key will not be released automatically'),
+                    type: 'checkbox',
+                },
+            })),
             (this.additions = utils.create({
                 attributes: {
                     class: 'macro-entry-content-flex-container flex-growed',
@@ -600,12 +607,14 @@ class MacroKeycodes extends MacroBase {
                 case '-':
                     this.behaviour.value = 'release';
                     break;
+                case '*':
+                    this.noAutorelease.checked = true;
                 default:
                     this.behaviour.value = 'press';
                     break;
             }
 
-            this.input.value = this.value.kc.replace(/^[+-]/, '');
+            this.input.value = this.value.kc.replace(/^[\+\-\*]/, '');
         }
 
         this._updateVisibility();
@@ -616,6 +625,7 @@ class MacroKeycodes extends MacroBase {
      */
     _updateVisibility() {
         this.additions.classList.toggle('hidden', ['release_all'].includes(this.behaviour.value));
+        this.noAutorelease.classList.toggle('hidden', !['press'].includes(this.behaviour.value));
     }
 
     /**
@@ -623,19 +633,8 @@ class MacroKeycodes extends MacroBase {
      * @returns {Object|false} An object representing the keycodes or `false` if no keycodes are entered.
      */
     getValue() {
-        if (!this.input.value.trim()) {
+        if (this.input.value === '' && this.behaviour.value !== 'release_all') {
             return false;
-        }
-
-        const prefix =
-            {
-                tap: '+',
-                release: '-',
-                press: '',
-            }[this.behaviour.value] || '';
-
-        if (this.behaviour.value === 'release_all') {
-            return { kc: 'RELALL' };
         }
 
         const formattedInput = this.input.value
@@ -645,7 +644,18 @@ class MacroKeycodes extends MacroBase {
             .filter(Boolean) // Remove empty entries
             .join(','); // Join with commas
 
-        return { kc: `${prefix}${formattedInput}` };
+        switch (this.behaviour.value) {
+            case 'release_all':
+                return { kc: 'RELALL' };
+            case 'tap':
+                return { kc: `+${formattedInput}` };
+            case 'release':
+                return { kc: `-${formattedInput}` };
+            case 'press':
+                return { kc: this.noAutorelease.checked ? `*${formattedInput}` : formattedInput };
+            default:
+                return false;
+        }
     }
 }
 
@@ -710,6 +720,18 @@ class MacroConsumerControlCodes extends MacroBase {
                         },
                     });
                 }),
+                events: {
+                    change: (event) => {
+                        this._updateVisibility();
+                    },
+                },
+            })),
+            (this.noAutorelease = utils.create({
+                type: 'input',
+                attributes: {
+                    title: _('Caution: If selected, the key will not be released automatically'),
+                    type: 'checkbox',
+                },
             })),
             (this.input = utils.create({
                 type: 'select',
@@ -737,12 +759,14 @@ class MacroConsumerControlCodes extends MacroBase {
             case '-':
                 this.behaviour.value = 'release';
                 break;
+            case '*':
+                this.noAutorelease.checked = true;
             default:
                 this.behaviour.value = 'press';
                 break;
         }
 
-        this.input.value = this.value.ccc.replace(/^[+-]/, '');
+        this.input.value = this.value.ccc.replace(/^[\+\-\*]/, '');
 
         for (const option of this.input.children) {
             if (this.value.ccc === option.value) {
@@ -750,6 +774,15 @@ class MacroConsumerControlCodes extends MacroBase {
                 break;
             }
         }
+
+        this._updateVisibility();
+    }
+
+    /**
+     * Updates the visibility of the additions based on the current behavior.
+     */
+    _updateVisibility() {
+        this.noAutorelease.classList.toggle('hidden', !['press'].includes(this.behaviour.value));
     }
 
     /**
@@ -761,14 +794,18 @@ class MacroConsumerControlCodes extends MacroBase {
             return false;
         }
 
-        const prefix =
-            {
-                tap: '+',
-                release: '-',
-                press: '',
-            }[this.behaviour.value] || '';
+        const input = this.input.value;
 
-        return { ccc: `${prefix}${this.input.value}` };
+        switch (this.behaviour.value) {
+            case 'tap':
+                return { ccc: `+${input}` };
+            case 'release':
+                return { ccc: `-${input}` };
+            case 'press':
+                return { ccc: this.noAutorelease.checked ? `*${input}` : input };
+            default:
+                return false;
+        }
     }
 }
 
