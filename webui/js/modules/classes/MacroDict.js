@@ -22,9 +22,16 @@ class MacroBase {
 
         DOM.container = utils.create({
             attributes: {
-                class: 'macro-entry-container',
+                class: `macro-entry-container ${this.constructor.name}`,
             },
             children: [
+                utils.create({
+                    type: 'i',
+                    attributes: {
+                        title: this.constructor.name,
+                        class: 'macro-entry-info fa-solid fa-circle-question',
+                    },
+                }),
                 utils.create({
                     type: 'i',
                     attributes: {
