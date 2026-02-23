@@ -1211,7 +1211,7 @@ class App {
     _updateInformation() {
         let infos = [];
         infos.push(
-            `Keys: ${Object.keys(utils.convertJsonToFileIds(this.macroStack[0])).length - 1}`,
+            `Macros: ${Object.keys(utils.convertJsonToFileIds(this.macroStack[0])).length - 1}`,
         );
         if (this.deviceConnected) {
             infos.push(`Version: ${this.version}`);
