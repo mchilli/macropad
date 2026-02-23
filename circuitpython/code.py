@@ -27,7 +27,7 @@ from utils.utils import time_ms, get_audio_files
 gc.enable()
 supervisor.runtime.autoreload = False
 
-VERSION = "1.5.1"
+VERSION = "1.5.2"
 # The file in which the settings are saved
 SETTINGSFILE = "settings.json"
 # The file in which the macros are saved
@@ -253,13 +253,25 @@ class MacroApp():
                 Int | Float (e.g. 0.25): delay in seconds, negative for non-blocking
                 String (e.g. "Foo"): corresponding keys pressed & released
                 Dict {}: 
-                    'kc': Keycodes (e.g. "SHIFT"): key pressed | (e.g. "-SHIFT"): key released
-                    'ccc': Consumer Control codes (e.g. "MUTE")
+                    'kc': Keycodes 
+                        (e.g. "SHIFT"): press
+                        (e.g. "*SHIFT"): press | caution will not be autoreleased
+                        (e.g. "-SHIFT"): release
+                        (e.g. "+SHIFT"): press & release
+                    'ccc': Consumer Control codes 
+                        (e.g. "MUTE"): press
+                        (e.g. "*MUTE"): press | caution will not be autoreleased
+                        (e.g. "-MUTE"): release
+                        (e.g. "+MUTE"): press & release
                     'mse': Dict {}: 
                         'x': horizontally Mouse movement (e.g. 10 | -10)
                         'y': vertically Mouse movement (e.g. 10 | -10)
                         'w': Mousewheel movement (e.g. 1 | -1)
-                        'b': Buttoncodes (e.g. "LEFT")
+                        'b': Buttoncodes 
+                            (e.g. "LEFT"): press
+                            (e.g. "*LEFT"): press | caution will not be autoreleased
+                            (e.g. "-LEFT"): release
+                            (e.g. "+LEFT"): press & release
                     'tone': Dict {}: 
                         'frequency': frequency of the tone in Hz (e.g. 880)
                         'duration': duration of the tone in seconds (e.g. 0.25), negative for non-blocking
@@ -278,118 +290,138 @@ class MacroApp():
                     'sys': System Class Methodname
 
         Args:
-            item (key_id:str, content:list): the key id and content data
+            item (tuple[str, list]): Tuple of (macro_id, content).
+            start_index (int, optional): Index to resume execution from (used for delayed/non-blocking). Defaults to 0.
+            key_pressed (bool, optional): Indicates whether the macro is triggered on key press (True) or release (False).
         """
-        for index, key in enumerate(item[1]):
+        for index, content in enumerate(item[1]):
             if index < start_index:
                 continue
-            if isinstance(key, (int, float)) and key_pressed:
-                if key < 0:
-                    self._add_delayed_exec('wait', item[0], index, key_pressed, abs(key))
+            if isinstance(content, (int, float)) and key_pressed:
+                if content < 0:
+                    self._add_delayed_exec('wait', item[0], index, key_pressed, abs(content))
                     break
                 else:
-                    time.sleep(key)
-            elif isinstance(key, str) and key_pressed:
+                    time.sleep(content)
+            elif isinstance(content, str) and key_pressed:
                 try:
-                    self.macropad.keyboard_layout.write(key)
+                    self.macropad.keyboard_layout.write(content)
                 except ValueError:
                     # if any of the characters has no keycode
                     pass
-            elif isinstance(key, dict):
-                if 'kc' in key:
+            elif isinstance(content, dict):
+                if 'kc' in content:
                     key_codes = [
                         getattr(Keycode, key_name, None)
-                        for key_name in key['kc'].lstrip('-+').upper().split(',')
+                        for key_name in content['kc'].lstrip('-+*').upper().split(',')
                         if getattr(Keycode, key_name, None) is not None
                     ]
                     if key_codes:
                         if key_pressed:
-                            if key['kc'] == 'RELALL':
+                            if content['kc'] == 'RELALL':
                                 # release all keys
                                 self.macropad.keyboard.release_all()
-                            elif key['kc'][0] == '+':
+                            elif content['kc'][0] == '+':
                                 # tap keys
                                 self.macropad.keyboard.press(*key_codes)
                                 self.macropad.keyboard.release(*key_codes)
-                            elif key['kc'][0] == '-':
+                            elif content['kc'][0] == '-':
                                 # release keys
                                 self.macropad.keyboard.release(*key_codes)
                             else:
                                 # press keys
                                 self.macropad.keyboard.press(*key_codes)
                         else:
-                            # release keys after the key is released
-                            self.macropad.keyboard.release(*key_codes)
-                elif 'ccc' in key:
+                            if content['kc'][0] != '*':
+                                # release keys after the key is released
+                                self.macropad.keyboard.release(*key_codes)
+                elif 'ccc' in content:
                     control_code = getattr(
-                        ConsumerControlCode, key['ccc'].lstrip('-+').upper(), None)
+                        ConsumerControlCode, content['ccc'].lstrip('-+').upper(), None)
                     if control_code:
                         if key_pressed:
-                            if key['ccc'][0] == '+':
+                            if content['ccc'][0] == '+':
                                 # tap key
                                 self.macropad.consumer_control.press(control_code)
                                 self.macropad.consumer_control.release()
-                            elif key['ccc'][0] == '-':
+                            elif content['ccc'][0] == '-':
                                 # release key
                                 self.macropad.consumer_control.release()
                             else:
                                 # press key
                                 self.macropad.consumer_control.press(control_code)
                         else:
-                            # release key after the key is released
-                            self.macropad.consumer_control.release()
-                elif 'mse' in key:
+                            if content['ccc'][0] != '*':
+                                # release key after the key is released
+                                self.macropad.consumer_control.release()
+                elif 'mse' in content:
                     if key_pressed:
-                        if "b" in key["mse"]:
-                            btn = getattr(
-                                Mouse, f"{key['mse']['b'].upper()}_BUTTON", None)
-                            if btn:
-                                self.macropad.mouse.click(btn)
-                        self.macropad.mouse.move(
-                            key["mse"].get('x', 0),
-                            key["mse"].get('y', 0),
-                            key["mse"].get('w', 0))
+                        if 'b' in content['mse']:
+                            mouse_button = getattr(
+                                Mouse, f"{content['mse']['b'].lstrip('-+*').upper()}_BUTTON", None)
+                            if mouse_button:
+                                if content['mse']['b'] == 'RELALL':
+                                    # release all buttons
+                                    self.macropad.mouse.release_all()
+                                elif content['mse']['b'][0] == '+':
+                                    # press & release button
+                                    self.macropad.mouse.press(mouse_button)
+                                    self.macropad.mouse.release(mouse_button)
+                                elif content['mse']['b'][0] == '-':
+                                    # release button
+                                    self.macropad.mouse.release(mouse_button)
+                                else:
+                                    # press button
+                                    self.macropad.mouse.press(mouse_button)
+                        
+                        if any(param in content['mse'] for param in ('x', 'y', 'w')):
+                            self.macropad.mouse.move(
+                                content["mse"].get('x', 0),
+                                content["mse"].get('y', 0),
+                                content["mse"].get('w', 0))
                     else:
-                        self.macropad.mouse.release_all()
-                elif 'tone' in key:
+                        if content['mse']['b'][0] != '*':
+                            # release button after the key is released
+                            self.macropad.mouse.release_all()
+                elif 'tone' in content:
                     # stop tone
                     self.macropad.stop_tone()
 
-                    if key_pressed and key['tone']['frequency'] > 0:
-                        if key['tone'].get("duration", 0) < 0:
+                    if key_pressed and content['tone']['frequency'] > 0:
+                        if content['tone'].get("duration", 0) < 0:
                             # play tone for a specific duration, non-blocking
-                            self.macropad.start_tone(key['tone']['frequency'])
-                            self._add_delayed_exec('tone', item[0], index, key_pressed, abs(key['tone']['duration']))
+                            self.macropad.start_tone(content['tone']['frequency'])
+                            self._add_delayed_exec('tone', item[0], index, key_pressed, abs(content['tone']['duration']))
                             break
-                        if key['tone'].get("duration", 0) > 0:
+                        if content['tone'].get("duration", 0) > 0:
                             # play tone for a specific duration
                             self.macropad.play_tone(
-                                key['tone']['frequency'], key['tone']['duration'])
+                                content['tone']['frequency'], content['tone']['duration'])
                         else:
                             # start tone until stopped
-                            self.macropad.start_tone(key['tone']['frequency'])
-                elif 'file' in key:
+                            self.macropad.start_tone(content['tone']['frequency'])
+                elif 'file' in content:
                     if key_pressed:
                         try:
-                            self.macropad.play_file(key['file'])
+                            self.macropad.play_file(content['file'])
                         except Exception:
                             pass
-                elif 'midi' in key:
-                    if 'ntson' in key['midi']:
-                        notes = key['midi']['ntson'].upper().split(',')
-                        velocity = key['midi']['vlcty']
-                        duration = key['midi']['durtn']
+                elif 'midi' in content:
+                    if 'ntson' in content['midi']:
+                        notes = content['midi']['ntson'].upper().split(',')
+                        velocity = content['midi']['vlcty']
+                        duration = content['midi']['durtn']
                         if key_pressed and duration < 0:
                             # play tone for a specific duration, non-blocking
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'on', velocity))
-                            self._add_delayed_exec('ntson', item[0], index, key_pressed, abs(key['midi']['durtn']))
+                            self._add_delayed_exec('ntson', item[0], index, key_pressed, abs(content['midi']['durtn']))
                             break
                         if key_pressed and duration > 0:
                             # play note for a specific duration
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'on', velocity))
-                            time.sleep(key['midi']['durtn'])
+                            time.sleep(content['midi']['durtn'])
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'off', velocity))
                         elif key_pressed:
@@ -400,49 +432,49 @@ class MacroApp():
                             # stop note
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'off', 0))
-                    elif 'ntoff' in key['midi']:
-                        notes = key['midi']['ntoff'].upper().split(',')
+                    elif 'ntoff' in content['midi']:
+                        notes = content['midi']['ntoff'].upper().split(',')
                         if key_pressed:
                             self.macropad.midi.send(
                                 self._get_midi_notes(notes, 'off', 0))
-                    elif 'ptchb' in key['midi']:
+                    elif 'ptchb' in content['midi']:
                         if key_pressed: 
-                            if key['midi']['ptchb'] == 'set':
-                                if 0 <= key['midi']['pbval'] <= 16383:
-                                    self.pitch_bend = key['midi']['pbval']
+                            if content['midi']['ptchb'] == 'set':
+                                if 0 <= content['midi']['pbval'] <= 16383:
+                                    self.pitch_bend = content['midi']['pbval']
                                     self.macropad.midi.send(
                                         self.macropad.PitchBend(self.pitch_bend))
-                            elif key['midi']['ptchb'] == 'incr':
-                                if self.pitch_bend + key['midi']['pbstp'] <= 16383:
-                                    self.pitch_bend += key['midi']['pbstp']
+                            elif content['midi']['ptchb'] == 'incr':
+                                if self.pitch_bend + content['midi']['pbstp'] <= 16383:
+                                    self.pitch_bend += content['midi']['pbstp']
                                 else:
                                     self.pitch_bend = 16383
                                 self.macropad.midi.send(
                                     self.macropad.PitchBend(self.pitch_bend))
-                            elif key['midi']['ptchb'] == 'decr':
-                                if self.pitch_bend - key['midi']['pbstp'] >= 0:
-                                    self.pitch_bend -= key['midi']['pbstp']
+                            elif content['midi']['ptchb'] == 'decr':
+                                if self.pitch_bend - content['midi']['pbstp'] >= 0:
+                                    self.pitch_bend -= content['midi']['pbstp']
                                 else:
                                     self.pitch_bend = 0
                                 self.macropad.midi.send(
                                     self.macropad.PitchBend(self.pitch_bend))
-                    elif 'ctrch' in key['midi']:
+                    elif 'ctrch' in content['midi']:
                         if key_pressed:
-                            if 0 <= key['midi']['ccval'] <= 127:
+                            if 0 <= content['midi']['ccval'] <= 127:
                                 self.macropad.midi.send(
-                                    self.macropad.ControlChange(key['midi']['ctrch'], key['midi']['ccval']))
-                    elif 'prgch' in key['midi']:
+                                    self.macropad.ControlChange(content['midi']['ctrch'], content['midi']['ccval']))
+                    elif 'prgch' in content['midi']:
                         if key_pressed:
-                            if 0 <= key['midi']['prgch'] <= 127:
+                            if 0 <= content['midi']['prgch'] <= 127:
                                 self.macropad.midi.send(
-                                    self.macropad.ProgramChange(key['midi']['prgch']))
-                elif 'sys' in key:
+                                    self.macropad.ProgramChange(content['midi']['prgch']))
+                elif 'sys' in content:
                     if key_pressed:
-                        method = getattr(System, key['sys'], None)
+                        method = getattr(System, content['sys'], None)
                         if method:
                             method(self)
                 else:
-                    print("unkown macro:", key)
+                    print("unkown macro:", content)
 
     def open_group(self, item:tuple[str, list], key_pressed:bool = False, *args) -> None:
         """ open a group
@@ -794,21 +826,14 @@ class MacroApp():
 
                     # register a new valid key press
                     if key.has_func() and not key.id in self.held_macro_ids:
-                        key.pressed = True
-
                         # retrigger macro after a short delay if the key is held down
                         if key.retrigger:
                             active_keys[key_event.key_number] = time_ms()
 
+                        key.pressed = True
+
                 # --- key released --------------------------------------------
                 elif key_event.released and previous_type == "macro":
-                    # toggle secondary macro state if available
-                    if key.label2:
-                        if key.toggle():
-                            self.toggled_ids.add(key.id)
-                        else:
-                            self.toggled_ids.discard(key.id)
-                    
                     # trigger macro continuously until the key is pressed again
                     if key.hold:
                         if key.id in self.held_macro_ids:
@@ -827,8 +852,17 @@ class MacroApp():
 
                     key.pressed = False
 
+                    # toggle secondary macro state if available
+                    if key.label2:
+                        if key.toggle():
+                            self.toggled_ids.add(key.id)
+                        else:
+                            self.toggled_ids.discard(key.id)
+                        
+                        key.update_colors(SETTINGS["invertcolors"])
+
                     active_keys.pop(key_event.key_number, None)
-            
+
             # if a key is pressed continuously, the function triggers again after a short delay
             for active_key, active_key_delay in active_keys.items():
                 if active_key is not None and time_ms() - active_key_delay > SETTINGS['retriggerdelay']:
