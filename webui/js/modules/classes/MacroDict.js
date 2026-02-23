@@ -22,9 +22,16 @@ class MacroBase {
 
         DOM.container = utils.create({
             attributes: {
-                class: 'macro-entry-container',
+                class: `macro-entry-container ${this.constructor.name}`,
             },
             children: [
+                utils.create({
+                    type: 'i',
+                    attributes: {
+                        title: this.constructor.name,
+                        class: 'macro-entry-info fa-solid fa-circle-question',
+                    },
+                }),
                 utils.create({
                     type: 'i',
                     attributes: {
@@ -535,6 +542,13 @@ class MacroKeycodes extends MacroBase {
                     },
                 },
             })),
+            (this.noAutorelease = utils.create({
+                type: 'input',
+                attributes: {
+                    title: _('Caution: If selected, the key will not be released automatically'),
+                    type: 'checkbox',
+                },
+            })),
             (this.additions = utils.create({
                 attributes: {
                     class: 'macro-entry-content-flex-container flex-growed',
@@ -593,12 +607,14 @@ class MacroKeycodes extends MacroBase {
                 case '-':
                     this.behaviour.value = 'release';
                     break;
+                case '*':
+                    this.noAutorelease.checked = true;
                 default:
                     this.behaviour.value = 'press';
                     break;
             }
 
-            this.input.value = this.value.kc.replace(/^[+-]/, '');
+            this.input.value = this.value.kc.replace(/^[\+\-\*]/, '');
         }
 
         this._updateVisibility();
@@ -609,6 +625,7 @@ class MacroKeycodes extends MacroBase {
      */
     _updateVisibility() {
         this.additions.classList.toggle('hidden', ['release_all'].includes(this.behaviour.value));
+        this.noAutorelease.classList.toggle('hidden', !['press'].includes(this.behaviour.value));
     }
 
     /**
@@ -616,19 +633,8 @@ class MacroKeycodes extends MacroBase {
      * @returns {Object|false} An object representing the keycodes or `false` if no keycodes are entered.
      */
     getValue() {
-        if (!this.input.value.trim()) {
+        if (this.input.value === '' && this.behaviour.value !== 'release_all') {
             return false;
-        }
-
-        const prefix =
-            {
-                tap: '+',
-                release: '-',
-                press: '',
-            }[this.behaviour.value] || '';
-
-        if (this.behaviour.value === 'release_all') {
-            return { kc: 'RELALL' };
         }
 
         const formattedInput = this.input.value
@@ -638,7 +644,18 @@ class MacroKeycodes extends MacroBase {
             .filter(Boolean) // Remove empty entries
             .join(','); // Join with commas
 
-        return { kc: `${prefix}${formattedInput}` };
+        switch (this.behaviour.value) {
+            case 'release_all':
+                return { kc: 'RELALL' };
+            case 'tap':
+                return { kc: `+${formattedInput}` };
+            case 'release':
+                return { kc: `-${formattedInput}` };
+            case 'press':
+                return { kc: this.noAutorelease.checked ? `*${formattedInput}` : formattedInput };
+            default:
+                return false;
+        }
     }
 }
 
@@ -703,6 +720,18 @@ class MacroConsumerControlCodes extends MacroBase {
                         },
                     });
                 }),
+                events: {
+                    change: (event) => {
+                        this._updateVisibility();
+                    },
+                },
+            })),
+            (this.noAutorelease = utils.create({
+                type: 'input',
+                attributes: {
+                    title: _('Caution: If selected, the key will not be released automatically'),
+                    type: 'checkbox',
+                },
             })),
             (this.input = utils.create({
                 type: 'select',
@@ -730,12 +759,14 @@ class MacroConsumerControlCodes extends MacroBase {
             case '-':
                 this.behaviour.value = 'release';
                 break;
+            case '*':
+                this.noAutorelease.checked = true;
             default:
                 this.behaviour.value = 'press';
                 break;
         }
 
-        this.input.value = this.value.ccc.replace(/^[+-]/, '');
+        this.input.value = this.value.ccc.replace(/^[\+\-\*]/, '');
 
         for (const option of this.input.children) {
             if (this.value.ccc === option.value) {
@@ -743,6 +774,15 @@ class MacroConsumerControlCodes extends MacroBase {
                 break;
             }
         }
+
+        this._updateVisibility();
+    }
+
+    /**
+     * Updates the visibility of the additions based on the current behavior.
+     */
+    _updateVisibility() {
+        this.noAutorelease.classList.toggle('hidden', !['press'].includes(this.behaviour.value));
     }
 
     /**
@@ -754,14 +794,18 @@ class MacroConsumerControlCodes extends MacroBase {
             return false;
         }
 
-        const prefix =
-            {
-                tap: '+',
-                release: '-',
-                press: '',
-            }[this.behaviour.value] || '';
+        const input = this.input.value;
 
-        return { ccc: `${prefix}${this.input.value}` };
+        switch (this.behaviour.value) {
+            case 'tap':
+                return { ccc: `+${input}` };
+            case 'release':
+                return { ccc: `-${input}` };
+            case 'press':
+                return { ccc: this.noAutorelease.checked ? `*${input}` : input };
+            default:
+                return false;
+        }
     }
 }
 
@@ -1566,15 +1610,30 @@ class MacroMouseEvents extends MacroBase {
         super();
 
         this.type = 'mse';
-        const defaultMouseEvent = { x: 0, y: 0, w: 0, b: '' };
+
+        const defaultMouseEvent = { x: 0, y: 0, w: 0, b: '+' };
         this.value = {
             mse: { ...defaultMouseEvent, ...value.mse },
         };
 
-        this.numberInputWidth = 46;
-        this.buttonInputWidth = 80;
+        this.selectWidth = 80;
+        this.behaviour = ['x', 'y', 'w'].some((move) => move in value.mse) ? 'move' : 'button';
+        this.behaviourList = [
+            [_('Button'), 'button'],
+            [_('Move'), 'move'],
+        ];
 
-        this.autocompleteList = ['', 'LEFT', 'MIDDLE', 'RIGHT'];
+        this.buttonBehaviourList = [
+            [_('Tap'), 'tap'],
+            [_('Press'), 'press'],
+            [_('Release'), 'release'],
+            [_('Release all'), 'release_all'],
+        ];
+
+        this.numberInputWidth = 46;
+        this.buttonInputWidth = 100;
+
+        this.autocompleteList = ['', 'LEFT', 'MIDDLE', 'RIGHT', 'BACK', 'FORWARD'];
 
         this._setContent();
 
@@ -1586,75 +1645,188 @@ class MacroMouseEvents extends MacroBase {
      */
     _setContent() {
         utils.appendElements(this.DOM.content, [
-            utils.create({
-                type: 'span',
-                text: `${_('X')}`,
-            }),
-            (this.x = utils.create({
-                type: 'input',
-                attributes: {
-                    type: 'number',
-                    title: _('Horizontally Mouse movement (e.g. 10 | -10)'),
-                    style: `width:${this.numberInputWidth}px;`,
-                    value: this.value.mse.x,
-                },
-            })),
-            utils.create({
-                type: 'span',
-                text: `${_('Y')}`,
-            }),
-            (this.y = utils.create({
-                type: 'input',
-                attributes: {
-                    type: 'number',
-                    title: _('Vertically Mouse movement (e.g. 10 | -10)'),
-                    style: `width:${this.numberInputWidth}px;`,
-                    value: this.value.mse.y,
-                },
-            })),
-            utils.create({
-                type: 'span',
-                text: `${_('Wheel')}`,
-            }),
-            (this.w = utils.create({
-                type: 'input',
-                attributes: {
-                    type: 'number',
-                    title: _('Mousewheel movement (e.g. 1 | -1)'),
-                    style: `width:${this.numberInputWidth}px;`,
-                    value: this.value.mse.w,
-                },
-            })),
-            utils.create({
-                type: 'span',
-                text: `${_('Button')}`,
-            }),
-            (this.b = utils.create({
+            (this.behaviourSelect = utils.create({
                 type: 'select',
                 attributes: {
-                    title: _('Mouse Button'),
-                    list: 'mouse-button-events',
-                    style: `width:${this.buttonInputWidth}px;`,
-                    value: this.value.mse.b,
+                    style: `width:${this.selectWidth}px;`,
                 },
-                children: this.autocompleteList.map((value) => {
+                children: this.behaviourList.map((value) => {
                     return utils.create({
                         type: 'option',
-                        text: value,
+                        text: value[0],
                         attributes: {
-                            value: value,
+                            value: value[1],
                         },
                     });
                 }),
+                events: {
+                    change: (event) => {
+                        this._updateVisibility();
+                    },
+                },
+            })),
+            (this.moveAdditions = utils.create({
+                attributes: {
+                    class: 'macro-entry-content flex-growed',
+                },
+                children: [
+                    utils.create({
+                        type: 'span',
+                        text: `${_('X')}`,
+                    }),
+                    (this.x = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('Horizontally Mouse movement (e.g. 10 | -10)'),
+                            style: `width:${this.numberInputWidth}px;`,
+                            value: this.value.mse.x,
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: `${_('Y')}`,
+                    }),
+                    (this.y = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('Vertically Mouse movement (e.g. 10 | -10)'),
+                            style: `width:${this.numberInputWidth}px;`,
+                            value: this.value.mse.y,
+                        },
+                    })),
+                    utils.create({
+                        type: 'span',
+                        text: `${_('Wheel')}`,
+                    }),
+                    (this.w = utils.create({
+                        type: 'input',
+                        attributes: {
+                            type: 'number',
+                            title: _('Mousewheel movement (e.g. 1 | -1)'),
+                            style: `width:${this.numberInputWidth}px;`,
+                            value: this.value.mse.w,
+                        },
+                    })),
+                ],
+            })),
+            (this.buttonAdditions = utils.create({
+                attributes: {
+                    class: 'macro-entry-content flex-growed',
+                },
+                children: [
+                    (this.buttonBehaviour = utils.create({
+                        type: 'select',
+                        attributes: {
+                            style: `width:${this.selectWidth}px;`,
+                        },
+                        children: this.buttonBehaviourList.map((value) => {
+                            return utils.create({
+                                type: 'option',
+                                text: value[0],
+                                attributes: {
+                                    value: value[1],
+                                },
+                            });
+                        }),
+                        events: {
+                            change: (event) => {
+                                this._updateVisibility();
+                            },
+                        },
+                    })),
+                    (this.noAutorelease = utils.create({
+                        type: 'input',
+                        attributes: {
+                            title: _(
+                                'Caution: If selected, the key will not be released automatically',
+                            ),
+                            type: 'checkbox',
+                        },
+                    })),
+                    (this.button = utils.create({
+                        type: 'select',
+                        attributes: {
+                            title: _('Mouse Button'),
+                            list: 'mouse-button-events',
+                            style: `width:${this.buttonInputWidth}px;`,
+                            value: this.value.mse.b,
+                        },
+                        children: this.autocompleteList.map((value) => {
+                            return utils.create({
+                                type: 'option',
+                                text: value,
+                                attributes: {
+                                    value: value,
+                                },
+                            });
+                        }),
+                    })),
+                ],
             })),
         ]);
 
-        for (const option of this.b.children) {
+        for (const behaviour of this.behaviourSelect.children) {
+            if (this.behaviour === behaviour.value) {
+                behaviour.selected = true;
+                break;
+            }
+        }
+
+        if (this.value.mse.b === 'RELALL') {
+            this.buttonBehaviour.value = 'release_all';
+            this.button.value = '';
+        } else {
+            const prefix = this.value.mse.b.charAt(0);
+            switch (prefix) {
+                case '+':
+                    this.buttonBehaviour.value = 'tap';
+                    break;
+                case '-':
+                    this.buttonBehaviour.value = 'release';
+                    break;
+                case '*':
+                    this.noAutorelease.checked = true;
+                default:
+                    this.buttonBehaviour.value = 'press';
+                    break;
+            }
+        }
+
+        this.button.value = this.value.mse.b.replace(/^[\+\-\*]/, '');
+
+        for (const option of this.button.children) {
             if (this.value.mse.b === option.value) {
                 option.selected = true;
                 break;
             }
         }
+
+        this._updateVisibility();
+    }
+
+    /**
+     * Updates the visibility of the additions based on the current behavior.
+     */
+    _updateVisibility() {
+        this.moveAdditions.classList.toggle(
+            'hidden',
+            !['move'].includes(this.behaviourSelect.value),
+        );
+        this.buttonAdditions.classList.toggle(
+            'hidden',
+            !['button'].includes(this.behaviourSelect.value),
+        );
+
+        this.noAutorelease.classList.toggle(
+            'hidden',
+            !['press'].includes(this.buttonBehaviour.value),
+        );
+        this.button.classList.toggle(
+            'hidden',
+            ['release_all'].includes(this.buttonBehaviour.value),
+        );
     }
 
     /**
@@ -1662,18 +1834,41 @@ class MacroMouseEvents extends MacroBase {
      * @returns {Object|false} An object representing the mouse event value or `false` if no valid event is specified.
      */
     getValue() {
-        const fields = [this.x.value, this.y.value, this.w.value, this.b.value];
-        if (fields.every((value) => value === '0' || value === '')) return false;
+        switch (this.behaviourSelect.value) {
+            case 'button':
+                if (this.button.value === '' && this.buttonBehaviour.value !== 'release_all') {
+                    return false;
+                }
 
-        const values = {};
-        ['x', 'y', 'w'].forEach((field) => {
-            if (this[field].value && this[field].value !== '0') {
-                values[field] = parseInt(this[field].value);
-            }
-        });
-        if (this.b.value) values.b = this.b.value;
+                const input = this.button.value;
 
-        return { mse: values };
+                switch (this.buttonBehaviour.value) {
+                    case 'release_all':
+                        return { mse: { b: 'RELALL' } };
+                    case 'tap':
+                        return { mse: { b: `+${input}` } };
+                    case 'release':
+                        return { mse: { b: `-${input}` } };
+                    case 'press':
+                        return { mse: { b: this.noAutorelease.checked ? `*${input}` : input } };
+                    default:
+                        return false;
+                }
+            case 'move':
+                const fields = [this.x.value, this.y.value, this.w.value];
+                if (fields.every((value) => value === '0' || value === '')) return false;
+
+                const moves = {};
+                ['x', 'y', 'w'].forEach((field) => {
+                    if (this[field].value && this[field].value !== '0') {
+                        moves[field] = parseInt(this[field].value);
+                    }
+                });
+
+                return { mse: moves };
+            default:
+                return false;
+        }
     }
 }
 

@@ -6,12 +6,20 @@
     font-family: monospace;
     user-select: none;
 
-    --color-blue: #4fc1e9;
-    --color-red: #fc6e51;
+
+    --color-cyan: #4fc1e9;
+    --color-blue: #5d9cec;
+    --color-turquoise: #48cfad;
     --color-green: #add468;
+    --color-magenta: #d770ad;
+    --color-red: #fc6e51;
+    --color-violet: #ac92ec;
+    --color-violet-darker: #967adc;
     --color-yellow: #ffce54;
+    --color-grey-lighter: #cccccc;
+    --color-grey-light: #a0a0a0;
     --color-grey: #808080;
-    --color-lightgrey: #cccccc;
+    --color-grey-darker: #656d78;
     --color-black: #404040;
     --color-white: #ffffff;
 
@@ -163,7 +171,7 @@ body {
 
                 .button {
                     &.edit:hover {
-                        color: var(--color-blue);
+                        color: var(--color-cyan);
                     }
                     &.delete:hover {
                         color: var(--color-red);
@@ -210,7 +218,7 @@ body {
         user-select: none;
         overflow: hidden;
         position: relative;
-        background-color: var(--color-blue);
+        background-color: var(--color-cyan);
         border: 1px solid var(--color-grey);
 
         div {
@@ -222,7 +230,7 @@ body {
         }
 
         &.deactivated {
-            background-color: var(--color-lightgrey) !important;
+            background-color: var(--color-grey-lighter) !important;
             color: var(--color-grey) !important;
 
             &:hover {
@@ -237,7 +245,7 @@ body {
         }
 
         &.transfer {
-            background-color: var(--color-lightgrey) !important;
+            background-color: var(--color-grey-lighter) !important;
             color: var(--color-grey) !important;
 
             &:hover {
@@ -395,10 +403,44 @@ body {
                             min-width: var(--macro-entry-min-width);
                             height: var(--macro-entry-height);
                             padding: var(--dialog-gap);
-                            background-color: var(--color-green);
                             border: 1px solid var(--color-grey);
                             border-radius: calc(var(--key-control-border-radius) / 2);
                             box-sizing: border-box;
+
+                            &.MacroSelector {
+                                background-color: var(--color-green);
+                            }
+                            &.MacroWait {
+                                background-color: var(--color-grey-lighter);
+                            }
+                            &.MacroString {
+                                background-color: var(--color-cyan);
+                            }
+                            &.MacroKeycodes {
+                                background-color: var(--color-turquoise);
+                            }
+                            &.MacroConsumerControlCodes {
+                                background-color: var(--color-yellow);
+                            }
+                            &.MacroTone {
+                                background-color: var(--color-violet);
+                            }
+                            &.MacroAudioFile {
+                                background-color: var(--color-violet);
+                            }
+                            &.MacroMidi {
+                                background-color: var(--color-magenta);
+                            }
+                            &.MacroMouseEvents {
+                                background-color: var(--color-red);
+                            }
+                            &.MacroSystemFunctions {
+                                background-color: var(--color-grey-lighter);
+                            }
+
+                            .macro-entry-info {
+                                cursor: help;
+                            }
 
                             .macro-entry-handle {
                                 cursor: grab;
@@ -448,15 +490,28 @@ body {
                                 gap: var(--dialog-gap);
                                 margin: 0 0 0 auto;
 
-                                i {
-                                    cursor: pointer;
+                            }
 
-                                    &.fa-clone:hover {
-                                        color: var(--color-yellow);
-                                    }
-                                    &.fa-trash:hover {
-                                        color: var(--color-red);
-                                    }
+                            i {
+                                cursor: pointer;
+                                
+                                &.fa-circle-question:hover {
+                                    color: var(--color-cyan);
+                                }
+                                &.fa-clone:hover {
+                                    color: var(--color-yellow);
+                                }
+                                &.fa-trash:hover {
+                                    color: var(--color-red);
+                                }
+
+                                &.fa-circle-question:hover,
+                                &.fa-clone:hover,
+                                &.fa-trash:hover {
+                                    text-shadow: 1px 1px var(--color-black), 
+                                                -1px 1px var(--color-black), 
+                                                1px -1px var(--color-black), 
+                                                -1px -1px var(--color-black);
                                 }
                             }
                         }
@@ -554,7 +609,7 @@ body {
         overflow: hidden;
 
         &.info {
-            background-color: var(--color-blue);
+            background-color: var(--color-cyan);
         }
         &.success {
             background-color: var(--color-green);
@@ -601,7 +656,7 @@ body {
     &.ok {
         grid-row: 3;
         grid-column: 2;
-        background-color: var(--color-blue);
+        background-color: var(--color-cyan);
         margin-top: 4px;
     }
 }

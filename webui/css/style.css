@@ -8233,8 +8233,8 @@ readers do not read off random characters that represent icons */
  * Copyright 2023 Fonticons, Inc.
  */
 :root, :host {
-  --fa-style-family-classic: "Font Awesome 6 Free";
-  --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+  --fa-style-family-classic: 'Font Awesome 6 Free';
+  --fa-font-solid: normal 900 1em/1 'Font Awesome 6 Free';
 }
 
 @font-face {
@@ -8252,12 +8252,19 @@ readers do not read off random characters that represent icons */
 :root {
   font-family: monospace;
   user-select: none;
-  --color-blue: #4fc1e9;
-  --color-red: #fc6e51;
+  --color-cyan: #4fc1e9;
+  --color-blue: #5d9cec;
+  --color-turquoise: #48cfad;
   --color-green: #add468;
+  --color-magenta: #d770ad;
+  --color-red: #fc6e51;
+  --color-violet: #ac92ec;
+  --color-violet-darker: #967adc;
   --color-yellow: #ffce54;
+  --color-grey-lighter: #cccccc;
+  --color-grey-light: #a0a0a0;
   --color-grey: #808080;
-  --color-lightgrey: #cccccc;
+  --color-grey-darker: #656d78;
   --color-black: #404040;
   --color-white: #ffffff;
   --shadow-color: #808080bf;
@@ -8391,7 +8398,7 @@ body {
   padding: var(--key-control-padding) 0 0 var(--key-control-padding);
 }
 .main-container .key-entries .key-container .key-controls .button.edit:hover {
-  color: var(--color-blue);
+  color: var(--color-cyan);
 }
 .main-container .key-entries .key-container .key-controls .button.delete:hover {
   color: var(--color-red);
@@ -8433,7 +8440,7 @@ body {
   user-select: none;
   overflow: hidden;
   position: relative;
-  background-color: var(--color-blue);
+  background-color: var(--color-cyan);
   border: 1px solid var(--color-grey);
 }
 .main-container .app-controls .button div,
@@ -8452,7 +8459,7 @@ body {
 .main-container .device-controls .button.deactivated,
 .main-container .key-entries-controls .button.deactivated,
 .dialog-container .dialog-reboot-buttons .button.deactivated {
-  background-color: var(--color-lightgrey) !important;
+  background-color: var(--color-grey-lighter) !important;
   color: var(--color-grey) !important;
 }
 .main-container .app-controls .button.deactivated:hover,
@@ -8473,7 +8480,7 @@ body {
 .main-container .device-controls .button.transfer,
 .main-container .key-entries-controls .button.transfer,
 .dialog-container .dialog-reboot-buttons .button.transfer {
-  background-color: var(--color-lightgrey) !important;
+  background-color: var(--color-grey-lighter) !important;
   color: var(--color-grey) !important;
 }
 .main-container .app-controls .button.transfer:hover,
@@ -8490,6 +8497,12 @@ body {
   transform: none !important;
   box-shadow: none !important;
 }
+.main-container .app-controls .button.transfer i::before,
+.main-container .device-controls .button.transfer i::before,
+.main-container .key-entries-controls .button.transfer i::before,
+.dialog-container .dialog-reboot-buttons .button.transfer i::before {
+  content: "\f2f1";
+}
 .main-container .app-controls .button.transfer i,
 .main-container .device-controls .button.transfer i,
 .main-container .key-entries-controls .button.transfer i,
@@ -8500,12 +8513,6 @@ body {
   animation-duration: 2s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
-}
-.main-container .app-controls .button.transfer i::before,
-.main-container .device-controls .button.transfer i::before,
-.main-container .key-entries-controls .button.transfer i::before,
-.dialog-container .dialog-reboot-buttons .button.transfer i::before {
-  content: "\f2f1";
 }
 
 .main-container .key-entries-controls .container {
@@ -8624,10 +8631,42 @@ body {
   min-width: var(--macro-entry-min-width);
   height: var(--macro-entry-height);
   padding: var(--dialog-gap);
-  background-color: var(--color-green);
   border: 1px solid var(--color-grey);
   border-radius: calc(var(--key-control-border-radius) / 2);
   box-sizing: border-box;
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroSelector {
+  background-color: var(--color-green);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroWait {
+  background-color: var(--color-grey-lighter);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroString {
+  background-color: var(--color-cyan);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroKeycodes {
+  background-color: var(--color-turquoise);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroConsumerControlCodes {
+  background-color: var(--color-yellow);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroTone {
+  background-color: var(--color-violet);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroAudioFile {
+  background-color: var(--color-violet);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroMidi {
+  background-color: var(--color-magenta);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroMouseEvents {
+  background-color: var(--color-red);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container.MacroSystemFunctions {
+  background-color: var(--color-grey-lighter);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-info {
+  cursor: help;
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-handle {
   cursor: grab;
@@ -8658,14 +8697,20 @@ body {
   gap: var(--dialog-gap);
   margin: 0 0 0 auto;
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container i {
   cursor: pointer;
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i.fa-clone:hover {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container i.fa-circle-question:hover {
+  color: var(--color-cyan);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container i.fa-clone:hover {
   color: var(--color-yellow);
 }
-.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container .macro-entry-controls i.fa-trash:hover {
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container i.fa-trash:hover {
   color: var(--color-red);
+}
+.dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container i.fa-circle-question:hover, .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container i.fa-clone:hover, .dialog-container .dialog .dialog-content .dialog-inputs .input-macros .input-sortable .macro-entry-container i.fa-trash:hover {
+  text-shadow: 1px 1px var(--color-black), -1px 1px var(--color-black), 1px -1px var(--color-black), -1px -1px var(--color-black);
 }
 .dialog-container .dialog .dialog-content .dialog-inputs .input-additionals {
   display: flex;
@@ -8730,7 +8775,7 @@ body {
   overflow: hidden;
 }
 .notification-container .notification.info {
-  background-color: var(--color-blue);
+  background-color: var(--color-cyan);
 }
 .notification-container .notification.success {
   background-color: var(--color-green);
@@ -8773,7 +8818,7 @@ body {
 .notification-container .dialog-button.ok {
   grid-row: 3;
   grid-column: 2;
-  background-color: var(--color-blue);
+  background-color: var(--color-cyan);
   margin-top: 4px;
 }
 
